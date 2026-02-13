@@ -706,7 +706,7 @@
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
-                        <form name="contact" method="POST" data-netlify="true" class="space-y-6">
+                        <form name="contact" method="POST" data-netlify="true" onsubmit="handleContactSubmit(event)" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
@@ -1133,6 +1133,50 @@
             bubble.innerText = joke;
             bubble.classList.add('show');
             setTimeout(() => bubble.classList.remove('show'), 3000);
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const myForm = e.target;
+            const formData = new FormData(myForm);
+            const btn = myForm.querySelector('button');
+            const originalText = btn.innerText;
+
+            // Animation: Button Loading
+            btn.innerText = "Sending... ✈️";
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString()
+            })
+            .then(() => {
+                // Animation: Success Toast
+                const toast = document.getElementById('toast');
+                toast.classList.remove('hidden');
+                toast.classList.add('toast-enter');
+                
+                btn.innerText = "Sent Successfully! 🎉";
+                
+                // Redirect: Wait 2s then switch tab
+                setTimeout(() => {
+                    myForm.reset();
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    toast.classList.add('hidden');
+                    
+                    // Redirect to Home
+                    switchTab('home');
+                }, 2000);
+            })
+            .catch((error) => {
+                console.error(error);
+                btn.innerText = "Error! Try Again";
+                btn.disabled = false;
+            });
         }
     </script>
 </body>

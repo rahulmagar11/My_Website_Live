@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rahul Magar | DevOps & SAS Architect</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    spacing: {
+                        '18': '4.5rem', // Custom size for larger icon container
+                    },
+                    colors: { 
+                        apple: { blue: '#0071E3', gray: '#86868b', dark: '#1d1d1f' },
+                        sas: { blue: '#007CC2' },
+                        primary: { DEFAULT: '#1E40AF', light: '#3B82F6' } 
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'quote-pulse': 'quotePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+                        'toast-in': 'toastIn 0.5s ease-out forwards',
+                        'toast-out': 'toastOut 0.5s ease-in forwards 4.5s', 
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        quotePulse: {
+                            '0%, 100%': { opacity: '0.8' },
+                            '50%': { opacity: '1' },
+                        },
+                        glowPulse: {
+                            '0%, 100%': { 'box-shadow': '0 0 10px rgba(30, 64, 175, 0.4)' },
+                            '50%': { 'box-shadow': '0 0 20px rgba(30, 64, 175, 0.8), 0 0 5px rgba(30, 64, 175, 0.6)' },
+                        },
+                        textGlowPulse: {
+                            '0%, 100%': { 'text-shadow': '0 0 5px rgba(30, 64, 175, 0.5), 0 0 10px rgba(30, 64, 175, 0.3)' },
+                            '50%': { 'text-shadow': '0 0 8px rgba(30, 64, 175, 0.8), 0 0 15px rgba(30, 64, 175, 0.6)' }
+                        },
+                        toastIn: {
+                            '0%': { transform: 'translateY(100%)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        toastOut: {
+                            '0%': { transform: 'translateY(0)', opacity: '1' },
+                            '100%': { transform: 'translateY(100%)', opacity: '0' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Background Animation */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            filter: blur(80px); 
+            opacity: 0.6;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.6); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08); 
+        }
+        
+        /* --- APPLE GLASS ACTIVE STATE --- */
+        .nav-btn.active { 
+            background: rgba(255, 255, 255, 0.55); /* Translucent white */
+            backdrop-filter: blur(16px) saturate(180%); /* The "Apple" blur */
+            -webkit-backdrop-filter: blur(16px) saturate(180%); /* Safari support */
+            border: 1px solid rgba(255, 255, 255, 0.8); /* Subtle border */
+            color: #1E40AF; /* Primary Blue Text */
+            font-weight: 600;
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+                0 2px 4px -1px rgba(0, 0, 0, 0.03),
+                inset 0 0 10px rgba(255, 255, 255, 0.5); /* Inner glow */
+        }
+
+        /* Hide Scrollbar for Mobile Nav */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Typing Cursor */
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+        
+        /* Text Glowing Class */
+        .text-glowing {
+            animation: textGlowPulse 4s ease-in-out infinite;
+            color: #1E40AF; /* Primary color */
+        }
+
+        /* Tool Card Animation - Enhanced 3D Tilt */
+        .tool-card {
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d; 
+            perspective: 1000px;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px) scale(1.03) rotateX(1deg) rotateY(1deg); 
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2), 
+                0 0 20px rgba(30, 64, 175, 0.4); 
+            border-color: #1E40AF;
+        }
+        
+        /* Tool Icon Animation (Pushes out) */
+        .tool-card .icon-bg {
+            transition: transform 0.5s;
+        }
+        .tool-card:hover .icon-bg {
+            transform: translateZ(20px) scale(1.05); /* Slightly bigger push and scale */
+        }
+
+        /* Quote Glow */
+        #dynamic-quote {
+            transition: box-shadow 0.5s ease-in-out;
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+        
+        .fade-in { animation: fadeUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- New Toast/Pop-up Styles --- */
+        #form-success-message.toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%); /* Start off-screen */
+            z-index: 1000;
+            opacity: 0;
+            padding: 1.5rem;
+            max-width: 90%;
+            min-width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2), 0 0 5px rgba(34, 197, 94, 0.5);
+            transition: all 0.5s ease;
+        }
+
+        #form-success-message.toast.active {
+            animation: toastIn 0.5s ease-out forwards;
+        }
+
+        #form-success-message.toast.inactive {
+            animation: toastOut 0.5s ease-in forwards;
+        }
+
+
+        /* --- YAML Editor Fixes for Dark Theme (For visible text/placeholder) --- */
+        #yamlInput::placeholder { /* For Chrome, Firefox, Safari */
+            color: #5c6370; /* Light gray for placeholder on dark background */
+            opacity: 1; /* Override default opacity */
+        }
+        #yamlInput:-ms-input-placeholder { /* For IE */
+            color: #5c6370;
+        }
+        #yamlInput::-ms-input-placeholder { /* For Edge */
+            color: #5c6370;
+        }
+
+        /* --- Submission Overlay & Animations --- */
+        #submission-overlay {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .plane-fly {
+            animation: flyAway 2s ease-in-out infinite;
+        }
+
+        @keyframes flyAway {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            50% { transform: translate(50px, -50px) scale(0.8); opacity: 0.5; }
+            51% { transform: translate(-50px, 50px) scale(0.8); opacity: 0; }
+            100% { transform: translate(0, 0) scale(1); opacity: 1; }
+        }
+
+        .check-bounce {
+            animation: checkBounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes checkBounce {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-600 selection:text-white"> 
+
+    <canvas id="canvas-bg"></canvas>
+
+    <nav class="fixed top-0 md:top-6 left-0 md:left-1/2 transform md:-translate-x-1/2 z-50 w-full md:w-[92%] md:max-w-6xl">
+        <div class="glass md:rounded-full rounded-none px-4 py-3 flex justify-between items-center shadow-lg shadow-black/5">
+            
+            <div class="pl-2 md:pl-4 font-bold text-xl tracking-tight flex items-center gap-2 flex-shrink-0">
+                <div class="w-3 h-3 bg-primary rounded-full animate-pulse"></div> 
+                Rahul<span class="text-gray-400 font-normal hidden sm:inline">Magar</span>
+                <span class="text-gray-400 font-normal sm:hidden">M.</span>
+            </div>
+            
+            <div class="flex-1 overflow-x-auto no-scrollbar mx-2 md:mx-4 flex justify-start md:justify-center">
+                <div class="flex space-x-1 bg-gray-100/50 rounded-full p-1 whitespace-nowrap">
+                    <button onclick="switchTab('home')" class="nav-btn active px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-home">Home</button>
+                    <button onclick="switchTab('tools')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-tools">Stack</button>
+                    <button onclick="switchTab('projects')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-projects">Projects</button>
+                    <button onclick="switchTab('blog')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-blog">Blogs</button>
+                    <button onclick="switchTab('yaml')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-yaml">YAML</button>
+                    <button onclick="switchTab('about')" class="nav-btn px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-about">About</button>
+                    <button onclick="switchTab('contact')" class="nav-btn md:hidden px-4 py-2 rounded-full text-sm font-medium text-gray-700 hover:text-black transition" id="btn-contact-mob">Contact</button>
+                </div>
+            </div>
+
+            <button onclick="switchTab('contact')" class="hidden md:block px-6 py-2.5 rounded-full text-sm font-medium text-white bg-primary hover:bg-blue-900 transition shadow-lg shadow-primary/30 flex-shrink-0">
+                Contact Me
+            </button>
+            
+        </div>
+    </nav>
+    <main class="flex-grow pt-28 md:pt-36 pb-20 px-4 md:px-6 max-w-6xl mx-auto w-full">
+        
+        <section id="home" class="tab-content fade-in">
+            <div class="flex flex-col md:flex-row items-center gap-12 mt-8">
+                <div class="w-full md:w-1/2 space-y-6">
+                    
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1]">
+                        Rahul Magar
+                    </h1>
+                    
+                    <h2 class="text-2xl md:text-3xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-primary to-cyan-500">
+                        DevOps Engineer & <br>SAS Platform Admin
+                    </h2>
+                    
+                    <div class="h-32 md:h-28">
+                        <p id="typing-text" class="text-lg text-gray-600 leading-relaxed max-w-lg typing-cursor"></p>
+                    </div>
+                    
+                    <div class="flex gap-4 pt-4">
+                        <button onclick="switchTab('about')" class="px-8 py-4 rounded-full bg-[#1d1d1f] text-white font-semibold hover:scale-105 transition-transform shadow-xl">
+                            About
+                        </button>
+                        <button onclick="switchTab('contact')" class="px-8 py-4 rounded-full bg-white border border-gray-200 text-black font-semibold hover:bg-gray-50 transition-colors">
+                            Contact Me
+                        </button>
+                    </div>
+
+                    <div class="pt-6 fade-in" style="animation-delay: 0.3s;">
+                        <div id="dynamic-quote" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 border-2 border-primary/30 text-sm font-semibold uppercase tracking-wider text-primary shadow-sm relative overflow-hidden text-left">
+                            </div>
+                    </div>
+                </div>
+                
+                <div class="w-full md:w-1/2 flex justify-center relative">
+                    <div class="relative w-72 h-72 md:w-96 md:h-96 group">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-primary/70 to-purple-400 rounded-full blur-3xl opacity-20 animate-float"></div>
+                        
+                        <div class="relative w-full h-full overflow-hidden rounded-full border-8 border-white/80 shadow-2xl bg-gray-200 z-10">
+                            <img src="Rahul_photo-Copy.jpg" 
+                                 onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'"
+                                 class="w-full h-full object-cover opacity-95 hover:scale-105 transition duration-700" 
+                                 alt="Rahul Magar">
+                        </div>
+                        
+                        <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 glass px-6 py-3 rounded-2xl text-center animate-bounce shadow-lg z-20" style="animation-duration: 3s;">
+                            <div class="font-bold text-sm whitespace-nowrap">Proficiency</div>
+                            <div class="text-xs text-gray-500">DevOps • Cloud • SAS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+        <section id="tools" class="tab-content hidden fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-3">DevOps Tools Directory</h2>
+                
+                <p id="tools-typing-text" class="text-glowing text-lg font-medium max-w-2xl mx-auto mb-4"></p>
+                
+                </div>
+            
+            <div id="tools-grid" class="space-y-16">
+                </div>
+        </section>
+
+        <section id="projects" class="tab-content hidden fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-4xl font-bold mb-2">Featured Projects</h2>
+                    <p class="text-gray-500">Real-world deployments and cloud solutions.</p>
+                </div>
+                <a href="https://github.com/rahulmagar11" target="_blank" class="text-sm font-bold text-primary hover:underline mt-4 md:mt-0">View all on GitHub &rarr;</a>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-dharmachakra"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Kubernetes Cluster on AWS EKS</h3>
+    <p class="text-gray-500 mb-6 h-20">Production-ready Kubernetes cluster on AWS EKS with auto-scaling, monitoring, and logging. Includes Terraform IaC, Helm charts, and CI/CD integration.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">EKS</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Terraform</span>
+        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">Prometheus</span>
+        <span class="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-bold">GitOps</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fab fa-aws"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Multi-Region AWS Infrastructure</h3>
+    <p class="text-gray-500 mb-6 h-20">Multi-region AWS infrastructure with disaster recovery, automated failover, and global load balancing using Terraform modules.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">AWS</span>
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Multi-Region</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Terraform</span>
+        <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-bold">DR</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-red-800 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-sync-alt"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">CI/CD Pipeline with Jenkins</h3>
+    <p class="text-gray-500 mb-6 h-20">Automated CI/CD pipeline using Jenkins, Docker, and Kubernetes. Includes automated testing, security scanning, and blue-green deployments.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">Jenkins</span>
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Docker</span>
+        <span class="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-bold">Security</span>
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Automation</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fab fa-microsoft"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Microservices on Azure AKS</h3>
+    <p class="text-gray-500 mb-6 h-20">Microservices architecture deployed on Azure Kubernetes Service with service mesh, observability, and auto-scaling.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">AKS</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Microservices</span>
+        <span class="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-xs font-bold">Istio</span>
+        <span class="px-3 py-1 bg-cyan-50 text-cyan-700 rounded-full text-xs font-bold">Azure</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-rocket"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">GitOps with ArgoCD</h3>
+    <p class="text-gray-500 mb-6 h-20">GitOps implementation using ArgoCD for declarative Kubernetes deployments with automated sync and rollback capabilities.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-bold">GitOps</span>
+        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">ArgoCD</span>
+        <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">Kubernetes</span>
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Automation</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-pink-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-chart-line"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Infrastructure Monitoring Stack</h3>
+    <p class="text-gray-500 mb-6 h-20">Complete monitoring solution with Prometheus, Grafana, and ELK stack. Custom dashboards, alerting, and log aggregation.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-bold">Monitoring</span>
+        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">Prometheus</span>
+        <span class="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-bold">ELK</span>
+        <span class="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-bold">Grafana</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-bolt"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Serverless Application on AWS</h3>
+    <p class="text-gray-500 mb-6 h-20">Serverless application using AWS Lambda, API Gateway, and DynamoDB with automated deployment using SAM and CloudFormation.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">Serverless</span>
+        <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-bold">Lambda</span>
+        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold">AWS</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">SAM</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fab fa-docker"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Docker Swarm Cluster</h3>
+    <p class="text-gray-500 mb-6 h-20">Multi-node Docker Swarm cluster with service discovery, load balancing, and automated deployments.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Docker</span>
+        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">Swarm</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Containers</span>
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Orchestration</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-code"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Terraform AWS Landing Zone</h3>
+    <p class="text-gray-500 mb-6 h-20">AWS Landing Zone implementation using Terraform modules for multi-account setup, security controls, and compliance.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Terraform</span>
+        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">AWS</span>
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Landing Zone</span>
+        <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-bold">Security</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-tachometer-alt"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Kubernetes Autoscaling Demo</h3>
+    <p class="text-gray-500 mb-6 h-20">Demonstration of Kubernetes Horizontal Pod Autoscaler (HPA) and Cluster Autoscaler with custom metrics and load testing.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">Kubernetes</span>
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">HPA</span>
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Scaling</span>
+        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">Performance</span
+    ></div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fab fa-windows"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Azure DevOps Pipeline</h3>
+    <p class="text-gray-500 mb-6 h-20">Enterprise-grade Azure DevOps pipeline with multi-stage deployments, approval gates, and automated testing.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Azure DevOps</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Pipeline</span>
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Testing</span>
+        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">Automation</span>
+    </div>
+</div>
+<div class="glass p-8 rounded-[2rem] hover:shadow-xl transition-all group tool-card">
+    <div class="flex justify-between items-start mb-6">
+        <div class="w-14 h-14 bg-green-600 rounded-2xl flex items-center justify-center text-white text-2xl"><i class="fas fa-terminal"></i></div>
+        <a href="https://github.com/rahulmagar11" class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition"><i class="fas fa-arrow-right"></i></a>
+    </div>
+    <h3 class="text-2xl font-bold mb-3">Ansible Automation Playbooks</h3>
+    <p class="text-gray-500 mb-6 h-20">Collection of Ansible playbooks for server provisioning, configuration management, and application deployment.</p>
+    <div class="flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Ansible</span>
+        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Automation</span>
+        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Configuration</span>
+        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">IaC</span>
+    </div>
+</div>
+            </div>
+        </section>
+
+        <section id="blog" class="tab-content hidden fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-2">DevOps Insights</h2>
+                <p class="text-gray-500">Technical articles and tutorials.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <article class="glass p-8 rounded-3xl hover:bg-white transition cursor-pointer group tool-card">
+                    <div class="text-xs font-bold text-primary mb-3 flex items-center gap-2">
+                        <i class="fas fa-file-alt"></i> KUBERNETES
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-primary transition">Getting Started with Kubernetes on AWS EKS</h3>
+                    <p class="text-gray-500 mb-4">A comprehensive guide to deploying your first application on AWS EKS, covering cluster setup, deployment strategies, and cost optimization techniques.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">AWS</span>
+                        <span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">Kubernetes</span>
+                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold">Tutorial</span>
+                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt"></i> Coming Soon
+                    </div>
+                </article>
+
+                <article class="glass p-8 rounded-3xl hover:bg-white transition cursor-pointer group tool-card">
+                    <div class="text-xs font-bold text-green-500 mb-3 flex items-center gap-2">
+                        <i class="fas fa-sync-alt"></i> CI/CD
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-green-600 transition">Building CI/CD Pipelines with GitHub Actions</h3>
+                    <p class="text-gray-500 mb-4">Hands-on tutorial for creating end-to-end CI/CD pipelines using GitHub Actions, including testing, linting, and deployment to cloud providers.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">GitHub Actions</span>
+                        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">CI/CD</span>
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Automation</span>
+                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt"></i> Coming Soon
+                    </div>
+                </article>
+
+                <article class="glass p-8 rounded-3xl hover:bg-white transition cursor-pointer group tool-card">
+                    <div class="text-xs font-bold text-purple-500 mb-3 flex items-center gap-2">
+                        <i class="fas fa-code"></i> INFRASTRUCTURE
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-purple-600 transition">Terraform for Multi-Cloud Deployment</h3>
+                    <p class="text-gray-500 mb-4">Master Terraform for multi-cloud infrastructure management. Learn best practices for module design, state management, and team collaboration.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-bold">Terraform</span>
+                        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">AWS</span>
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Azure</span>
+                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt"></i> Coming Soon
+                    </div>
+                </article>
+
+                <article class="glass p-8 rounded-3xl hover:bg-white transition cursor-pointer group tool-card">
+                    <div class="text-xs font-bold text-blue-500 mb-3 flex items-center gap-2">
+                        <i class="fab fa-docker"></i> CONTAINERS
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-blue-600 transition">Docker Best Practices for Production</h3>
+                    <p class="text-gray-500 mb-4">Optimize your Docker containers for production environments. Security hardening, multi-stage builds, and image optimization techniques.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">Docker</span>
+                        <span class="px-3 py-1 bg-red-50 text-red-700 rounded-full text-xs font-bold">Security</span>
+                        <span class="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold">Best Practices</span>
+                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt"></i> Coming Soon
+                    </div>
+                </article>
+
+                <article class="glass p-8 rounded-3xl hover:bg-white transition cursor-pointer group tool-card">
+                    <div class="text-xs font-bold text-pink-600 mb-3 flex items-center gap-2">
+                        <i class="fas fa-chart-bar"></i> MONITORING
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-pink-700 transition">Monitoring with Prometheus and Grafana</h3>
+                    <p class="text-gray-500 mb-4">Set up comprehensive monitoring for your infrastructure and applications using Prometheus for metrics collection and Grafana for visualization and alerting.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-bold">Prometheus</span>
+                        <span class="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-bold">Grafana</span>
+                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold">Observability</span>
+                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt"></i> Coming Soon
+                    </div>
+                </article>
+
+                <article class="glass p-8 rounded-3xl hover:bg-white transition cursor-pointer group tool-card">
+                    <div class="text-xs font-bold text-sas-blue mb-3 flex items-center gap-2">
+                        <i class="fas fa-server"></i> SAS PLATFORM
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 group-hover:text-sas-blue transition">Automating SAS 9.4 Platform Administration</h3>
+                    <p class="text-gray-500 mb-4">Scripts and best practices for automating routine maintenance, deployment, and security tasks on the SAS 9.4 platform for maximum uptime and efficiency.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold">SAS 9.4</span>
+                        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-xs font-bold">Automation</span>
+                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold">Administration</span>
+                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt"></i> Coming Soon
+                    </div>
+                </article>
+                
+            </div>
+        </section>
+
+        <section id="yaml" class="tab-content hidden fade-in">
+            <div class="glass p-6 md:p-10 rounded-[3rem] shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-primary to-cyan-500 rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg shadow-primary/40">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800">YAML Validator</h2>
+                            <p class="text-gray-500">Test and visualize your YAML documents and templates.</p>
+                        </div>
+                    </div>
+                    <button onclick="downloadYaml()" class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition shadow-md shadow-green-600/30 flex items-center gap-2">
+                        <i class="fas fa-download mr-1"></i> Download
+                    </button>
+                </div>
+
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-2xl mt-8">
+                    <div class="p-4 flex justify-between items-center border-b border-gray-700">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        </div>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">DEVOPS YAML EDITOR & VALIDATOR</span>
+                    </div>
+                    
+                    <div class="bg-white p-4 border-b border-gray-200 flex items-center gap-4 flex-wrap">
+                        <label for="yaml-template-selector" class="text-sm font-semibold text-gray-700">Load Template:</label>
+                        <select id="yaml-template-selector" onchange="loadYamlTemplate(this.value)" class="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-primary focus:border-primary max-w-full">
+                            <option value="none" selected disabled>-- Select a DevOps Template --</option>
+                            <optgroup label="Kubernetes Manifests">
+                                <option value="simple_deployment">K8s: Simple Deployment (Nginx)</option>
+                                <option value="complex_deployment">K8s: Complex Deployment (Resources)</option>
+                                <option value="simple_service">K8s: NodePort Service</option>
+                                <option value="pvc_and_deployment">K8s: PVC & Deployment</option>
+                            </optgroup>
+                            <optgroup label="CI/CD Pipelines">
+                                <option value="jenkins_pipeline">Jenkins: Declarative Pipeline</option>
+                                <option value="github_workflow">GitHub Actions: Simple Workflow</option>
+                            </optgroup>
+                            <optgroup label="Configuration Management">
+                                <option value="ansible_playbook">Ansible: Simple Playbook</option>
+                            </optgroup>
+                            <optgroup label="Container Tools">
+                                <option value="docker_compose">Docker: Compose (WebApp + DB)</option>
+                            </optgroup>
+                        </select>
+                        <button onclick="clearYaml()" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-200 transition">Clear Editor</button>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="lg:w-1/2 relative">
+                            <textarea id="yamlInput" 
+                                class="w-full h-96 p-4 text-white text-sm bg-gray-900 border-none resize-none focus:outline-none focus:ring-0 font-mono" 
+                                placeholder="# Paste your YAML here (e.g., Kubernetes, Docker Compose, CI/CD, Ansible)" 
+                                oninput="validateYaml()"
+                            ></textarea>
+                            <button onclick="validateYaml()" class="absolute bottom-3 right-3 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-blue-800 transition">Validate</button>
+                        </div>
+                        
+                        <div class="lg:w-1/2 p-4 bg-gray-50 border-t lg:border-t-0 lg:border-l border-gray-200 relative">
+                            <h3 class="text-lg font-bold mb-3 text-gray-700">Validation Status:</h3>
+                            <div id="yamlStatus" class="p-3 mb-4 rounded-lg text-sm font-medium bg-yellow-100 text-yellow-700">
+                                <span class="flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i> Waiting for input...</span>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold mb-3 text-gray-700">JSON Output / Error Details:</h3>
+                            <div id="yamlOutput" class="h-64 p-3 overflow-y-auto bg-gray-700 text-green-300 rounded-lg text-xs font-mono whitespace-pre-wrap">
+                                <p class="text-gray-500">Paste or select a YAML template to begin validation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="tab-content hidden fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1">
+                    <div class="glass p-8 rounded-3xl shadow-xl sticky top-28 fade-in">
+                        <div class="text-center mb-6">
+                            <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" class="w-32 h-32 object-cover rounded-full mx-auto border-4 border-primary/50 shadow-lg mb-4" alt="Rahul Magar">
+                            <h3 class="text-2xl font-bold">Rahul Magar</h3>
+                            <p class="text-primary font-medium">DevOps Engineer & SAS Platform Admin</p>
+                        </div>
+                        <div class="space-y-3 pt-4 border-t border-gray-200">
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-map-marker-alt w-6 text-primary flex-shrink-0"></i> 
+                                <span>Pune, Maharashtra, India</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-envelope w-6 text-primary flex-shrink-0"></i> 
+                                <a href="mailto:rahulmagar11@gmail.com" class="hover:underline">rahulmagar11@gmail.com</a>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fab fa-linkedin w-6 text-primary flex-shrink-0"></i> 
+                                <a href="https://linkedin.com/in/rahulmagar11" target="_blank" class="hover:underline">/in/rahulmagar11</a>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fab fa-github w-6 text-primary flex-shrink-0"></i> 
+                                <a href="https://github.com/rahulmagar11" target="_blank" class="hover:underline">/rahulmagar11</a>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button onclick="switchTab('contact')" class="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-blue-800 transition shadow-lg shadow-primary/30">
+                                Get In Touch
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="space-y-8">
+                        <div class="glass p-8 rounded-3xl shadow-xl fade-in">
+                            <h3 class="text-2xl font-bold mb-6 text-primary flex items-center"><i class="fas fa-user-tie mr-3"></i> Professional Summary</h3>
+                            <p class="text-gray-700 leading-relaxed text-lg">
+                                Results-driven <strong>DevOps Engineer</strong> and <strong>SAS Platform Engineer</strong> with 9+ years of experience transforming software delivery through <strong>Infrastructure as Code (IaC)</strong>, <strong>Cloud Engineering (AWS, Azure)</strong>, and <strong>CI/CD pipeline automation</strong>. Expertise in <strong>Kubernetes (EKS/AKS)</strong>, Terraform, Ansible, Jenkins, and comprehensive observability stacks. Dedicated to building resilient, scalable, and cost-optimized infrastructure while administering high-availability and managing <strong>SAS Grid and Viya</strong> platforms.
+                            </p>
+                        </div>
+
+                        <div class="glass p-8 rounded-3xl shadow-xl fade-in" style="animation-delay: 0.1s;">
+                            <h3 class="text-2xl font-bold mb-6 text-green-700 flex items-center"><i class="fas fa-cogs mr-3"></i> Core Expertise</h3>
+                            <ul class="space-y-4 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fab fa-aws text-yellow-600 mt-1 mr-3 flex-shrink-0"></i>
+                                    <span>Designed and managed robust, cost-optimized infrastructure on AWS (EKS, EC2, S3, Lambda, VPC).</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-dharmachakra text-indigo-600 mt-1 mr-3 flex-shrink-0"></i>
+                                    <span>Expertise in Kubernetes (EKS/AKS) deployment, Helm, and GitOps workflows using ArgoCD.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-code text-purple-600 mt-1 mr-3 flex-shrink-0"></i>
+                                    <span>Implemented Infrastructure as Code (IaC) using Terraform and configuration management with Ansible.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-sync-alt text-red-600 mt-1 mr-3 flex-shrink-0"></i>
+                                    <span>Built and maintained scalable CI/CD pipelines using Jenkins, Azure DevOps, and GitHub Actions, including security scanning in CI/CD pipelines.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-database text-blue-600 mt-1 mr-3 flex-shrink-0"></i>
+                                    <span>Managed SAS platform infrastructure supporting enterprise analytics workloads.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="glass p-8 rounded-3xl shadow-xl fade-in" style="animation-delay: 0.2s;">
+                            <h3 class="text-2xl font-bold mb-6 text-indigo-700 flex items-center"><i class="fas fa-trophy mr-3"></i> Key Achievements</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-semibold text-gray-700">Reduced infrastructure costs (EKS)</span>
+                                        <span class="text-xl font-bold text-green-600">40%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-500 h-2 rounded-full animate-pulse" style="width: 40%; animation-duration: 5s;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-semibold text-gray-700">CI/CD Deployment Frequency Increase</span>
+                                        <span class="text-xl font-bold text-blue-600">5x</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-blue-500 h-2 rounded-full animate-pulse" style="width: 80%; animation-duration: 4s;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-sm font-semibold text-gray-700">SAS Platform Uptime</span>
+                                        <span class="text-xl font-bold text-red-600">99.9%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-red-500 h-2 rounded-full animate-pulse" style="width: 95%; animation-duration: 3s;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 pt-6 border-t border-gray-200">
+                                <h4 class="text-xl font-bold mb-4 text-indigo-700">Certifications</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-award text-yellow-500 mr-3 flex-shrink-0 text-xl animate-bounce" style="animation-iteration-count: 1;"></i>
+                                        <span>AWS Certified Solutions Architect – Associate (SAA-C03)</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-award text-yellow-500 mr-3 flex-shrink-0 text-xl animate-bounce" style="animation-iteration-count: 1; animation-delay: 0.1s;"></i>
+                                        <span>Certified Kubernetes Administrator (CKA)</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-award text-yellow-500 mr-3 flex-shrink-0 text-xl animate-bounce" style="animation-iteration-count: 1; animation-delay: 0.2s;"></i>
+                                        <span>Red Hat Certified Engineer (RHCE)</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-award text-yellow-500 mr-3 flex-shrink-0 text-xl animate-bounce" style="animation-iteration-count: 1; animation-delay: 0.3s;"></i>
+                                        <span>SAS Platform Administration for SAS 9</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass p-8 rounded-3xl shadow-xl fade-in" style="animation-delay: 0.3s;">
+                            <h3 class="text-2xl font-bold mb-6 text-blue-700 flex items-center"><i class="fas fa-flask mr-3"></i> Quick Skills Snapshot</h3>
+                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 text-center">
+                                <div class="p-3 bg-orange-50 rounded-lg border border-orange-200 transition-transform hover:scale-105">
+                                    <i class="fab fa-aws text-orange-600 text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">AWS</p>
+                                    <p class="text-xs text-gray-500">Cloud</p>
+                                </div>
+                                <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-200 transition-transform hover:scale-105">
+                                    <i class="fas fa-dharmachakra text-indigo-600 text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">K8s</p>
+                                    <p class="text-xs text-gray-500">Orchestration</p>
+                                </div>
+                                <div class="p-3 bg-purple-50 rounded-lg border border-purple-200 transition-transform hover:scale-105">
+                                    <i class="fas fa-code text-purple-600 text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">Terraform</p>
+                                    <p class="text-xs text-gray-500">IaC</p>
+                                </div>
+                                <div class="p-3 bg-green-50 rounded-lg border border-green-200 transition-transform hover:scale-105">
+                                    <i class="fas fa-terminal text-green-600 text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">Ansible</p>
+                                    <p class="text-xs text-gray-500">Config Mgt</p>
+                                </div>
+                                <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200 transition-transform hover:scale-105">
+                                    <i class="fas fa-sync-alt text-yellow-600 text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">Jenkins</p>
+                                    <p class="text-xs text-gray-500">CI/CD</p>
+                                </div>
+                                <div class="p-3 bg-pink-50 rounded-lg border border-pink-200 transition-transform hover:scale-105">
+                                    <i class="fas fa-chart-bar text-pink-600 text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">Grafana</p>
+                                    <p class="text-xs text-gray-500">Monitoring</p>
+                                </div>
+                                <div class="p-3 bg-orange-100 rounded-lg border border-orange-300 transition-transform hover:scale-105">
+                                    <i class="fas fa-server text-sas-blue text-3xl"></i>
+                                    <p class="text-sm font-semibold text-gray-800 mt-1">SAS 9.4</p>
+                                    <p class="text-xs text-gray-500">Platform Admin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="tab-content hidden fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="glass p-8 rounded-[3rem] shadow-xl">
+                    <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
+                    <p class="text-gray-600 mb-8">I'm always open to discussing new projects, collaboration opportunities, or general DevOps/SAS platform inquiries. </p>
+                    
+                    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)">
+                        <input type="hidden" name="form-name" value="contact">
+                        <div hidden>
+                            <label>Don’t fill this out: <input name="bot-field"></label>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Your Name</label>
+                            <input type="text" name="name" id="name" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-primary focus:border-primary transition" placeholder="John Doe">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" name="email" id="email" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-primary focus:border-primary transition" placeholder="you@example.com">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <textarea name="message" id="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-primary focus:border-primary transition" placeholder="Tell me about your project or inquiry..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-3.5 bg-primary text-white font-semibold rounded-2xl hover:bg-blue-800 transition shadow-lg shadow-primary/30">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <div class="glass p-8 rounded-[3rem] shadow-xl">
+                <div class="glass p-8 rounded-3xl shadow-xl">
+                    <div class="space-y-6">
+                        <h2 class="text-5xl font-extrabold mb-4">Let's build something great.</h2>
+                        <p class="text-lg text-gray-600">
+                            Whether you need a DevOps expert for your next project, an SAS Platform Architect, or just want to connect, feel free to reach out. I'm always open to discussing new opportunities in cloud infrastructure and automation.
+                        </p>
+                    </div>
+                </div>
+                    <div class="mt-10 pt-6 border-t border-gray-200">
+                        <h4 class="text-xl font-bold mb-4 text-gray-800">Why Contact Me?</h4>
+                        <ul class="space-y-3 text-gray-600 text-sm">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                                <span>Need a robust AWS/Azure Kubernetes solution.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                                <span>Require CI/CD pipeline automation (Jenkins, GitHub Actions, Azure DevOps).</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-green-500 mt-1 mr-3 flex-shrink-0"></i>
+                                <span>Looking for an expert SAS Platform Administrator.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 py-8 border-t border-gray-200 text-center">
+        <div class="max-w-6xl mx-auto px-4">
+            <p class="text-sm text-gray-500 mb-4">&copy; 2025 Rahul Magar. All rights reserved. | Built with Tailwind CSS.</p>
+            <div class="flex justify-center space-x-6 text-xl">
+                <a href="https://linkedin.com/in/rahulmagar11" target="_blank" class="text-gray-600 hover:text-primary transition"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/rahulmagar11" target="_blank" class="text-gray-600 hover:text-primary transition"><i class="fab fa-github"></i></a>
+                <a href="mailto:rahulmagar11@gmail.com" class="text-gray-600 hover:text-primary transition"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <div id="form-success-message" class="toast hidden bg-green-50 border-2 border-green-300 text-green-800 font-semibold rounded-xl flex items-center justify-center gap-3">
+        <i class="fas fa-check-circle text-2xl text-green-600"></i>
+        <span class="text-base">Thank you for your message! I will get back to you shortly.</span>
+    </div> 
+
+    <div id="submission-overlay" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center transition-opacity duration-300 opacity-0">
+        
+        <div id="state-sending" class="text-center">
+            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mb-6 mx-auto shadow-lg shadow-blue-200">
+                <i class="fas fa-paper-plane text-4xl text-primary plane-fly"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-800 mb-2">Sending Message...</h3>
+            <p class="text-gray-500">Please wait while we connect to the server.</p>
+        </div>
+
+        <div id="state-success" class="text-center hidden">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 mx-auto shadow-lg shadow-green-200">
+                <i class="fas fa-check text-5xl text-green-600 check-bounce"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-800 mb-2">Message Sent!</h3>
+            <p class="text-gray-500">Redirecting you to home...</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const devopsTools = [
+            // Cloud & Virtualization
+            { name: "AWS", icon: "fab fa-aws", color: "text-orange-500", bg: "bg-orange-50", category: "Cloud & Virtualization", desc: "EC2, EKS, S3, Lambda, CloudFormation.", url: "https://aws.amazon.com/" },
+            { name: "Azure", icon: "fab fa-microsoft", color: "text-blue-500", bg: "bg-blue-50", category: "Cloud & Virtualization", desc: "Azure DevOps, VMs, Networking.", url: "https://azure.microsoft.com/" },
+            { name: "GCP", icon: "fab fa-google", color: "text-red-500", bg: "bg-red-50", category: "Cloud & Virtualization", desc: "Compute Engine & Kubernetes Engine.", url: "https://cloud.google.com/" },
+
+            // Containers
+            { name: "Kubernetes", icon: "fas fa-dharmachakra", color: "text-indigo-600", bg: "bg-indigo-50", category: "Containers & Orchestration", desc: "Container orchestration & management.", url: "https://kubernetes.io/" },
+            { name: "Docker", icon: "fab fa-docker", color: "text-blue-600", bg: "bg-blue-50", category: "Containers & Orchestration", desc: "Containerization platform.", url: "https://www.docker.com/" },
+            { name: "Helm", icon: "fas fa-box-open", color: "text-cyan-600", bg: "bg-cyan-50", category: "Containers & Orchestration", desc: "Kubernetes package manager.", url: "https://helm.sh/" },
+
+            // Infrastructure as Code (IaC)
+            { name: "Terraform", icon: "fas fa-code", color: "text-purple-600", bg: "bg-purple-50", category: "Infrastructure as Code & Config Mgt", desc: "Multi-cloud IaC for provisioning.", url: "https://www.terraform.io/" },
+            { name: "Ansible", icon: "fas fa-terminal", color: "text-green-600", bg: "bg-green-50", category: "Infrastructure as Code & Config Mgt", desc: "Automation & configuration management.", url: "https://www.ansible.com/" },
+
+            // CI/CD & Automation
+            { name: "Jenkins", icon: "fas fa-sync-alt", color: "text-red-600", bg: "bg-red-50", category: "CI/CD & Automation", desc: "Leading open-source automation server.", url: "https://www.jenkins.io/" },
+            { name: "GitHub Actions", icon: "fab fa-github-alt", color: "text-gray-700", bg: "bg-gray-100", category: "CI/CD & Automation", desc: "Workflow automation for GitHub.", url: "https://github.com/features/actions" },
+            { name: "ArgoCD", icon: "fas fa-rocket", color: "text-teal-600", bg: "bg-teal-50", category: "CI/CD & Automation", desc: "Declarative GitOps continuous delivery.", url: "https://argo-cd.readthedocs.io/" },
+            
+            // Observability & Monitoring
+            { name: "Prometheus", icon: "fas fa-chart-bar", color: "text-orange-500", bg: "bg-orange-50", category: "Observability & Monitoring", desc: "Monitoring and alerting toolkit.", url: "https://prometheus.io/" },
+            { name: "Grafana", icon: "fas fa-chart-line", color: "text-pink-600", bg: "bg-pink-50", category: "Observability & Monitoring", desc: "Visualization and dashboard platform.", url: "https://grafana.com/" },
+            { name: "ELK Stack", icon: "fas fa-search", color: "text-green-600", bg: "bg-green-50", category: "Observability & Monitoring", desc: "Log aggregation and analysis.", url: "https://www.elastic.co/elastic-stack/" },
+
+            // Collaboration & Artifacts
+            { name: "Git", icon: "fas fa-code-branch", color: "text-red-500", bg: "bg-red-50", category: "Collaboration & Artifacts", desc: "Distributed Version Control System.", url: "https://git-scm.com/" },
+            { name: "Artifactory", icon: "fas fa-box", color: "text-yellow-600", bg: "bg-yellow-50", category: "Collaboration & Artifacts", desc: "Universal Artifact Repository Manager.", url: "https://jfrog.com/artifactory/" },
+
+            // SAS Platform
+            { name: "SAS 9.4", icon: "fas fa-server", color: "text-sas-blue", bg: "bg-blue-50", category: "SAS Platform", desc: "Server, Metadata, & Security Management.", url: "https://www.sas.com/" },
+            { name: "SAS Viya", icon: "fas fa-cloud", color: "text-sas-blue", bg: "bg-blue-100", category: "SAS Platform", desc: "Cloud-native SAS Analytics Platform.", url: "https://www.sas.com/en_us/software/viya.html" },
+        ];
+
+        // --- Tool rendering function (RESTORED) ---
+        function renderTools() {
+            const gridContainer = document.getElementById('tools-grid');
+            gridContainer.innerHTML = ''; // Clear container
+
+            // 1. Group tools by category
+            const categorizedTools = devopsTools.reduce((acc, tool) => {
+                const category = tool.category;
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push(tool);
+                return acc;
+            }, {});
+
+            // 2. Render each category section
+            Object.entries(categorizedTools).forEach(([category, tools], index) => {
+                const categorySection = document.createElement('div');
+                categorySection.classList.add('fade-in');
+                categorySection.style.animationDelay = `${index * 0.1}s`;
+                categorySection.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-6 text-primary">${category}</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        ${tools.map(tool => `
+                            <a href="${tool.url}" target="_blank" class="tool-card glass p-6 rounded-3xl flex items-center space-x-4 hover:shadow-xl transition-all border border-gray-100">
+                                <div class="icon-bg w-18 h-18 rounded-2xl flex-shrink-0 flex items-center justify-center ${tool.bg}">
+                                    <i class="${tool.icon} ${tool.color} text-4xl"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="text-lg font-bold truncate">${tool.name}</h4>
+                                    <p class="text-sm text-gray-500 truncate">${tool.desc}</p>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+                gridContainer.appendChild(categorySection);
+            });
+        }
+
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('fade-in');
+            });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show the selected tab and fade it in
+            const activeTab = document.getElementById(tabId);
+            
+            // Highlight buttons (including mobile contact button)
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            // Special case for mobile contact button
+            if (tabId === 'contact') {
+                const mobileContactBtn = document.getElementById('btn-contact-mob');
+                if (mobileContactBtn) mobileContactBtn.classList.add('active');
+            }
+            
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                // Force re-animation by adding the class on the next frame
+                setTimeout(() => activeTab.classList.add('fade-in'), 10); 
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Special action for tools tab
+            if (tabId === 'tools') {
+                setTimeout(startToolsTyping, 600);
+            }
+        }
+        
+        // --- QUOTE LOGIC ---
+        const devopsQuotes = [
+            "You build it, you run it. That simple rule changes everything.",
+            "Automation is not just a trend; it's the foundation of modern delivery.",
+            "If you did not automate testing, you did not do DevOps.",
+            "DevOps is the culture that combines software development and IT operations.",
+            "To infinity and beyond, with continuous deployment!",
+            "Fast, frequent, and reliable releases are the hallmark of true DevOps."
+        ];
+
+        function setRandomQuote() {
+            const quoteEl = document.getElementById('dynamic-quote');
+            if (quoteEl) {
+                // Select a random quote
+                const randomQuote = devopsQuotes[Math.floor(Math.random() * devopsQuotes.length)];
+                // Add the quote icon and the text
+                quoteEl.innerHTML = `
+                    <i class="fas fa-quote-left text-lg animate-quote-pulse" style="animation-delay: 0.1s;"></i>
+                    <span class="text-center">${randomQuote}</span>
+                `;
+            }
+        }
+
+        // --- TYPING ANIMATION LOGIC (HOME PAGE) ---
+        const typingTextContent = "I transform complex business requirements into resilient, automated, and scalable cloud infrastructure. My focus is on driving efficiency and reliability across the SDLC with cutting-edge DevOps and SAS technologies.";
+        const textElement = document.getElementById('typing-text');
+        let charIndex = 0;
+        
+        function startTyping() {
+            if (!textElement) return;
+            textElement.classList.remove('typing-cursor');
+            textElement.innerHTML = "";
+            charIndex = 0;
+            typeNextChar();
+        }
+        
+        function typeNextChar() {
+            if (charIndex < typingTextContent.length) {
+                let char = typingTextContent.charAt(charIndex);
+                textElement.innerHTML += char;
+                charIndex++;
+                setTimeout(typeNextChar, 30);
+            } else {
+                textElement.classList.add('typing-cursor');
+            }
+        }
+
+        // --- TYPING ANIMATION LOGIC (TOOLS PAGE) ---
+        const toolsTypingTextContent = "The right tool for the right job: Continuous Integration, Infrastructure as Code, and Observability.";
+        const toolsTextElement = document.getElementById('tools-typing-text');
+        let toolsCharIndex = 0;
+
+        function startToolsTyping() {
+            if (!toolsTextElement || toolsTextElement.innerHTML.trim() !== "") return; // Only run once
+            toolsTextElement.classList.remove('typing-cursor');
+            toolsTextElement.innerHTML = "";
+            toolsCharIndex = 0;
+            typeNextToolsChar();
+        }
+
+        function typeNextToolsChar() {
+            if (toolsCharIndex < toolsTypingTextContent.length) {
+                let char = toolsTypingTextContent.charAt(toolsCharIndex);
+                toolsTextElement.innerHTML += char;
+                toolsCharIndex++;
+                setTimeout(typeNextToolsChar, 30);
+            } else {
+                toolsTextElement.classList.add('typing-cursor');
+            }
+        }
+
+        // --- YAML TEMPLATES ---
+        const yamlTemplates = {
+            'none': '',
+            'simple_deployment': `
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+            `,
+            'complex_deployment': `
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  labels:
+    app: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api-container
+        image: custom-api:v1.2.0
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "250Mi"
+        env:
+        - name: DB_HOST
+          value: "database-service"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+            `,
+            'simple_service': `
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nodeport-service
+spec:
+  selector:
+    app: nginx
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+            `,
+            'pvc_and_deployment': `
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-app-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-with-volume
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-container
+        image: busybox
+        command: ["/bin/sh", "-c", "echo 'Hello World' > /mnt/index.html && sleep 3600"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /mnt
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: my-app-pvc
+            `,
+            // CI/CD Pipelines
+            'jenkins_pipeline': `
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                // script: docker build -t my-app:latest .
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                // script: npm test
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to staging...'
+                // script: kubectl apply -f k8s/staging.yaml
+            }
+        }
+    }
+}
+            `,
+            'github_workflow': `
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install dependencies
+      run: npm install
+    - name: Run build
+      run: npm run build
+  
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to Production
+      run: echo "Deploying app to AWS/Azure/GCP..."
+            `,
+            // Configuration Management
+            'ansible_playbook': `
+---
+- name: Configure Web Servers
+  hosts: webservers
+  become: yes
+  tasks:
+    - name: Ensure Apache is installed
+      yum:
+        name: httpd
+        state: present
+
+    - name: Ensure Apache is running
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Deploy index.html
+      copy:
+        content: "<h1>Hello from Ansible!</h1>"
+        dest: /var/www/html/index.html
+            `,
+            // Container Tools
+            'docker_compose': `
+version: '3.8'
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
+            `
+        };
+
+        function loadYamlTemplate(templateName) {
+            const yamlContent = yamlTemplates[templateName];
+            const input = document.getElementById('yamlInput');
+            
+            if (yamlContent) {
+                input.value = yamlContent.trim();
+                validateYaml();
+            } else {
+                input.value = "# Paste your YAML here (e.g., Kubernetes, Docker Compose, CI/CD, Ansible)";
+                clearYaml();
+            }
+        }
+
+        function clearYaml() {
+            document.getElementById('yamlInput').value = "# Paste your YAML here (e.g., Kubernetes, Docker Compose, CI/CD, Ansible)";
+            const output = document.getElementById('yamlOutput');
+            const status = document.getElementById('yamlStatus');
+            output.innerHTML = '<p class="text-gray-500">Paste or select a YAML template to begin validation.</p>';
+            status.innerHTML = '<span class="text-yellow-400 flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i> Waiting for input...</span>' +
+                               '<button onclick="clearYaml()" class="text-xs text-gray-400 hover:text-white transition ml-4 hidden">Clear Editor</button>';
+        }
+
+        function validateYaml() {
+            const input = document.getElementById('yamlInput');
+            const output = document.getElementById('yamlOutput');
+            const status = document.getElementById('yamlStatus');
+            const yamlContent = input.value;
+
+            if (yamlContent.trim() === '' || yamlContent.trim() === '# Paste your YAML here (e.g., Kubernetes, Docker Compose, CI/CD, Ansible)') {
+                output.innerHTML = '<p class="text-gray-500">Paste or select a YAML template to begin validation.</p>';
+                status.innerHTML = '<span class="text-yellow-400 flex items-center gap-2"><i class="fas fa-exclamation-triangle"></i> Waiting for input...</span>' +
+                                   '<button onclick="clearYaml()" class="text-xs text-gray-400 hover:text-white transition ml-4 hidden">Clear Editor</button>';
+                return;
+            }
+
+            try {
+                // Use js-yaml's loadAll for multi-document support
+                const doc = jsyaml.loadAll(yamlContent);
+                const jsonOutput = JSON.stringify(doc, null, 2);
+
+                // Success
+                output.textContent = jsonOutput;
+                output.style.color = '#68D391'; // Green text
+                output.style.backgroundColor = '#1F2937'; // Dark background
+                status.innerHTML = `<span class="text-green-500 flex items-center gap-2"><i class="fas fa-check-circle"></i> Valid YAML (${doc.length} document${doc.length !== 1 ? 's' : ''})</span>`;
+                status.classList.remove('bg-red-100', 'text-red-700', 'bg-yellow-100', 'text-yellow-700');
+                status.classList.add('bg-green-100', 'text-green-700');
+
+            } catch (e) {
+                // Failure
+                output.textContent = `Error: ${e.message}`;
+                output.style.color = '#FC8181'; // Red text
+                output.style.backgroundColor = '#1F2937'; // Dark background
+                status.innerHTML = `<span class="text-red-500 flex items-center gap-2"><i class="fas fa-times-circle"></i> Invalid YAML</span>`;
+                status.classList.remove('bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
+                status.classList.add('bg-red-100', 'text-red-700');
+            }
+        }
+
+        function downloadYaml() {
+            const yamlContent = document.getElementById('yamlInput').value;
+            let defaultName = 'devops-config.yaml';
+            
+            if (!yamlContent || yamlContent.trim() === '' || yamlContent.trim() === '# Paste your YAML here (e.g., Kubernetes, Docker Compose, CI/CD, Ansible)') {
+                alert("The editor is empty. Please enter or load some YAML content first.");
+                return;
+            }
+
+            try {
+                // Try to infer a better filename
+                const doc = jsyaml.load(yamlContent);
+                if (doc) {
+                    const primaryDoc = Array.isArray(doc) ? doc[0] : doc;
+                    if (primaryDoc.kind && primaryDoc.metadata) {
+                        defaultName = `${primaryDoc.metadata.name || primaryDoc.kind.toLowerCase()}.${primaryDoc.kind.toLowerCase()}.yaml`;
+                    } else if (primaryDoc.version && primaryDoc.services) {
+                        defaultName = 'docker-compose.yml';
+                    } else if (primaryDoc.jobs) { // GitHub Actions
+                        defaultName = 'workflow.yml';
+                    }
+                }
+            } catch (e) {
+                // If parsing fails, use the default name
+            }
+
+            const blob = new Blob([yamlContent], { type: 'text/yaml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = defaultName.replace(/[^a-z0-9\-\.]/gi, '_'); // Sanitize filename
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- BACKGROUND CANVAS ANIMATION ---
+        const canvas = document.getElementById('canvas-bg');
+        let ctx, w, h, particles;
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        window.onresize = resize;
+        resize();
+
+        if (canvas.getContext) {
+            ctx = canvas.getContext('2d');
+
+            class P {
+                constructor() {
+                    this.x = Math.random() * w;
+                    this.y = Math.random() * h;
+                    this.vx = Math.random() * 0.5 - 0.25;
+                    this.vy = Math.random() * 0.5 - 0.25;
+                    this.r = Math.random()*150+50; 
+                    this.col = `rgba(${Math.random()*50},${Math.random()*100+100},255,0.1)`;
+                }
+                up() { 
+                    this.x+=this.vx; this.y+=this.vy; 
+                    if(this.x<0||this.x>w||this.y<0||this.y>h) this.vx*=-1; 
+                }
+                draw() { 
+                    ctx.beginPath(); 
+                    ctx.arc(this.x,this.y,this.r,0,Math.PI*2); 
+                    ctx.fillStyle=this.col; 
+                    ctx.fill(); 
+                }
+            }
+
+            function init() { 
+                particles = Array(6).fill().map(() => new P()); 
+            }
+
+            function anim() { 
+                ctx.clearRect(0,0,w,h);
+                particles.forEach(p => {
+                    p.up();
+                    p.draw();
+                });
+                requestAnimationFrame(anim);
+            }
+
+            // --- FORM SUBMISSION HANDLER (NEW) ---
+            function handleContactSubmit(event) {
+                event.preventDefault(); // Stop the default page reload
+
+                const form = event.target;
+                const formData = new FormData(form);
+                
+                // UI Elements
+                const overlay = document.getElementById('submission-overlay');
+                const stateSending = document.getElementById('state-sending');
+                const stateSuccess = document.getElementById('state-success');
+
+                // 1. Show Overlay with "Sending" state
+                overlay.classList.remove('hidden');
+                // Small timeout to allow display:block to apply before adding opacity for transition
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                }, 10);
+
+                // 2. Submit data via Fetch (AJAX)
+                fetch('/', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams(formData).toString()
+                })
+                .then(() => {
+                    // 3. Artificial delay (optional) to let the user see the animation
+                    setTimeout(() => {
+                        // Switch to Success State
+                        stateSending.classList.add('hidden');
+                        stateSuccess.classList.remove('hidden');
+
+                        // 4. Wait 2 seconds, then redirect to Home
+                        setTimeout(() => {
+                            // Fade out overlay
+                            overlay.classList.add('opacity-0');
+                            
+                            setTimeout(() => {
+                                overlay.classList.add('hidden');
+                                
+                                // Reset overlay states for next time
+                                stateSending.classList.remove('hidden');
+                                stateSuccess.classList.add('hidden');
+                                form.reset(); // Clear the form inputs
+
+                                // Redirect/Switch to Home Tab
+                                switchTab('home'); 
+                                
+                                // Optional: Trigger the toast notification on Home
+                                const successMessageEl = document.getElementById('form-success-message');
+                                if(successMessageEl) {
+                                    successMessageEl.classList.remove('hidden', 'inactive');
+                                    successMessageEl.classList.add('active');
+                                    setTimeout(() => {
+                                        successMessageEl.classList.remove('active');
+                                        successMessageEl.classList.add('inactive');
+                                    }, 4000);
+                                }
+
+                            }, 300); // Wait for fade out transition
+                        }, 2000); // Show "Success" for 2 seconds
+                    }, 1500); // Show "Sending" for at least 1.5 seconds
+                })
+                .catch((error) => {
+                    alert("Oops! There was a problem submitting your form.");
+                    overlay.classList.add('hidden');
+                });
+            }
+
+            window.onload = function() { 
+                init();
+                renderTools();
+                setRandomQuote();
+                startTyping(); 
+                startToolsTyping();
+
+                // Set initial tab and button state
+                const initialTab = new URLSearchParams(window.location.search).get('tab') || 'home';
+                switchTab(initialTab);
+            }
+
+            // Initialize canvas
+            if (canvas) {
+                init();
+                anim();
+            }
+        }
+    </script>
+</body>
+</html>

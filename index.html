@@ -24,16 +24,23 @@
                     },
                     colors: { 
                         primary: { DEFAULT: '#2563EB', dark: '#3B82F6', light: '#60A5FA' },
-                        sas: '#007CC2'
+                        sas: '#007CC2',
+                        neon: '#06b6d4'
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(37, 99, 235, 0.6)',
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+                        'neon': '0 0 15px rgba(37, 99, 235, 0.8), 0 0 30px rgba(37, 99, 235, 0.4)',
+                        'nav-glow': '0 0 25px rgba(37, 99, 235, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.3)',
                     },
                     animation: {
                         'blob': 'blob 10s infinite',
                         'float': 'float 6s ease-in-out infinite',
-                        'float-fast': 'float 3s ease-in-out infinite',
                         'pulse-glow': 'pulseGlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'roll': 'roll 1s ease-in-out',
-                        'morph': 'morph 8s ease-in-out infinite', 
-                        'morph-reverse': 'morph 8s ease-in-out infinite reverse',
+                        'shimmer': 'shimmer 3s linear infinite',
+                        'spin-slow': 'spin 10s linear infinite',
+                        'super-pulse': 'superPulse 2s infinite',
+                        'scan': 'scan 2s linear infinite',
                     },
                     keyframes: {
                         blob: {
@@ -46,18 +53,19 @@
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-15px)' },
                         },
-                        morph: {
-                            '0%': { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' },
-                            '50%': { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%' },
-                            '100%': { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' }
-                        },
                         pulseGlow: {
                             '0%, 100%': { opacity: 1, boxShadow: '0 0 20px rgba(37, 99, 235, 0.5)' },
                             '50%': { opacity: .8, boxShadow: '0 0 40px rgba(37, 99, 235, 0.8)' }
                         },
-                        roll: {
-                            '0%': { transform: 'rotate(0deg)' },
-                            '100%': { transform: 'rotate(360deg)' }
+                        scan: {
+                            '0%': { top: '0%', opacity: 0 },
+                            '10%': { opacity: 1 },
+                            '90%': { opacity: 1 },
+                            '100%': { top: '100%', opacity: 0 }
+                        },
+                        superPulse: {
+                            '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(37, 99, 235, 0.7)' },
+                            '70%': { transform: 'scale(1.02)', boxShadow: '0 0 0 15px rgba(37, 99, 235, 0)' }
                         }
                     }
                 }
@@ -68,6 +76,12 @@
     <style>
         /* --- Base & Reset --- */
         body { transition: background-color 0.5s ease, color 0.5s ease; overflow-x: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- Scroll Progress Bar --- */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #2563EB, #06b6d4);
+            width: 0%; z-index: 9999; transition: width 0.1s ease-out; box-shadow: 0 0 10px #2563EB;
+        }
 
         /* --- Ambient Background --- */
         .ambient-bg {
@@ -104,216 +118,299 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* --- ILLUMINATING EFFECT --- */
-        .illuminate {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        /* --- BUTTONS --- */
+        .btn-glow {
+            position: relative; overflow: hidden; background: rgba(37, 99, 235, 0.9);
+            backdrop-filter: blur(10px); color: white; font-weight: 700; border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), inset 0 0 0 1px rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1;
         }
-        .illuminate:hover {
-            box-shadow: 0 0 30px rgba(37, 99, 235, 0.25);
-            border-color: rgba(37, 99, 235, 0.4);
-            transform: translateY(-4px) scale(1.01);
-        }
-        .dark .illuminate:hover {
-            box-shadow: 0 0 30px rgba(96, 165, 250, 0.2);
-            border-color: rgba(96, 165, 250, 0.3);
-        }
-
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-        .dark .glass-nav {
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        .btn-glow:hover {
+            transform: translateY(-2px) scale(1.02); background: rgba(37, 99, 235, 1);
+            box-shadow: 0 0 30px rgba(37, 99, 235, 0.6), inset 0 0 20px rgba(255,255,255,0.2);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* --- RESPONSIVE LIQUID PHOTO CONTAINER --- */
+        /* Super Glow Button */
+        .btn-super-glow {
+            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            color: white; font-weight: 800; letter-spacing: 0.5px;
+            border-radius: 1rem; border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5), inset 0 0 0 1px rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden; z-index: 1;
+        }
+        .btn-super-glow::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.5s;
+        }
+        .btn-super-glow:hover::before { left: 100%; }
+        .btn-super-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px rgba(37, 99, 235, 0.8), 0 0 10px #fff;
+        }
+
+        .btn-glow-secondary {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); color: #1f2937;
+            border: 1px solid rgba(0, 0, 0, 0.1); font-weight: 600; border-radius: 0.75rem;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .dark .btn-glow-secondary { background: rgba(31, 41, 55, 0.8); color: white; border-color: rgba(255, 255, 255, 0.1); }
+        .btn-glow-secondary:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); border-color: #3B82F6; transform: translateY(-2px); }
+
+        /* --- ANIMATED TOOL BUTTONS --- */
+        .tool-btn-animated {
+            position: relative; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .tool-btn-animated:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .dark .tool-btn-animated:hover {
+            background-color: rgba(30, 41, 59, 0.9);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- SELECTS & INPUTS --- */
+        .custom-select-wrapper { position: relative; }
+        .custom-select {
+            appearance: none; -webkit-appearance: none; width: 100%;
+            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5); padding: 1rem 1.5rem;
+            border-radius: 1rem; font-weight: 600; color: #1f2937; cursor: pointer;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
+        }
+        .dark .custom-select {
+            background: rgba(15, 23, 42, 0.6); border-color: rgba(255, 255, 255, 0.1);
+            color: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .select-icon {
+            position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%);
+            pointer-events: none; color: #3B82F6; transition: transform 0.3s ease;
+        }
+
+        /* --- LIQUID PHOTO --- */
         .liquid-wrapper {
-            position: relative;
-            width: 280px; height: 280px;
-            display: flex; justify-content: center; align-items: center;
+            position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center;
         }
-        @media (min-width: 768px) {
-            .liquid-wrapper { width: 350px; height: 350px; }
-        }
+        @media (min-width: 768px) { .liquid-wrapper { width: 350px; height: 350px; } }
         
         .liquid-bg {
-            position: absolute;
-            inset: -10px;
-            background: linear-gradient(45deg, #2563EB, #06b6d4);
+            position: absolute; inset: -10px; background: linear-gradient(45deg, #2563EB, #06b6d4);
             border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-            animation: morph-reverse 8s ease-in-out infinite;
-            opacity: 0.7; filter: blur(10px); z-index: 0;
+            animation: morph-reverse 8s ease-in-out infinite; opacity: 0.7; filter: blur(10px); z-index: 0;
         }
         .dark .liquid-bg { opacity: 0.4; }
 
         .liquid-img-box {
-            position: relative;
-            width: 100%; height: 100%;
-            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-            overflow: hidden;
-            z-index: 1;
-            transform: translateZ(0); 
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
-            border: 4px solid rgba(255,255,255,0.8);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
-            animation: morph 8s ease-in-out infinite;
-            transition: all 0.5s ease;
+            position: relative; width: 100%; height: 100%;
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; overflow: hidden; z-index: 1; 
+            -webkit-mask-image: -webkit-radial-gradient(white, black); border: 4px solid rgba(255,255,255,0.8);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2); animation: morph 8s ease-in-out infinite; transition: all 0.5s ease;
         }
         .dark .liquid-img-box { border-color: rgba(255,255,255,0.15); }
+        .liquid-img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .liquid-img-box img {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .liquid-wrapper:hover .liquid-img-box img { transform: scale(1.1); }
-        .liquid-wrapper:hover .liquid-bg { filter: blur(15px); opacity: 0.9; }
-
-        /* --- RESPONSIVE ROBOT COMPANION --- */
+        /* --- ROBOT V3.1 (BLUE LIGHT MODE / CYAN DARK MODE) --- */
         .droid-container {
-            position: fixed; 
-            bottom: 60px; right: 20px;
-            width: 80px; height: 100px;
-            z-index: 100;
-            cursor: pointer;
-            transition: transform 0.3s ease;
+            position: fixed; bottom: 60px; right: 20px; width: 80px; height: 100px;
+            z-index: 999; cursor: grab; transition: transform 0.1s ease;
         }
-        @media (max-width: 768px) {
-            .droid-container { transform: scale(0.7); right: 10px; bottom: 50px; }
-        }
-        @media (min-width: 769px) {
-            .droid-container:hover { transform: scale(1.05); }
-        }
+        .droid-container:active { cursor: grabbing; }
         
-        .droid {
-            position: relative;
-            width: 100%; height: 100%;
-            animation: float-fast 4s ease-in-out infinite;
-        }
-
+        .droid { position: relative; width: 100%; height: 100%; animation: float 6s ease-in-out infinite; pointer-events: none; }
+        
+        /* HEAD STYLES - LIGHT MODE (BLUE) */
         .d-head {
-            position: absolute; top: 0; left: 10px;
-            width: 60px; height: 40px;
-            background: #fff;
-            border-radius: 30px 30px 10px 10px;
-            border: 2px solid #e2e8f0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 2;
-            overflow: hidden;
-            transition: transform 0.1s;
+            position: absolute; top: 0; left: 10px; width: 60px; height: 40px;
+            background: #3b82f6; /* Blue 500 */
+            border-radius: 30px 30px 10px 10px; 
+            border: 2px solid #1e3a8a; /* Blue 900 */
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); /* Blue Glow */
+            z-index: 2; overflow: hidden; transition: all 0.3s;
         }
-        .dark .d-head { background: #1e293b; border-color: #475569; }
+        /* HEAD STYLES - DARK MODE (CYAN NEON) */
+        .dark .d-head { 
+            background: #06b6d4; 
+            border-color: #ecfeff; 
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.9);
+        }
 
         .d-face {
             position: absolute; top: 10px; left: 5px; right: 5px; bottom: 5px;
-            background: #0f172a;
-            border-radius: 20px 20px 10px 10px;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-            overflow: hidden;
+            background: #020617; border-radius: 20px 20px 10px 10px;
+            display: flex; justify-content: center; align-items: center; gap: 8px; overflow: hidden;
+            box-shadow: inset 0 0 5px #000;
         }
-
+        /* Eyes */
         .d-eye {
-            width: 12px; height: 12px;
-            background: #3b82f6;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #3b82f6;
-            transition: all 0.2s;
-            position: relative;
+            width: 12px; height: 12px; background: #60a5fa; border-radius: 50%;
+            box-shadow: 0 0 8px #60a5fa; transition: all 0.1s; position: relative;
         }
-        .d-eye::after {
-            content: ''; position: absolute; top: 2px; left: 2px;
-            width: 4px; height: 4px; background: white; border-radius: 50%;
-        }
+        .d-eye::after { content: ''; position: absolute; top: 2px; left: 2px; width: 4px; height: 4px; background: white; border-radius: 50%; }
+        
+        /* Talking State */
+        .droid.talking .d-eye { animation: talk-blink 0.2s infinite alternate; height: 4px; border-radius: 2px; }
+        @keyframes talk-blink { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 15px #38bdf8; } }
 
-        .droid-container:hover .d-eye {
-            height: 6px; width: 14px;
-            border-radius: 10px 10px 0 0;
-            background: #3b82f6;
-        }
+        /* Listening State */
+        .droid.listening .d-head { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); background: #fca5a5; }
+        .droid.listening .d-eye { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
 
+        /* BODY STYLES - LIGHT MODE (BLUE) */
         .d-body {
-            position: absolute; top: 45px; left: 15px;
-            width: 50px; height: 40px;
-            background: #f1f5f9;
-            border-radius: 10px 10px 25px 25px;
-            border: 2px solid #e2e8f0;
+            position: absolute; top: 45px; left: 15px; width: 50px; height: 40px;
+            background: #2563eb; /* Blue 600 */
+            border-radius: 10px 10px 25px 25px; 
+            border: 2px solid #1e3a8a; 
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
             z-index: 1;
         }
-        .dark .d-body { background: #334155; border-color: #475569; }
+        /* BODY STYLES - DARK MODE (CYAN) */
+        .dark .d-body { background: #22d3ee; border-color: #ecfeff; box-shadow: 0 0 15px rgba(34, 211, 238, 0.6); }
 
-        .d-hand {
-            position: absolute; top: 55px;
-            width: 12px; height: 25px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            transition: transform 0.2s;
+        /* HAND STYLES - LIGHT MODE (BLUE) */
+        .d-hand { 
+            position: absolute; top: 55px; width: 12px; height: 25px; 
+            background: #2563eb; 
+            border-radius: 10px; transition: all 0.3s; 
+            border: 1px solid #1e3a8a;
+            box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
         }
-        .dark .d-hand { background: #475569; }
-        .d-hand.left { left: 5px; }
-        .d-hand.right { right: 5px; }
+        /* HAND STYLES - DARK MODE (CYAN) */
+        .dark .d-hand { background: #22d3ee; border-color: #cffafe; }
+        .d-hand.left { left: 5px; } .d-hand.right { right: 5px; }
 
-        .droid.rolling { animation: roll 0.8s ease-in-out; }
+        /* --- MODERN GLASSMORPHIC MENU --- */
+        .droid-hud {
+            position: absolute; bottom: 120%; right: -20px; width: 300px;
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 20px; display: none; transform-origin: bottom right;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            color: #fff; font-family: 'Outfit', sans-serif; z-index: 1000;
+            overflow: hidden;
+        }
+        .droid-hud.active { display: block; animation: hud-spring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes hud-spring { 0% { transform: scale(0.5) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
+        /* Modern Grid Layout */
+        .hud-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .hud-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
+        .hud-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
+        
+        .hud-grid { display: grid; grid-cols-2; gap: 12px; margin-bottom: 16px; }
+        
+        .hud-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px; padding: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative; overflow: hidden;
+        }
+        .hud-card:hover { 
+            background: rgba(255, 255, 255, 0.08); 
+            transform: translateY(-2px); 
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2);
+        }
+        .hud-card i { font-size: 18px; color: #60a5fa; transition: transform 0.3s; }
+        .hud-card:hover i { transform: scale(1.1); color: #93c5fd; }
+        .hud-label { font-size: 11px; font-weight: 600; color: #cbd5e1; }
+
+        /* Voice Button Special Style */
+        .hud-voice-row { 
+            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1));
+            border: 1px solid rgba(59,130,246,0.2); border-radius: 16px; 
+            padding: 12px; margin-bottom: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.3s;
+        }
+        .hud-voice-row:hover { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59,130,246,0.15); }
+        .hud-voice-icon { 
+            width: 36px; height: 36px; background: #3b82f6; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; color: white;
+            box-shadow: 0 4px 10px rgba(59,130,246,0.3);
+        }
+        .hud-voice-text div:first-child { font-size: 12px; font-weight: 700; color: white; }
+        .hud-voice-text div:last-child { font-size: 10px; color: #94a3b8; }
+        .hud-voice-row.listening { border-color: #ef4444; background: rgba(239,68,68,0.1); }
+        .hud-voice-row.listening .hud-voice-icon { background: #ef4444; animation: pulse 1.5s infinite; }
+
+        .hud-footer { 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            padding-top: 12px; margin-top: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hud-mini-btn { 
+            width: 32px; height: 32px; border-radius: 10px; 
+            background: rgba(255,255,255,0.05); color: #94a3b8; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+        }
+        .hud-mini-btn:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05); }
+        
+        .scanner-beam {
+            position: fixed; top: 0; left: 0; width: 100%; height: 5px;
+            background: #3b82f6; box-shadow: 0 0 20px #3b82f6;
+            z-index: 9999; animation: scan 2s linear infinite; display: none;
+        }
+
+        /* Speech Bubble */
         .bot-bubble {
-            position: absolute; bottom: 100%; right: 0;
-            background: #fff; padding: 10px 14px;
-            border-radius: 12px 12px 0 12px;
-            font-size: 12px; font-weight: bold; color: #334155;
-            width: max-content; max-width: 180px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            opacity: 0; transform: translateY(10px) scale(0.9);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
-            border: 1px solid #e2e8f0;
-            z-index: 101;
-            text-align: right; margin-bottom: 10px;
+            position: absolute; bottom: 100%; right: 0; background: #fff; padding: 10px 14px;
+            border-radius: 12px 12px 0 12px; font-size: 12px; font-weight: bold; color: #334155;
+            width: max-content; max-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            opacity: 0; transform: translateY(10px) scale(0.9); transition: all 0.3s;
+            pointer-events: none; border: 1px solid #e2e8f0; z-index: 101; text-align: right; margin-bottom: 10px;
         }
         .dark .bot-bubble { background: #1e293b; color: #e2e8f0; border-color: #334155; }
         .bot-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
 
-        /* --- Text Backdrop Glow --- */
-        .text-backdrop {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 140%; height: 140%;
-            background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1; filter: blur(40px); animation: pulse-glow 4s infinite;
+        /* --- Scroll Reveal Animation V2 --- */
+        .reveal { 
+            opacity: 0; 
+            transform: translateY(40px) scale(0.95); 
+            filter: blur(10px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
         }
-        .dark .text-backdrop { background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(0,0,0,0) 70%); }
+        .reveal.active { 
+            opacity: 1; 
+            transform: translateY(0) scale(1); 
+            filter: blur(0);
+        }
 
-        /* --- Scroll Reveal Animation --- */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-
-        /* --- Nav Button --- */
         .nav-btn { position: relative; transition: all 0.3s ease; }
-        .nav-btn::after {
-            content: ''; position: absolute; bottom: -2px; left: 50%;
-            width: 0%; height: 2px; background: #2563EB; transform: translateX(-50%);
-            transition: width 0.3s ease; border-radius: 2px;
-        }
-        .dark .nav-btn::after { background: #60A5FA; }
-        .nav-btn:hover { color: #2563EB; }
-        .dark .nav-btn:hover { color: #60A5FA; }
-        .nav-btn.active { color: #2563EB; font-weight: 600; }
-        .dark .nav-btn.active { color: #60A5FA; }
-        .nav-btn.active::after { width: 40%; }
+        .nav-btn.active { color: #2563EB; font-weight: 600; text-shadow: 0 0 10px rgba(37,99,235,0.3); }
+        .dark .nav-btn.active { color: #60A5FA; text-shadow: 0 0 10px rgba(96,165,250,0.5); }
 
-        /* --- Utilities --- */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; color: #2563EB; }
         @keyframes blink { 50% { opacity: 0; } }
-        .toast-enter { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        .ide-window { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         
-        #main-content { scroll-behavior: smooth; }
+        /* --- Timeline (New) --- */
+        .timeline-item { position: relative; padding-left: 2rem; border-left: 2px solid #e2e8f0; padding-bottom: 2rem; }
+        .dark .timeline-item { border-color: #334155; }
+        .timeline-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; }
+        .timeline-item:last-child { border-left: 2px solid transparent; }
     </style>
 </head>
-<body class="text-gray-900 dark:text-gray-100 flex flex-col h-screen overflow-hidden">
+<body class="text-gray-900 dark:text-gray-100 flex flex-col h-screen overflow-hidden" onclick="handleGlobalClick(event)">
+
+    <div id="scanner" class="scanner-beam"></div>
+    <div id="scroll-progress"></div>
 
     <div class="ambient-bg">
         <div class="blob-1"></div>
@@ -322,7 +419,7 @@
     </div>
 
     <nav class="fixed top-0 left-0 w-full z-50 flex justify-center pt-4 px-4 transition-all duration-300" id="navbar">
-        <div class="glass-nav rounded-full px-4 py-3 flex items-center justify-between shadow-lg max-w-5xl w-full">
+        <div class="glass-nav rounded-full px-4 py-3 flex items-center justify-between shadow-nav-glow max-w-5xl w-full bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-white/10 transition-all hover:shadow-glow">
             <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
                 <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md animate-pulse-glow">RM</div>
                 <div class="flex flex-col leading-tight">
@@ -332,12 +429,12 @@
             </div>
             
             <div class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors" id="btn-home">Home</button>
-                <button onclick="switchTab('tools')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors" id="btn-tools">Stack</button>
-                <button onclick="switchTab('projects')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors" id="btn-projects">Projects</button>
-                <button onclick="switchTab('blog')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors" id="btn-blog">Blogs</button>
-                <button onclick="switchTab('yaml')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors" id="btn-yaml">PlayGround</button>
-                <button onclick="switchTab('about')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors" id="btn-about">About</button>
+                <button onclick="switchTab('home')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-home">Home</button>
+                <button onclick="switchTab('tools')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-tools">Stack</button>
+                <button onclick="switchTab('projects')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-projects">Projects</button>
+                <button onclick="switchTab('blog')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-blog">Blogs</button>
+                <button onclick="switchTab('yaml')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-yaml">PlayGround</button>
+                <button onclick="switchTab('about')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-about">About</button>
             </div>
 
             <div class="flex items-center gap-3">
@@ -348,14 +445,14 @@
                 <div class="md:hidden">
                     <button onclick="toggleMobileMenu()" class="p-2 text-gray-600 dark:text-gray-300"><i class="fas fa-bars"></i></button>
                 </div>
-                <button onclick="switchTab('contact')" class="hidden md:block px-5 py-2 rounded-full bg-gray-900 dark:bg-primary text-white text-sm font-medium hover:scale-105 transition-transform shadow-lg shadow-blue-500/20">
+                <button onclick="switchTab('contact')" class="hidden md:block px-5 py-2 btn-glow text-sm">
                     Contact
                 </button>
             </div>
         </div>
     </nav>
 
-    <div id="mobile-menu" class="fixed inset-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl hidden flex-col items-center justify-center space-y-6 opacity-0 transition-opacity duration-300">
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl hidden flex-col items-center justify-center space-y-6 opacity-0 pointer-events-none transition-all duration-300">
         <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-2xl text-gray-500 dark:text-gray-400"><i class="fas fa-times"></i></button>
         <button onclick="mobileNav('home')" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Home</button>
         <button onclick="mobileNav('tools')" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Stack</button>
@@ -365,11 +462,10 @@
         <button onclick="mobileNav('contact')" class="text-2xl font-bold text-primary">Contact Me</button>
     </div>
 
-    <main class="pt-32 pb-10 px-4 md:px-8 max-w-6xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar scroll-smooth" id="main-content">
+    <main class="pt-24 pb-10 px-4 md:px-8 max-w-6xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar scroll-smooth" id="main-content">
         
         <section id="home" class="tab-content block">
-            <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mt-4 md:mt-8">
-                
+            <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mt-0">
                 <div class="w-full md:w-1/2 space-y-8 reveal relative z-10">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm">
                         <i class="fas fa-terminal text-sm"></i>
@@ -377,8 +473,8 @@
                     </div>
                     
                     <div class="relative">
-                        <div class="text-backdrop"></div> 
-                        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-gray-900 dark:text-white drop-shadow-sm">
+                        <div class="absolute -inset-1 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-400 opacity-20 blur-2xl"></div>
+                        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-gray-900 dark:text-white drop-shadow-sm relative">
                             Rahul Magar
                         </h1>
                     </div>
@@ -393,27 +489,35 @@
                     </div>
                     
                     <div class="flex flex-wrap gap-4 pt-4">
-                        <button onclick="switchTab('about')" class="px-8 py-3.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold hover:scale-105 transition-all shadow-xl shadow-blue-900/20">
+                        <button onclick="switchTab('about')" class="px-8 py-3.5 btn-glow-secondary text-base">
                             About Me
                         </button>
-                        <button onclick="switchTab('contact')" class="px-8 py-3.5 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm">
-                            Contact Me
+                        <button onclick="switchTab('yaml')" class="px-8 py-3.5 btn-glow text-base flex items-center gap-2">
+                            DevOps Playground <i class="fas fa-rocket animate-bounce"></i>
                         </button>
                     </div>
 
                     <div class="pt-6 h-24" id="quote-container"></div>
+                    
+                    <div class="w-full max-w-lg mt-8 rounded-lg overflow-hidden bg-[#1e1e1e] border border-gray-700 shadow-2xl font-mono text-xs md:text-sm relative group">
+                        <div class="bg-[#2d2d2d] px-4 py-1 flex items-center gap-2 border-b border-gray-700">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            <span class="ml-2 text-gray-400 text-[10px]">rahul@devops-server:~</span>
+                        </div>
+                        <div class="p-4 h-40 overflow-y-auto text-green-400" id="terminal-body">
+                            </div>
+                    </div>
+
                 </div>
                 
                 <div class="w-full md:w-1/2 flex justify-center relative reveal delay-200">
-                    <div class="liquid-wrapper">
+                    <div class="liquid-wrapper -mt-20">
                         <div class="liquid-bg"></div>
-                        
                         <div class="liquid-img-box group">
-                            <img src="Rahul_photo-Copy.jpg" 
-                                 onerror="this.src='https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'"
-                                 alt="Rahul Magar">
+                            <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Rahul Magar">
                         </div>
-
                         <div class="absolute bottom-6 left-0 md:-left-6 glass-panel px-5 py-4 rounded-2xl flex items-center gap-3 animate-float shadow-xl z-20 hover:scale-110 transition-transform cursor-default">
                             <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-300 text-xl"><i class="fas fa-dharmachakra"></i></div>
                             <div>
@@ -421,6 +525,207 @@
                                 <div class="text-base font-bold text-gray-800 dark:text-white">Mastery</div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="tab-content hidden pb-20">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="lg:col-span-1">
+                        <div class="group relative p-0.5 rounded-2xl sticky top-20 reveal transition-all duration-500 hover:scale-[1.01] max-w-sm mx-auto">
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-20 blur-sm group-hover:opacity-50 transition-all duration-500"></div>
+                            <div class="relative h-full bg-white/30 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-xl flex flex-col items-center border border-white/30 dark:border-white/10 shadow-lg">
+                                <div class="relative w-24 h-24 mb-3">
+                                    <div class="absolute inset-0 rounded-full border-2 border-dashed border-blue-400 animate-spin-slow"></div>
+                                    <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'" class="w-full h-full object-cover rounded-full border-2 border-transparent p-0.5 bg-gradient-to-br from-blue-500 to-purple-600 bg-clip-border relative z-10 shadow-md" alt="Rahul">
+                                    <div class="absolute bottom-1 right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full z-20 shadow-sm" title="Available"></div>
+                                </div>
+                                <h2 class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 mb-1">Rahul Magar</h2>
+                                <p class="text-gray-600 dark:text-gray-300 font-medium mb-4 text-xs tracking-wide bg-blue-50/50 dark:bg-blue-900/20 px-3 py-1 rounded-full border border-blue-100/50 dark:border-blue-800">DevOps & SAS Architect</p>
+                                <div class="w-full space-y-2 mb-6">
+                                    <div class="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-transparent hover:border-blue-200 dark:hover:border-blue-700 transition-all group/item cursor-default">
+                                        <div class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-blue-500 group-hover/item:scale-110 transition-transform text-sm"><i class="fas fa-map-marker-alt"></i></div>
+                                        <div class="text-left"><p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Location</p><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Pune, Maharashtra</p></div>
+                                    </div>
+                                    <a href="https://linkedin.com/in/rahulmagar11" target="_blank" class="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-transparent hover:border-blue-200 dark:hover:border-blue-700 transition-all group/item">
+                                        <div class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-blue-500 group-hover/item:scale-110 transition-transform text-sm"><i class="fab fa-linkedin-in"></i></div>
+                                        <div class="text-left"><p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">LinkedIn</p><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">/in/rahulmagar11</p></div>
+                                    </a>
+                                    <a href="https://github.com/rahulmagar11" target="_blank" class="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-transparent hover:border-blue-200 dark:hover:border-blue-700 transition-all group/item">
+                                        <div class="w-8 h-8 rounded-full bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center text-blue-500 group-hover/item:scale-110 transition-transform text-sm"><i class="fab fa-github"></i></div>
+                                        <div class="text-left"><p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">GitHub</p><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">/rahulmagar11</p></div>
+                                    </a>
+                                </div>
+                                <button onclick="switchTab('contact')" class="w-full py-3 px-4 btn-glow text-sm flex justify-center items-center gap-2">
+                                    Let's Connect <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-primary flex items-center gap-3">
+                                <i class="fas fa-user-tie"></i> Professional Summary
+                            </h3>
+                            <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-base">
+                                Results-driven <strong>DevOps Engineer</strong> and <strong>SAS Platform Engineer</strong> with 9+ years of experience transforming software delivery through <strong>Infrastructure as Code (IaC)</strong>, <strong>Cloud Engineering (AWS, Azure)</strong>, and <strong>CI/CD pipeline automation</strong>. Expertise in <strong>Kubernetes (EKS/AKS)</strong>, Terraform, Ansible, Jenkins, and comprehensive observability stacks. Dedicated to building resilient, scalable, and cost-optimized infrastructure while administering high-availability and managing <strong>SAS Grid and Viya</strong> platforms.
+                            </p>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-green-600 dark:text-green-400 flex items-center gap-3">
+                                <i class="fas fa-cogs"></i> Core Expertise
+                            </h3>
+                            <ul class="space-y-3 text-gray-700 dark:text-gray-300 text-sm">
+                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
+                                    <i class="fab fa-aws text-yellow-600 text-lg mt-1 mr-4"></i>
+                                    <span class="leading-snug">Designed and managed robust, cost-optimized infrastructure on AWS (EKS, EC2, S3, Lambda, VPC).</span>
+                                </li>
+                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
+                                    <i class="fas fa-dharmachakra text-indigo-600 text-lg mt-1 mr-4"></i>
+                                    <span class="leading-snug">Expertise in Kubernetes (EKS/AKS) deployment, Helm, and GitOps workflows using ArgoCD.</span>
+                                </li>
+                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
+                                    <i class="fas fa-code text-purple-600 text-lg mt-1 mr-4"></i>
+                                    <span class="leading-snug">Implemented Infrastructure as Code (IaC) using Terraform and configuration management with Ansible.</span>
+                                </li>
+                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
+                                    <i class="fas fa-sync-alt text-red-600 text-lg mt-1 mr-4"></i>
+                                    <span class="leading-snug">Built and maintained scalable CI/CD pipelines using Jenkins, Azure DevOps, and GitHub Actions.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-6 text-indigo-600 dark:text-indigo-400 flex items-center gap-3">
+                                <i class="fas fa-trophy"></i> Key Achievements
+                            </h3>
+                            <div class="space-y-6">
+                                <div class="reveal">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Reduced Infrastructure Costs (EKS)</span>
+                                        <span class="text-sm font-bold text-green-600 dark:text-green-400">40%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-green-500 h-full rounded-full animate-pulse" style="width: 40%"></div>
+                                    </div>
+                                </div>
+                                <div class="reveal">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">CI/CD Deployment Frequency</span>
+                                        <span class="text-sm font-bold text-blue-600 dark:text-blue-400">5x Increase</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-blue-500 h-full rounded-full animate-pulse" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-6 text-blue-600 dark:text-blue-400 flex items-center gap-3">
+                                <i class="fas fa-flask"></i> Quick Skills Snapshot
+                            </h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 text-center">
+                                <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl border border-orange-200 dark:border-orange-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
+                                    <i class="fab fa-aws text-orange-600 text-3xl mb-2"></i>
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">AWS</p>
+                                </div>
+                                <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-200 dark:border-indigo-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
+                                    <i class="fas fa-dharmachakra text-indigo-600 dark:text-indigo-400 text-3xl mb-2"></i>
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">K8s</p>
+                                </div>
+                                <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-200 dark:border-purple-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
+                                    <i class="fas fa-code text-purple-600 dark:text-purple-400 text-3xl mb-2"></i>
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Terraform</p>
+                                </div>
+                                <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
+                                    <i class="fas fa-terminal text-green-600 dark:text-green-400 text-3xl mb-2"></i>
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Ansible</p>
+                                </div>
+                                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
+                                    <i class="fas fa-sync-alt text-red-600 dark:text-red-400 text-3xl mb-2"></i>
+                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Jenkins</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-6 text-purple-600 dark:text-purple-400 flex items-center gap-3">
+                                <i class="fas fa-radar"></i> Tech Stack Radar
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">Cloud & Infrastructure (AWS/Azure/Terraform)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">95%</span></div>
+                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[95%]"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">Containerization (Docker/K8s/Helm)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">90%</span></div>
+                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[90%]"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">CI/CD & Automation (Jenkins/Ansible/Git)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">85%</span></div>
+                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[85%]"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">SAS Administration (Viya/9.4)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">92%</span></div>
+                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[92%]"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-6 text-blue-600 dark:text-blue-400 flex items-center gap-3">
+                                <i class="fas fa-history"></i> My Journey
+                            </h3>
+                            <div class="ml-2">
+                                <div class="timeline-item">
+                                    <div class="text-sm font-bold text-gray-400">2022 - Present</div>
+                                    <h4 class="text-lg font-bold text-gray-800 dark:text-white">Senior DevOps Architect</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Leading cloud migration strategies, designing EKS clusters, and implementing GitOps with ArgoCD for enterprise-scale applications.</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="text-sm font-bold text-gray-400">2021 - 2022</div>
+                                    <h4 class="text-lg font-bold text-gray-800 dark:text-white">SAS Admin and Cloud Engineer</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Managed multi-node SAS Grid environments, automated user onboarding, and performed major version upgrades for banking clients.</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="text-sm font-bold text-gray-400">2017 - 2020</div>
+                                    <h4 class="text-lg font-bold text-gray-800 dark:text-white">SAS Platform Administrator</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Administered RHEL/CentOS servers, wrote bash automation scripts, and managed network security protocols.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 flex items-center gap-3">
+                                <i class="fas fa-certificate text-yellow-500"></i> Certifications
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="flex items-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800/30 hover:scale-105 transition-transform">
+                                    <i class="fas fa-award text-yellow-500 mr-3 text-lg"></i>
+                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">AWS Certified Solutions Architect</span>
+                                </div>
+                                <div class="flex items-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 hover:scale-105 transition-transform">
+                                    <i class="fas fa-award text-blue-500 mr-3 text-lg"></i>
+                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">Certified Kubernetes Admin (CKA)</span>
+                                </div>
+                                <div class="flex items-center p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 hover:scale-105 transition-transform">
+                                    <i class="fas fa-award text-red-500 mr-3 text-lg"></i>
+                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">Red Hat Certified Engineer (RHCE)</span>
+                                </div>
+                                <div class="flex items-center p-3 rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800/30 hover:scale-105 transition-transform">
+                                    <i class="fas fa-award text-sky-500 mr-3 text-lg"></i>
+                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">SAS Platform Admin for SAS 9</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -457,228 +762,242 @@
 
         <section id="yaml" class="tab-content hidden pb-20">
             <div class="reveal">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">YAML Validator</h2>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2">Test and visualize your YAML documents and templates.</p>
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">DevOps Tool Chest</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">Select a utility from the menu below.</p>
                 </div>
-                <div class="ide-window bg-[#1e1e1e] rounded-xl overflow-hidden border border-gray-700 mx-auto max-w-5xl">
-                    <div class="bg-[#252526] px-4 py-3 flex justify-between items-center border-b border-gray-700">
-                        <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-                            <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-                            <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
-                            <span class="ml-3 text-xs text-gray-400 font-mono hidden md:inline">DEVOPS EDITOR</span>
-                        </div>
-                        <div class="flex gap-3 flex-wrap justify-end">
-                            <select id="yaml-template-selector" onchange="loadYamlTemplate(this.value)" class="bg-[#3c3c3c] text-gray-300 text-xs rounded px-2 py-1 border-none focus:ring-1 focus:ring-blue-500 max-w-[150px] md:max-w-[200px]">
-                                <option value="none" selected disabled>-- Select Template --</option>
-                                <optgroup label="Kubernetes">
-                                    <option value="simple_deployment">Simple Deployment</option>
-                                    <option value="complex_deployment">Complex Deployment</option>
-                                    <option value="simple_service">NodePort Service</option>
-                                    <option value="pvc_and_deployment">PVC & Deployment</option>
-                                </optgroup>
-                                <optgroup label="CI/CD">
-                                    <option value="jenkins_pipeline">Jenkins Pipeline</option>
-                                    <option value="github_workflow">GitHub Actions</option>
-                                </optgroup>
-                                <optgroup label="Other">
-                                    <option value="ansible_playbook">Ansible Playbook</option>
-                                    <option value="docker_compose">Docker Compose</option>
-                                </optgroup>
-                            </select>
-                            <button onclick="downloadYaml()" class="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"><i class="fas fa-download mr-1"></i></button>
-                            <button onclick="clearYaml()" class="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700">Clear</button>
-                        </div>
-                    </div>
-                    <div class="flex flex-col md:flex-row h-[500px]">
-                        <div class="w-full md:w-1/2 relative border-r border-gray-700 flex flex-col">
-                            <textarea id="yamlInput" class="w-full h-full p-4 text-sm font-mono bg-[#1e1e1e] text-[#d4d4d4] resize-none focus:outline-none" spellcheck="false" placeholder="# Paste your YAML here..." oninput="validateYaml()"></textarea>
-                        </div>
-                        <div class="w-full md:w-1/2 bg-[#1e1e1e] flex flex-col border-t md:border-t-0 border-gray-700">
-                            <div class="px-4 py-2 bg-[#2d2d2d] text-xs font-bold text-gray-400 uppercase tracking-wider flex justify-between">
-                                <span>Output Console</span>
-                                <span id="yamlStatus" class="text-yellow-500">Waiting...</span>
-                            </div>
-                            <div id="yamlOutput" class="flex-grow p-4 font-mono text-xs text-green-400 overflow-auto whitespace-pre-wrap"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <section id="about" class="tab-content hidden pb-20">
-            <div class="max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="max-w-xl mx-auto mb-10 custom-select-wrapper reveal">
+                    <select id="toolSelector" onchange="switchTool(this.value)" class="custom-select">
+                        <optgroup label="1. Data Conversion & Manipulation">
+                            <option value="tool-editor" selected>YAML / JSON Validator</option>
+                            <option value="tool-csv">JSON <-> CSV Converter (NEW)</option>
+                            <option value="tool-base64">Base64 Encoder / Decoder</option>
+                            <option value="tool-jwt">JWT Debugger</option>
+                            <option value="tool-url">URL Encoder / Decoder</option>
+                        </optgroup>
+                        <optgroup label="2. Infrastructure & Networking">
+                            <option value="tool-cron">Cron Expression Generator</option> 
+                            <option value="tool-cidr">CIDR / Subnet Calculator</option>
+                            <option value="tool-port">Common Port Checker</option> 
+                            <option value="tool-dns">DNS Lookup Checker</option>
+                            <option value="tool-ip">IP & Network Checker</option>
+                            <option value="tool-ssl">Certificate (SSL) Decoder</option>
+                        </optgroup>
+                        <optgroup label="3. Security & Utils">
+                            <option value="tool-pass">Password / Secret Generator</option>
+                            <option value="tool-regex">Regex Tester</option>
+                            <option value="tool-chmod">Chmod Calculator</option>
+                        </optgroup>
+                    </select>
+                    <i class="fas fa-chevron-down select-icon"></i>
+                </div>
+                
+                <div class="glass-panel p-1 rounded-2xl border border-white/50 dark:border-white/10 mx-auto max-w-6xl shadow-2xl overflow-hidden min-h-[500px] relative transition-all duration-300" id="tool-container">
                     
-                    <div class="lg:col-span-1">
-                        <div class="glass-panel illuminate p-6 rounded-2xl sticky top-32 reveal text-center border border-white/50 dark:border-white/10">
-                            <div class="relative w-32 h-32 mx-auto mb-4">
-                                <div class="absolute inset-0 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full blur opacity-40 animate-pulse"></div>
-                                <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'" class="w-full h-full object-cover rounded-full shadow-2xl border-4 border-white dark:border-gray-800 relative z-10" alt="Rahul">
+                    <div id="tool-editor" class="tool-view h-full">
+                        <div class="bg-gray-100 dark:bg-gray-900/90 px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+                            <div class="flex items-center gap-2"><div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div><span class="text-xs font-bold text-gray-500 uppercase ml-2">Editor.yaml</span></div>
+                            <div class="flex gap-2">
+                                <select onchange="loadYamlTemplate(this.value)" class="bg-white dark:bg-gray-800 text-xs rounded px-2 py-1 border border-gray-300 dark:border-gray-700"><option value="" disabled selected>Load Template</option><option value="k8s_pod">K8s Pod</option><option value="k8s_svc">K8s Service</option><option value="github_action">GitHub Action</option></select>
+                                <button onclick="clearYaml()" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
                             </div>
-                            
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Rahul Magar</h2>
-                            <p class="text-primary font-medium mb-4 text-sm">DevOps Engineer & SAS Platform Admin</p>
-                            
-                            <div class="space-y-3 text-xs text-gray-600 dark:text-gray-300 text-left px-2">
-                                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary"><i class="fas fa-map-marker-alt"></i></div>
-                                    <span>Pune, Maharashtra, India</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary"><i class="fas fa-envelope"></i></div>
-                                    <a href="mailto:rahulmagar11@gmail.com" class="hover:text-primary transition">rahulmagar11@gmail.com</a>
-                                </div>
-                                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary"><i class="fab fa-linkedin"></i></div>
-                                    <a href="https://linkedin.com/in/rahulmagar11" target="_blank" class="hover:text-primary transition">/in/rahulmagar11</a>
-                                </div>
-                                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                                    <div class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary"><i class="fab fa-github"></i></div>
-                                    <a href="https://github.com/rahulmagar11" target="_blank" class="hover:text-primary transition">/rahulmagar11</a>
+                        </div>
+                        <div class="flex flex-col md:flex-row h-[500px] bg-gray-50 dark:bg-[#0d1117]">
+                            <div class="w-full md:w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-800 relative">
+                                <textarea id="yamlInput" class="flex-grow p-4 font-mono text-sm bg-transparent resize-none focus:outline-none text-gray-800 dark:text-gray-300" placeholder="# Paste YAML/JSON here..." oninput="validateYaml()"></textarea>
+                                <div class="absolute bottom-2 right-2 flex gap-1 bg-white/80 dark:bg-gray-800/80 p-1 rounded border border-gray-200 dark:border-gray-700">
+                                    <button onclick="convertYamlToJson()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">TO JSON</button>
+                                    <button onclick="convertJsonToYaml()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">TO YAML</button>
                                 </div>
                             </div>
-
-                            <button onclick="switchTab('contact')" class="w-full mt-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-xl hover:scale-[1.02] transition-all shadow-lg text-sm">
-                                Get In Touch
-                            </button>
+                            <div class="w-full md:w-1/2 flex flex-col bg-gray-100 dark:bg-[#0d1117]">
+                                <div class="px-4 py-1 text-[10px] font-bold text-gray-500 bg-gray-200 dark:bg-gray-800 flex justify-between"><span>OUTPUT</span><span id="yamlStatus">Ready</span></div>
+                                <div id="yamlOutput" class="flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-green-600 dark:text-green-400"></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-2 space-y-6">
-                        
-                        <div class="glass-panel illuminate p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-4 text-primary flex items-center gap-3">
-                                <i class="fas fa-user-tie"></i> Professional Summary
-                            </h3>
-                            <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-base">
-                                Results-driven <strong>DevOps Engineer</strong> and <strong>SAS Platform Engineer</strong> with 9+ years of experience transforming software delivery through <strong>Infrastructure as Code (IaC)</strong>, <strong>Cloud Engineering (AWS, Azure)</strong>, and <strong>CI/CD pipeline automation</strong>. Expertise in <strong>Kubernetes (EKS/AKS)</strong>, Terraform, Ansible, Jenkins, and comprehensive observability stacks. Dedicated to building resilient, scalable, and cost-optimized infrastructure while administering high-availability and managing <strong>SAS Grid and Viya</strong> platforms.
-                            </p>
+                    <div id="tool-csv" class="tool-view hidden p-6 h-full flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-lg text-emerald-600"><i class="fas fa-table mr-2"></i>JSON <-> CSV Converter</h3>
+                            <span class="text-xs text-gray-400">Auto-detects keys for CSV headers</span>
                         </div>
-
-                        <div class="glass-panel illuminate p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-4 text-green-600 dark:text-green-400 flex items-center gap-3">
-                                <i class="fas fa-cogs"></i> Core Expertise
-                            </h3>
-                            <ul class="space-y-3 text-gray-700 dark:text-gray-300 text-sm">
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fab fa-aws text-yellow-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Designed and managed robust, cost-optimized infrastructure on AWS (EKS, EC2, S3, Lambda, VPC).</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-dharmachakra text-indigo-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Expertise in Kubernetes (EKS/AKS) deployment, Helm, and GitOps workflows using ArgoCD.</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-code text-purple-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Implemented Infrastructure as Code (IaC) using Terraform and configuration management with Ansible.</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-sync-alt text-red-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Built and maintained scalable CI/CD pipelines using Jenkins, Azure DevOps, and GitHub Actions, including security scanning.</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-database text-blue-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Managed SAS platform infrastructure supporting enterprise analytics workloads.</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div class="glass-panel illuminate p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-6 text-indigo-600 dark:text-indigo-400 flex items-center gap-3">
-                                <i class="fas fa-trophy"></i> Key Achievements
-                            </h3>
-                            <div class="space-y-6">
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Reduced Infrastructure Costs (EKS)</span>
-                                        <span class="text-sm font-bold text-green-600 dark:text-green-400">40%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-green-500 h-full rounded-full animate-pulse" style="width: 40%"></div>
-                                    </div>
-                                </div>
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">CI/CD Deployment Frequency</span>
-                                        <span class="text-sm font-bold text-blue-600 dark:text-blue-400">5x Increase</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-blue-500 h-full rounded-full animate-pulse" style="width: 80%"></div>
-                                    </div>
-                                </div>
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">SAS Platform Uptime</span>
-                                        <span class="text-sm font-bold text-red-600 dark:text-red-400">99.9%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-red-500 h-full rounded-full animate-pulse" style="width: 99%"></div>
-                                    </div>
-                                </div>
+                        <div class="flex flex-col md:flex-row gap-4 h-full">
+                            <div class="flex-1 flex flex-col">
+                                <label class="text-xs font-bold mb-2">JSON Input</label>
+                                <textarea id="csvJsonInput" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none font-mono text-xs" placeholder='[{"name": "Rahul", "role": "DevOps"}, ...]'></textarea>
                             </div>
-                            
-                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 reveal">
-                                <h4 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-200">Certifications</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="flex items-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800/30 hover:scale-105 transition-transform">
-                                        <i class="fas fa-award text-yellow-500 mr-3 text-lg"></i>
-                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-200">AWS Certified Solutions Architect</span>
-                                    </div>
-                                    <div class="flex items-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 hover:scale-105 transition-transform">
-                                        <i class="fas fa-award text-blue-500 mr-3 text-lg"></i>
-                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-200">Certified Kubernetes Admin (CKA)</span>
-                                    </div>
-                                    <div class="flex items-center p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 hover:scale-105 transition-transform">
-                                        <i class="fas fa-award text-red-500 mr-3 text-lg"></i>
-                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-200">Red Hat Certified Engineer (RHCE)</span>
-                                    </div>
-                                    <div class="flex items-center p-3 rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800/30 hover:scale-105 transition-transform">
-                                        <i class="fas fa-award text-sky-500 mr-3 text-lg"></i>
-                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-200">SAS Platform Admin for SAS 9</span>
-                                    </div>
-                                </div>
+                            <div class="flex flex-col justify-center gap-3">
+                                <button onclick="jsonToCsv()" class="btn-glow px-4 py-2 text-xs"><i class="fas fa-arrow-right"></i> To CSV</button>
+                                <button onclick="csvToJson()" class="btn-glow-secondary px-4 py-2 text-xs"><i class="fas fa-arrow-left"></i> To JSON</button>
+                            </div>
+                            <div class="flex-1 flex flex-col">
+                                <label class="text-xs font-bold mb-2">CSV Output</label>
+                                <textarea id="csvOutput" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none font-mono text-xs whitespace-pre" placeholder="name,role&#10;Rahul,DevOps"></textarea>
                             </div>
                         </div>
-
-                        <div class="glass-panel illuminate p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-6 text-blue-600 dark:text-blue-400 flex items-center gap-3">
-                                <i class="fas fa-flask"></i> Quick Skills Snapshot
-                            </h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 text-center">
-                                <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl border border-orange-200 dark:border-orange-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fab fa-aws text-orange-600 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">AWS</p>
-                                </div>
-                                <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-200 dark:border-indigo-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-dharmachakra text-indigo-600 dark:text-indigo-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">K8s</p>
-                                </div>
-                                <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-200 dark:border-purple-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-code text-purple-600 dark:text-purple-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Terraform</p>
-                                </div>
-                                <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-terminal text-green-600 dark:text-green-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Ansible</p>
-                                </div>
-                                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-sync-alt text-red-600 dark:text-red-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Jenkins</p>
-                                </div>
-                                <div class="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-2xl border border-pink-200 dark:border-pink-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-chart-bar text-pink-600 dark:text-pink-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Grafana</p>
-                                </div>
-                                <div class="p-4 bg-sky-50 dark:bg-sky-900/20 rounded-2xl border border-sky-200 dark:border-sky-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-server text-sas dark:text-sky-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">SAS</p>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
+
+                    <div id="tool-cron" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-clock text-5xl text-purple-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-2">Cron Generator</h3>
+                        <p class="text-sm text-gray-500 mb-6">Standard 5-field cron syntax</p>
+                        <div class="mb-6 w-full max-w-lg">
+                            <select onchange="applyCronPreset(this.value)" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                                <option value="" disabled selected>-- Select Quick Preset --</option>
+                                <option value="* * * * *">Every Minute (* * * * *)</option>
+                                <option value="*/5 * * * *">Every 5 Minutes (*/5 * * * *)</option>
+                                <option value="0 * * * *">Every Hour (0 * * * *)</option>
+                                <option value="0 0 * * *">Daily at Midnight (0 0 * * *)</option>
+                                <option value="0 9 * * 1-5">Weekdays at 9AM (0 9 * * 1-5)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-wrap gap-2 justify-center mb-8">
+                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Min</label><select id="cronMin" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
+                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Hour</label><select id="cronHour" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
+                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Day</label><select id="cronDay" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
+                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Month</label><select id="cronMonth" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
+                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Week</label><select id="cronWeek" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
+                        </div>
+                        <div class="text-4xl font-mono font-bold bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl border-2 border-purple-500 text-purple-600 dark:text-purple-400 w-full max-w-lg shadow-inner" id="cronOutput">* * * * *</div>
+                        <div class="mt-4 text-gray-600 dark:text-gray-300 font-medium bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg" id="cronDesc">Run every minute</div>
+                    </div>
+
+                    <div id="tool-port" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-ethernet text-5xl text-orange-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4">Common Port Checker</h3>
+                        <input type="number" id="portInput" placeholder="e.g. 443" class="w-full max-w-xs p-4 text-center text-xl border-2 border-orange-200 dark:border-gray-700 rounded-xl mb-6 bg-white dark:bg-gray-800 outline-none focus:border-orange-500" oninput="checkPort()">
+                        <div id="portResult" class="text-xl font-bold text-gray-700 dark:text-gray-300">Enter a port number...</div>
+                    </div>
+
+                    <div id="tool-cidr" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-network-wired text-5xl text-cyan-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Subnet Calculator</h3>
+                        <input type="text" id="cidrInput" placeholder="192.168.1.0/24" class="w-full max-w-md p-4 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-center font-mono text-xl focus:border-cyan-500 outline-none mb-8" onkeyup="calculateCidr()">
+                        <div class="grid grid-cols-2 gap-4 w-full max-w-2xl">
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Netmask</div><div id="cidrNetmask" class="font-mono font-bold">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Total Hosts</div><div id="cidrHosts" class="font-mono font-bold text-primary">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">First IP</div><div id="cidrFirst" class="font-mono font-bold">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Last IP</div><div id="cidrLast" class="font-mono font-bold">-</div></div>
+                        </div>
+                    </div>
+
+                    <div id="tool-base64" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-primary"><i class="fas fa-lock mr-2"></i>Base64 Converter</h3>
+                        <div class="grid md:grid-cols-2 gap-6 h-full">
+                            <div class="flex flex-col"><label class="text-xs font-bold mb-2">Input</label><textarea id="b64Input" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none focus:ring-1 focus:ring-primary" placeholder="Type here..."></textarea></div>
+                            <div class="flex flex-col"><label class="text-xs font-bold mb-2">Output</label><textarea id="b64Output" class="flex-grow p-3 rounded-xl bg-gray-200 dark:bg-gray-900 border-none resize-none font-mono text-sm" readonly></textarea></div>
+                        </div>
+                        <div class="flex justify-center gap-4 mt-6">
+                            <button onclick="runBase64('enc')" class="px-6 py-2 btn-glow">Encode <i class="fas fa-arrow-right ml-1"></i></button>
+                            <button onclick="runBase64('dec')" class="px-6 py-2 btn-glow-secondary text-sm"><i class="fas fa-arrow-left mr-1"></i> Decode</button>
+                        </div>
+                    </div>
+
+                    <div id="tool-jwt" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-pink-600"><i class="fas fa-key mr-2"></i>JWT Debugger</h3>
+                        <div class="flex flex-col md:flex-row gap-6 h-full">
+                            <div class="w-full md:w-1/2 flex flex-col">
+                                <label class="text-xs font-bold mb-2 text-gray-500">Encoded Token</label>
+                                <textarea id="jwtInput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border-2 border-pink-500/20 focus:border-pink-500 outline-none font-mono text-xs resize-none text-pink-600 dark:text-pink-400 break-all" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJwt()"></textarea>
+                            </div>
+                            <div class="w-full md:w-1/2 flex flex-col gap-4">
+                                <div class="flex-1 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                    <div class="text-xs font-bold text-red-500 mb-1">HEADER</div>
+                                    <pre id="jwtHeader" class="text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{}</pre>
+                                </div>
+                                <div class="flex-[2] bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                    <div class="text-xs font-bold text-purple-500 mb-1">PAYLOAD</div>
+                                    <pre id="jwtPayload" class="text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-url" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-orange-500"><i class="fas fa-link mr-2"></i>URL Encoder/Decoder</h3>
+                         <div class="grid md:grid-cols-2 gap-6 h-full">
+                            <div class="flex flex-col"><label class="text-xs font-bold mb-2">String</label><textarea id="urlInput" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none" placeholder="Enter URL or string..." oninput="runUrlTool()"></textarea></div>
+                            <div class="flex flex-col">
+                                <label class="text-xs font-bold mb-2">Result</label>
+                                <div class="flex gap-2 mb-2">
+                                    <button onclick="setUrlMode('enc')" class="flex-1 py-1 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded">Encode</button>
+                                    <button onclick="setUrlMode('dec')" class="flex-1 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">Decode</button>
+                                </div>
+                                <textarea id="urlOutput" class="flex-grow p-3 rounded-xl bg-gray-200 dark:bg-gray-900 border-none resize-none font-mono text-sm" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-dns" class="tool-view hidden p-8 h-full flex flex-col items-center">
+                        <i class="fas fa-globe text-5xl text-blue-500 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">DNS Lookup</h3>
+                        <div class="flex w-full max-w-lg gap-2 mb-8">
+                            <select id="dnsType" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 font-bold border border-gray-300 dark:border-gray-700"><option value="A">A</option><option value="CNAME">CNAME</option><option value="MX">MX</option></select>
+                            <input type="text" id="dnsDomain" placeholder="example.com" class="flex-grow p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg outline-none">
+                            <button onclick="fetchDns()" class="btn-glow px-6 py-2">Check</button>
+                        </div>
+                        <div id="dnsResult" class="w-full max-w-2xl bg-gray-50 dark:bg-gray-900 rounded-xl p-6 min-h-[200px] font-mono text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap border border-gray-200 dark:border-gray-800">Results will appear here...</div>
+                    </div>
+
+                    <div id="tool-ip" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-laptop-code text-6xl text-green-500 mb-6"></i>
+                        <h3 class="text-xl font-bold mb-2">Your Public IP</h3>
+                        <div id="myIpDisplay" class="text-4xl md:text-5xl font-mono font-bold text-gray-900 dark:text-white mb-6">---.---.---.---</div>
+                        <button onclick="fetchMyIp()" class="btn-glow px-6 py-3">Refresh</button>
+                    </div>
+
+                    <div id="tool-ssl" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-teal-600"><i class="fas fa-certificate mr-2"></i>Certificate Decoder</h3>
+                        <div class="flex flex-col md:flex-row gap-6 h-full">
+                             <div class="w-full md:w-1/2 flex flex-col">
+                                <label class="text-xs font-bold mb-2">Paste PEM Certificate</label>
+                                <textarea id="sslInput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border-none font-mono text-xs resize-none" placeholder="-----BEGIN CERTIFICATE-----..." oninput="decodeCert()"></textarea>
+                            </div>
+                            <div class="w-full md:w-1/2 bg-gray-50 dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 overflow-auto">
+                                <div id="sslOutput" class="space-y-4 text-sm"><div class="text-center text-gray-400 mt-10">Details will appear here...</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-regex" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-indigo-500"><i class="fas fa-code mr-2"></i>Regex Tester</h3>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="regexPattern" placeholder="Pattern (e.g. ^[a-z]+$)" class="flex-[3] p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 font-mono text-sm" oninput="runRegex()">
+                            <input type="text" id="regexFlags" placeholder="Flags (gmi)" value="gm" class="flex-1 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 font-mono text-sm" oninput="runRegex()">
+                        </div>
+                        <label class="text-xs font-bold mb-1">Test String</label>
+                        <textarea id="regexString" class="h-32 p-3 rounded-lg bg-gray-100 dark:bg-gray-800 border-none font-mono text-sm resize-none mb-4" placeholder="Paste text here..." oninput="runRegex()"></textarea>
+                        <label class="text-xs font-bold mb-1">Matches</label>
+                        <div id="regexOutput" class="flex-grow bg-gray-200 dark:bg-gray-900 rounded-lg p-3 font-mono text-sm overflow-auto text-gray-700 dark:text-gray-300"></div>
+                    </div>
+
+                    <div id="tool-chmod" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <h3 class="font-bold text-2xl mb-6 text-gray-900 dark:text-white">Chmod Calculator</h3>
+                        <div class="text-6xl font-mono font-bold text-primary mb-8" id="chmodResult">644</div>
+                        <div class="grid grid-cols-3 gap-8 text-center">
+                            <div class="space-y-3"><div class="font-bold text-sm uppercase text-gray-400">Owner</div><input type="checkbox" class="w-5 h-5 chmod-check" data-val="400" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="200" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="100" onchange="calcChmod()"></div>
+                            <div class="space-y-3"><div class="font-bold text-sm uppercase text-gray-400">Group</div><input type="checkbox" class="w-5 h-5 chmod-check" data-val="40" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="20" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="10" onchange="calcChmod()"></div>
+                            <div class="space-y-3"><div class="font-bold text-sm uppercase text-gray-400">Public</div><input type="checkbox" class="w-5 h-5 chmod-check" data-val="4" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="2" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="1" onchange="calcChmod()"></div>
+                        </div>
+                    </div>
+
+                    <div id="tool-pass" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-shield-alt text-5xl text-red-500 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-6">Secret Generator</h3>
+                        <div class="w-full max-w-lg relative mb-8">
+                            <input type="text" id="passOutput" class="w-full p-4 pr-12 bg-gray-100 dark:bg-gray-800 rounded-xl text-center font-mono text-xl text-gray-800 dark:text-white" readonly value="Click Generate">
+                            <button onclick="copyPass()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <div class="flex gap-4 items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                            <label class="text-sm font-bold">Length:</label>
+                            <input type="range" id="passLen" min="8" max="64" value="16" class="w-32" oninput="document.getElementById('lenVal').innerText = this.value; generatePass()">
+                            <span id="lenVal" class="font-mono w-6">16</span>
+                        </div>
+                        <button onclick="generatePass()" class="btn-glow px-8 py-3 bg-red-600 border-none">Generate New Secret</button>
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -686,49 +1005,46 @@
         <section id="contact" class="tab-content hidden pb-20">
             <div class="max-w-6xl mx-auto">
                 <div class="grid md:grid-cols-2 gap-8 rounded-[2.5rem] overflow-hidden reveal">
-                    <div class="glass-panel p-10 md:p-12 rounded-[2.5rem] flex flex-col justify-between">
-                        <div>
-                            <h2 class="text-3xl md:text-4xl font-extrabold mb-6 text-gray-900 dark:text-white">Let's build something great.</h2>
-                            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
-                                Whether you need a DevOps expert for your next project, an SAS Platform Architect, or just want to connect, feel free to reach out.
-                            </p>
+                    <div class="glass-panel p-10 md:p-12 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl -mr-16 -mt-16 animate-pulse-glow"></div>
+                        <div class="relative z-10 space-y-8">
+                            <div class="border-l-4 border-blue-600 pl-6 py-2">
+                                <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white italic">"Chaos is merely an unconfigured variable."</h3>
+                            </div>
+                            <div class="border-l-4 border-purple-600 pl-6 py-2">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Deployment Fridays are for the brave, or the automated.</h3>
+                            </div>
+                            <div class="border-l-4 border-green-500 pl-6 py-2">
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">I don't just fix servers; I engineer sleep.</h3>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                <span class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-400">99.99% Uptime</span>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest font-bold">Is not a goal, it's a lifestyle.</p>
+                            </div>
                             <h4 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Why Contact Me?</h4>
                             <ul class="space-y-3 text-gray-600 dark:text-gray-400 text-sm mb-8">
                                 <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Need a robust AWS/Azure Kubernetes solution.</li>
                                 <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Require CI/CD pipeline automation.</li>
                             </ul>
                         </div>
-                        <div class="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                            <div class="flex items-center gap-3"><i class="fas fa-envelope text-primary"></i> rahulmagar11@gmail.com</div>
-                            <div class="flex items-center gap-3"><i class="fab fa-linkedin text-primary"></i> /in/rahulmagar11</div>
-                        </div>
                     </div>
+                    
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
                         <form name="contact" method="POST" data-netlify="true" onsubmit="handleContactSubmit(event)" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
-                                <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="John Doe">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-                                <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="you@example.com">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
-                                <textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Tell me about your project..."></textarea>
-                            </div>
-                            <button type="submit" class="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 hover:shadow-blue-500/50 transition-all transform hover:-translate-y-1">
-                                Send Message
+                            <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label><input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="John Doe"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label><input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="you@example.com"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label><textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Tell me about your project..."></textarea></div>
+                            <button type="submit" class="w-full py-4 btn-super-glow text-lg shadow-neon group flex justify-center items-center gap-2">
+                                <span>Send Message</span> <i class="fas fa-paper-plane group-hover:translate-x-1 transition-transform"></i>
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
         </section>
-
     </main>
 
     <footer class="text-center py-4 text-gray-400 text-sm border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-40 shrink-0">
@@ -740,122 +1056,175 @@
         </div>
     </footer>
 
-    <div class="droid-container" onclick="robotInteract()" id="droid">
-        <div class="bot-bubble" id="bot-bubble">Hi! I'm Droid. 窓</div>
-        <div class="droid" id="droid-body">
-            <div class="d-head" id="d-head">
-                <div class="d-face">
-                    <div class="d-eye"></div>
-                    <div class="d-eye"></div>
+    <div class="droid-container" onclick="toggleBotMenu(event)" id="droid">
+        <div class="droid-hud" id="bot-menu" onclick="event.stopPropagation()">
+            <div class="hud-top">
+                <span class="text-xs font-bold tracking-widest text-blue-400">ASSISTANT_V3.1</span>
+                <div class="hud-status">
+                    <div class="hud-dot"></div>
+                    ONLINE
                 </div>
             </div>
-            <div class="d-body"></div>
-            <div class="d-hand left"></div>
-            <div class="d-hand right"></div>
+
+            <div class="hud-voice-row" id="mic-btn" onclick="toggleVoice(this)">
+                <div class="hud-voice-text">
+                    <div>Voice Command</div>
+                    <div id="mic-status">Tap to speak...</div>
+                </div>
+                <div class="hud-voice-icon">
+                    <i class="fas fa-microphone"></i>
+                </div>
+            </div>
+            
+            <div class="hud-grid">
+                <div class="hud-card" onclick="switchTab('home')">
+                    <i class="fas fa-home"></i>
+                    <span class="hud-label">Home</span>
+                </div>
+                <div class="hud-card" onclick="switchTab('projects')">
+                    <i class="fas fa-project-diagram"></i>
+                    <span class="hud-label">Projects</span>
+                </div>
+                <div class="hud-card" onclick="switchTab('tools')">
+                    <i class="fas fa-layer-group"></i>
+                    <span class="hud-label">Stack</span>
+                </div>
+                <div class="hud-card" onclick="switchTab('yaml')">
+                    <i class="fas fa-tools"></i>
+                    <span class="hud-label">Tools</span>
+                </div>
+            </div>
+
+            <div class="hud-footer">
+                <div class="hud-mini-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fas fa-adjust"></i></div>
+                <div class="hud-mini-btn" onclick="botSpeak(getDevOpsJoke())" title="Tell Joke"><i class="fas fa-laugh-beam"></i></div>
+                <div class="hud-mini-btn" onclick="runSystemScan()" title="Scan System"><i class="fas fa-fingerprint"></i></div>
+                <div class="hud-mini-btn" onclick="switchTab('contact')" title="Contact"><i class="fas fa-paper-plane"></i></div>
+            </div>
+        </div>
+        
+        <div class="bot-bubble" id="bot-bubble">Initializing v3.0...</div>
+        
+        <div class="droid" id="droid-body">
+            <div class="d-head" id="d-head"><div class="d-face"><div class="d-eye"></div><div class="d-eye"></div></div></div>
+            <div class="d-body"></div><div class="d-hand left"></div><div class="d-hand right"></div>
         </div>
     </div>
 
     <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 hidden z-50">
         <i class="fas fa-check-circle text-green-400 dark:text-green-600 text-xl"></i>
-        <div>
-            <h4 class="font-bold text-sm">Message Sent!</h4>
-            <p class="text-xs text-gray-400 dark:text-gray-600">Thank you for your message. I will get back to you shortly.</p>
-        </div>
+        <div><h4 class="font-bold text-sm">Message Sent!</h4><p class="text-xs text-gray-400 dark:text-gray-600">Thank you for your message. I will get back to you shortly.</p></div>
     </div>
 
     <script>
-        // --- DATA SECTION ---
         const projects = [
-            { title: "Kubernetes Cluster on AWS EKS", desc: "Production-ready Kubernetes cluster on AWS EKS with auto-scaling, monitoring, and logging. Includes Terraform IaC, Helm charts, and CI/CD integration.", tags: ["EKS", "Terraform", "Prometheus", "GitOps"], icon: "fas fa-dharmachakra", color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300" },
-            { title: "Multi-Region AWS Infrastructure", desc: "Multi-region AWS infrastructure with disaster recovery, automated failover, and global load balancing using Terraform modules.", tags: ["AWS", "Multi-Region", "Terraform", "DR"], icon: "fab fa-aws", color: "text-orange-500 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300" },
-            { title: "CI/CD Pipeline with Jenkins", desc: "Automated CI/CD pipeline using Jenkins, Docker, and Kubernetes. Includes automated testing, security scanning, and blue-green deployments.", tags: ["Jenkins", "Docker", "Security", "Automation"], icon: "fas fa-sync-alt", color: "text-red-800 bg-red-50 dark:bg-red-900/30 dark:text-red-300" },
-            { title: "Microservices on Azure AKS", desc: "Microservices architecture deployed on Azure Kubernetes Service with service mesh, observability, and auto-scaling.", tags: ["AKS", "Microservices", "Istio", "Azure"], icon: "fab fa-microsoft", color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300" },
-            { title: "GitOps with ArgoCD", desc: "GitOps implementation using ArgoCD for declarative Kubernetes deployments with automated sync and rollback capabilities.", tags: ["GitOps", "ArgoCD", "Kubernetes", "Automation"], icon: "fas fa-rocket", color: "text-teal-600 bg-teal-50 dark:bg-teal-900/30 dark:text-teal-300" },
-            { title: "Infrastructure Monitoring Stack", desc: "Complete monitoring solution with Prometheus, Grafana, and ELK stack. Custom dashboards, alerting, and log aggregation.", tags: ["Monitoring", "Prometheus", "ELK", "Grafana"], icon: "fas fa-chart-line", color: "text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-300" },
-            { title: "Serverless Application on AWS", desc: "Serverless application using AWS Lambda, API Gateway, and DynamoDB with automated deployment using SAM and CloudFormation.", tags: ["Serverless", "Lambda", "AWS", "SAM"], icon: "fas fa-bolt", color: "text-orange-500 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300" },
-            { title: "Docker Swarm Cluster", desc: "Multi-node Docker Swarm cluster with service discovery, load balancing, and automated deployments.", tags: ["Docker", "Swarm", "Containers", "Orchestration"], icon: "fab fa-docker", color: "text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300" },
-            { title: "Terraform AWS Landing Zone", desc: "AWS Landing Zone implementation using Terraform modules for multi-account setup, security controls, and compliance.", tags: ["Terraform", "AWS", "Landing Zone", "Security"], icon: "fas fa-code", color: "text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-300" },
-            { title: "Kubernetes Autoscaling Demo", desc: "Demonstration of Kubernetes Horizontal Pod Autoscaler (HPA) and Cluster Autoscaler with custom metrics and load testing.", tags: ["Kubernetes", "HPA", "Scaling", "Performance"], icon: "fas fa-tachometer-alt", color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300" },
-            { title: "Azure DevOps Pipeline", desc: "Enterprise-grade Azure DevOps pipeline with multi-stage deployments, approval gates, and automated testing.", tags: ["Azure DevOps", "Pipeline", "Testing", "Automation"], icon: "fab fa-windows", color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300" },
-            { title: "Ansible Automation Playbooks", desc: "Collection of Ansible playbooks for server provisioning, configuration management, and application deployment.", tags: ["Ansible", "Automation", "Configuration", "IaC"], icon: "fas fa-terminal", color: "text-green-600 bg-green-50 dark:bg-green-900/30 dark:text-green-300" }
+            { title: "Kubernetes Cluster on AWS EKS", desc: "Production-ready Kubernetes cluster on AWS EKS with auto-scaling, monitoring, and logging.", tags: ["EKS", "Terraform", "Prometheus"], icon: "fas fa-dharmachakra", color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300" },
+            { title: "Multi-Region AWS Infrastructure", desc: "Multi-region AWS infrastructure with disaster recovery and automated failover.", tags: ["AWS", "Terraform", "DR"], icon: "fab fa-aws", color: "text-orange-500 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300" },
+            { title: "CI/CD Pipeline with Jenkins", desc: "Automated CI/CD pipeline using Jenkins, Docker, and Kubernetes.", tags: ["Jenkins", "Docker", "Security"], icon: "fas fa-sync-alt", color: "text-red-800 bg-red-50 dark:bg-red-900/30 dark:text-red-300" },
+            { title: "Microservices on Azure AKS", desc: "Microservices architecture deployed on Azure Kubernetes Service.", tags: ["AKS", "Istio", "Azure"], icon: "fab fa-microsoft", color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300" },
+            { title: "GitOps with ArgoCD", desc: "GitOps implementation using ArgoCD for declarative Kubernetes deployments.", tags: ["GitOps", "ArgoCD", "K8s"], icon: "fas fa-rocket", color: "text-teal-600 bg-teal-50 dark:bg-teal-900/30 dark:text-teal-300" },
+            { title: "Infrastructure Monitoring Stack", desc: "Complete monitoring solution with Prometheus, Grafana, and ELK stack.", tags: ["Monitoring", "Prometheus", "Grafana"], icon: "fas fa-chart-line", color: "text-pink-600 bg-pink-50 dark:bg-pink-900/30 dark:text-pink-300" },
+            { title: "Serverless Application on AWS", desc: "Serverless application using AWS Lambda, API Gateway, and DynamoDB.", tags: ["Serverless", "Lambda", "AWS"], icon: "fas fa-bolt", color: "text-orange-500 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300" },
+            { title: "Docker Swarm Cluster", desc: "Multi-node Docker Swarm cluster with service discovery.", tags: ["Docker", "Swarm"], icon: "fab fa-docker", color: "text-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300" },
+            { title: "DevSecOps Pipeline Integration", desc: "Automated security scanning (SAST/DAST) integrated directly into CI/CD workflows.", tags: ["Trivy", "SonarQube", "DevSecOps"], icon: "fas fa-user-shield", color: "text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-300" },
+            { title: "Chaos Engineering Platform", desc: "Resilience testing suite using Chaos Mesh to simulate pod failures and network latency.", tags: ["Chaos Mesh", "Resilience", "SRE"], icon: "fas fa-biohazard", color: "text-green-600 bg-green-50 dark:bg-green-900/30 dark:text-green-300" },
+            { title: "Service Mesh Implementation", desc: "Istio setup for traffic splitting, mTLS, and observability across microservices.", tags: ["Istio", "Envoy", "Network"], icon: "fas fa-network-wired", color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-300" },
+            { title: "Cloud Cost Optimization (FinOps)", desc: "Automated resource scheduling and spot instance management reducing bill by 35%.", tags: ["AWS Cost Explorer", "Python", "FinOps"], icon: "fas fa-piggy-bank", color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-300" }
         ];
 
         const blogs = [
-            { category: "KUBERNETES", categoryColor: "text-primary dark:text-blue-400", title: "Getting Started with Kubernetes on AWS EKS", desc: "A comprehensive guide to deploying your first application on AWS EKS, covering cluster setup, deployment strategies, and cost optimization techniques.", tags: ["AWS", "Kubernetes", "Tutorial"] },
-            { category: "CI/CD", categoryColor: "text-green-500 dark:text-green-400", title: "Building CI/CD Pipelines with GitHub Actions", desc: "Hands-on tutorial for creating end-to-end CI/CD pipelines using GitHub Actions, including testing, linting, and deployment to cloud providers.", tags: ["GitHub Actions", "CI/CD", "Automation"] },
-            { category: "INFRASTRUCTURE", categoryColor: "text-purple-500 dark:text-purple-400", title: "Terraform for Multi-Cloud Deployment", desc: "Master Terraform for multi-cloud infrastructure management. Learn best practices for module design, state management, and team collaboration.", tags: ["Terraform", "AWS", "Azure"] },
-            { category: "CONTAINERS", categoryColor: "text-blue-500 dark:text-blue-400", title: "Docker Best Practices for Production", desc: "Optimize your Docker containers for production environments. Security hardening, multi-stage builds, and image optimization techniques.", tags: ["Docker", "Security", "Best Practices"] },
-            { category: "MONITORING", categoryColor: "text-pink-600 dark:text-pink-400", title: "Monitoring with Prometheus and Grafana", desc: "Set up comprehensive monitoring for your infrastructure and applications using Prometheus for metrics collection and Grafana for visualization and alerting.", tags: ["Prometheus", "Grafana", "Observability"] },
-            { category: "SAS PLATFORM", categoryColor: "text-sas dark:text-sky-400", title: "Automating SAS 9.4 Platform Administration", desc: "Scripts and best practices for automating routine maintenance, deployment, and security tasks on the SAS 9.4 platform for maximum uptime and efficiency.", tags: ["SAS 9.4", "Automation", "Administration"] }
+            { category: "KUBERNETES", categoryColor: "text-primary dark:text-blue-400", title: "Getting Started with Kubernetes on AWS EKS", desc: "A comprehensive guide to deploying your first application on AWS EKS.", tags: ["AWS", "Kubernetes"] },
+            { category: "CI/CD", categoryColor: "text-green-500 dark:text-green-400", title: "Building CI/CD Pipelines with GitHub Actions", desc: "Hands-on tutorial for creating end-to-end CI/CD pipelines.", tags: ["GitHub Actions", "CI/CD"] },
+            { category: "INFRASTRUCTURE", categoryColor: "text-purple-500 dark:text-purple-400", title: "Terraform for Multi-Cloud Deployment", desc: "Master Terraform for multi-cloud infrastructure management.", tags: ["Terraform", "AWS", "Azure"] },
+            { category: "CONTAINERS", categoryColor: "text-blue-500 dark:text-blue-400", title: "Docker Best Practices for Production", desc: "Optimize your Docker containers for production environments.", tags: ["Docker", "Security"] },
+            { category: "MONITORING", categoryColor: "text-pink-600 dark:text-pink-400", title: "Monitoring with Prometheus and Grafana", desc: "Set up comprehensive monitoring for your infrastructure.", tags: ["Prometheus", "Grafana"] },
+            { category: "SAS PLATFORM", categoryColor: "text-sas dark:text-sky-400", title: "Automating SAS 9.4 Platform Administration", desc: "Scripts and best practices for automating routine maintenance.", tags: ["SAS 9.4", "Automation"] },
+            { category: "SECURITY", categoryColor: "text-red-500 dark:text-red-400", title: "Zero Trust Architecture in Kubernetes", desc: "Implementing mTLS and NetworkPolicies for hardened cluster security.", tags: ["Security", "K8s"] },
+            { category: "SRE", categoryColor: "text-yellow-500 dark:text-yellow-400", title: "The Art of SLOs and Error Budgets", desc: "Defining meaningful reliability metrics for your stakeholders.", tags: ["SRE", "Observability"] },
+            { category: "IAC", categoryColor: "text-purple-500 dark:text-purple-400", title: "Advanced Terraform Modules", desc: "Writing DRY and reusable infrastructure code for enterprise scale.", tags: ["Terraform", "Best Practices"] }
         ];
 
         const tools = [
-            { category: "Cloud & Virtualization", items: [ { name: "AWS", icon: "fab fa-aws text-orange-500", desc: "EC2, EKS, S3, Lambda, CloudFormation" }, { name: "Azure", icon: "fab fa-microsoft text-blue-500", desc: "Azure DevOps, VMs, Networking" }, { name: "GCP", icon: "fab fa-google text-red-500", desc: "Compute & Kubernetes Engine" } ]},
-            { category: "Containers & Orchestration", items: [ { name: "Kubernetes", icon: "fas fa-dharmachakra text-indigo-600 dark:text-indigo-400", desc: "Orchestration & Management" }, { name: "Docker", icon: "fab fa-docker text-blue-600 dark:text-blue-400", desc: "Containerization Platform" }, { name: "Helm", icon: "fas fa-box-open text-cyan-600 dark:text-cyan-400", desc: "K8s Package Manager" } ]},
-            { category: "IaC & Config Mgt", items: [ { name: "Terraform", icon: "fas fa-code text-purple-600 dark:text-purple-400", desc: "Multi-cloud IaC" }, { name: "Ansible", icon: "fas fa-terminal text-green-600 dark:text-green-400", desc: "Automation & Config Mgt" } ]},
-            { category: "CI/CD & Automation", items: [ { name: "Jenkins", icon: "fas fa-sync-alt text-red-600 dark:text-red-400", desc: "Automation Server" }, { name: "GitHub Actions", icon: "fab fa-github-alt text-gray-700 dark:text-gray-300", desc: "Workflow Automation" }, { name: "ArgoCD", icon: "fas fa-rocket text-teal-600 dark:text-teal-400", desc: "GitOps Delivery" } ]},
-            { category: "Observability & Monitoring", items: [ { name: "Prometheus", icon: "fas fa-chart-bar text-orange-500", desc: "Monitoring Toolkit" }, { name: "Grafana", icon: "fas fa-chart-line text-pink-600 dark:text-pink-400", desc: "Visualization Platform" }, { name: "ELK Stack", icon: "fas fa-search text-green-600 dark:text-green-400", desc: "Log Aggregation" } ]},
-            { category: "Collaboration & Artifacts", items: [ { name: "Git", icon: "fas fa-code-branch text-red-500", desc: "Version Control" }, { name: "Artifactory", icon: "fas fa-box text-yellow-600 dark:text-yellow-400", desc: "Artifact Repository" } ]},
-            { category: "SAS Platform", items: [ { name: "SAS 9.4", icon: "fas fa-server text-sas dark:text-sky-400", desc: "Platform Admin" }, { name: "SAS Viya", icon: "fas fa-cloud text-sas dark:text-sky-400", desc: "Cloud Analytics" } ]}
+            { category: "Cloud & Virtualization", items: [ { name: "AWS", icon: "fab fa-aws text-orange-500", desc: "EC2, EKS, S3, Lambda", url: "https://aws.amazon.com/" }, { name: "Azure", icon: "fab fa-microsoft text-blue-500", desc: "Azure DevOps, VMs", url: "https://azure.microsoft.com/" }, { name: "GCP", icon: "fab fa-google text-red-500", desc: "Compute & K8s Engine", url: "https://cloud.google.com/" } ]},
+            { category: "Containers & Orchestration", items: [ { name: "Kubernetes", icon: "fas fa-dharmachakra text-indigo-600 dark:text-indigo-400", desc: "Orchestration", url: "https://kubernetes.io/" }, { name: "Docker", icon: "fab fa-docker text-blue-600 dark:text-blue-400", desc: "Containerization", url: "https://www.docker.com/" }, { name: "Helm", icon: "fas fa-box-open text-cyan-600 dark:text-cyan-400", desc: "K8s Package Manager", url: "https://helm.sh/" } ]},
+            { category: "IaC & Config Mgt", items: [ { name: "Terraform", icon: "fas fa-code text-purple-600 dark:text-purple-400", desc: "Multi-cloud IaC", url: "https://www.terraform.io/" }, { name: "Ansible", icon: "fas fa-terminal text-green-600 dark:text-green-400", desc: "Automation", url: "https://www.ansible.com/" } ]},
+            { category: "CI/CD & Automation", items: [ { name: "Jenkins", icon: "fas fa-sync-alt text-red-600 dark:text-red-400", desc: "Automation Server", url: "https://www.jenkins.io/" }, { name: "GitHub Actions", icon: "fab fa-github-alt text-gray-700 dark:text-gray-300", desc: "Workflow", url: "https://github.com/features/actions" }, { name: "ArgoCD", icon: "fas fa-rocket text-teal-600 dark:text-teal-400", desc: "GitOps Delivery", url: "https://argo-cd.readthedocs.io/" } ]},
+            { category: "Observability", items: [ { name: "Prometheus", icon: "fas fa-chart-bar text-orange-500", desc: "Monitoring Toolkit", url: "https://prometheus.io/" }, { name: "Grafana", icon: "fas fa-chart-line text-pink-600 dark:text-pink-400", desc: "Visualization", url: "https://grafana.com/" }, { name: "ELK Stack", icon: "fas fa-search text-green-600 dark:text-green-400", desc: "Log Aggregation", url: "https://www.elastic.co/elastic-stack" } ]},
+            { category: "SAS Platform", items: [ { name: "SAS 9.4", icon: "fas fa-server text-sas dark:text-sky-400", desc: "Platform Admin", url: "https://www.sas.com/" }, { name: "SAS Viya", icon: "fas fa-cloud text-sas dark:text-sky-400", desc: "Cloud Analytics", url: "https://www.sas.com/en_us/software/viya.html" } ]}
         ];
 
         // --- APP LOGIC ---
-
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } 
+            else { html.classList.add('dark'); localStorage.setItem('theme', 'dark'); }
         }
 
-        // Initialize App on DOM Content Loaded
-        document.addEventListener("DOMContentLoaded", () => {
-            initApp();
-        });
-
-        function initApp() {
-            console.log("Initializing App...");
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(tabId);
+            if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const btn = document.getElementById(`btn-${tabId}`);
+            if(btn) btn.classList.add('active');
             
-            // Theme Setup
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
+            // Auto-mute on navigation
+            if(window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+            document.getElementById('bot-menu').classList.remove('active');
+            
+            const mobMenu = document.getElementById('mobile-menu');
+            if(!mobMenu.classList.contains('hidden')) toggleMobileMenu();
+            const mainContent = document.getElementById('main-content');
+            if(mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(setupObserver, 100);
+        }
+
+        // --- MOBILE MENU FIX ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                // Remove pointer-events-none so it becomes clickable
+                menu.classList.remove('hidden', 'pointer-events-none');
+                menu.classList.add('flex');
+                setTimeout(() => menu.classList.remove('opacity-0'), 10);
             } else {
-                document.documentElement.classList.remove('dark');
+                // Add pointer-events-none immediately so clicks pass through while fading out
+                menu.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                }, 300);
             }
+        }
+        function mobileNav(tab) { switchTab(tab); }
 
-            // Render Content
-            renderProjects();
-            renderTools();
-            renderBlogs();
+        // --- 3D TILT EFFECT ---
+        function handleTilt(e, card) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
             
-            // Start Animations
-            typeWriter();
-            toolsTypeWriter();
-            setRandomQuote();
-            setupObserver();
-            initDroid(); 
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
             
-            // Tab Handling
-            const initialTab = new URLSearchParams(window.location.search).get('tab') || 'home';
-            switchTab(initialTab);
+            const rotateX = ((y - centerY) / centerY) * -5; 
+            const rotateY = ((x - centerX) / centerX) * 5;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+        }
+
+        function resetTilt(card) {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
         }
 
         function renderProjects() {
             const container = document.getElementById('projects-container');
             if (!container) return;
+            // Updated with Tilt Events
             container.innerHTML = projects.map(p => `
-                <div class="glass-panel p-8 rounded-[2rem] spotlight-card group cursor-pointer border border-white/50 dark:border-white/10 reveal" onmousemove="handleSpotlight(event)">
+                <div onmousemove="handleTilt(event, this)" onmouseleave="resetTilt(this)" class="glass-panel p-8 rounded-[2rem] spotlight-card group cursor-pointer border border-white/50 dark:border-white/10 reveal transition-transform duration-100 ease-out" style="transform-style: preserve-3d;">
                     <div class="flex justify-between items-start mb-6 relative z-10">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${p.color}">
-                            <i class="${p.icon}"></i>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:bg-gray-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-colors">
-                            <i class="fas fa-arrow-right transform -rotate-45 group-hover:rotate-0 transition-transform"></i>
-                        </div>
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${p.color}"><i class="${p.icon}"></i></div>
                     </div>
                     <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white relative z-10">${p.title}</h3>
                     <p class="text-gray-500 dark:text-gray-400 mb-6 h-16 relative z-10 overflow-hidden text-sm leading-relaxed">${p.desc}</p>
@@ -874,13 +1243,11 @@
                     <h3 class="text-lg font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">${cat.category}</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         ${cat.items.map(item => `
-                            <div class="glass-panel p-4 rounded-xl flex items-center gap-3 hover:bg-white dark:hover:bg-gray-800 transition shadow-sm hover:shadow-md border border-white/60 dark:border-white/10">
+                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="tool-btn-animated glass-panel p-4 rounded-xl flex items-center gap-3 border border-white/60 dark:border-white/10 group relative cursor-pointer">
                                 <div class="text-xl w-8 text-center"><i class="${item.icon}"></i></div>
-                                <div>
-                                    <div class="font-bold text-gray-800 dark:text-gray-200 text-sm">${item.name}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 truncate w-32" title="${item.desc}">${item.desc}</div>
-                                </div>
-                            </div>
+                                <div><div class="font-bold text-gray-800 dark:text-gray-200 text-sm">${item.name}</div><div class="text-xs text-gray-500 dark:text-gray-400 truncate w-32" title="${item.desc}">${item.desc}</div></div>
+                                <i class="fas fa-external-link-alt absolute top-2 right-2 text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                            </a>
                         `).join('')}
                     </div>
                 </div>
@@ -892,73 +1259,54 @@
             if (!container) return;
             container.innerHTML = blogs.map(b => `
                 <article class="glass-panel p-8 rounded-3xl hover:-translate-y-2 transition-transform duration-300 border border-white/50 dark:border-white/10 group cursor-pointer tool-card reveal">
-                    <div class="text-xs font-bold ${b.categoryColor} mb-3 flex items-center gap-2">
-                        <i class="fas fa-file-alt"></i> ${b.category}
-                    </div>
+                    <div class="text-xs font-bold ${b.categoryColor} mb-3 flex items-center gap-2"><i class="fas fa-file-alt"></i> ${b.category}</div>
                     <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-primary transition">${b.title}</h3>
                     <p class="text-gray-500 dark:text-gray-400 mb-4 text-sm leading-relaxed">${b.desc}</p>
                     <div class="flex flex-wrap gap-2 mb-4">
                         ${b.tags.map(t => `<span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded text-[10px] font-bold uppercase tracking-wide">${t}</span>`).join('')}
                     </div>
-                    <div class="mt-4 text-sm font-semibold text-gray-400 dark:text-gray-500 flex items-center gap-2">
-                        <i class="fas fa-calendar-alt"></i> Coming Soon
-                    </div>
+                    <div class="mt-4 text-sm font-semibold text-gray-400 dark:text-gray-500 flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Coming Soon</div>
                 </article>
             `).join('');
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            const target = document.getElementById(tabId);
-            if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            const btn = document.getElementById(`btn-${tabId}`);
-            if(btn) btn.classList.add('active');
-            const mobMenu = document.getElementById('mobile-menu');
-            if(!mobMenu.classList.contains('hidden')) toggleMobileMenu();
-            
-            // Scroll internal container to top
-            const mainContent = document.getElementById('main-content');
-            if(mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            setTimeout(setupObserver, 100);
-        }
+        // --- NEW TERMINAL LOGIC ---
+        const terminalLines = [
+            { text: "Initializing SAS Viya Platform...", time: 500 },
+            { text: "Loading AWS EKS Clusters [us-east-1]... OK", time: 1200 },
+            { text: ">> kubectl apply -f infrastructure.yaml", time: 2000 },
+            { text: " provisioning load balancers...", time: 2800 },
+            { text: ">> Terraform plan --out=tfplan", time: 3500 },
+            { text: " 42 resources to add, 0 to change, 0 to destroy.", time: 4500 },
+            { text: "System Ready. Welcome, User.", time: 5500, color: "text-white font-bold" }
+        ];
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden', 'opacity-0');
-                menu.classList.add('flex');
-                setTimeout(() => menu.classList.remove('opacity-0'), 10);
-            } else {
-                menu.classList.add('opacity-0');
+        function runTerminal() {
+            const term = document.getElementById('terminal-body');
+            if(!term) return;
+            term.innerHTML = '';
+            let accumulatedDelay = 0;
+
+            terminalLines.forEach((line, index) => {
+                accumulatedDelay += line.time - (index > 0 ? terminalLines[index-1].time : 0);
                 setTimeout(() => {
-                    menu.classList.add('hidden');
-                    menu.classList.remove('flex');
-                }, 300);
-            }
+                    const div = document.createElement('div');
+                    div.className = line.color || "mb-1";
+                    div.innerHTML = `<span class="text-blue-500 mr-2">➜</span> ${line.text}`;
+                    term.appendChild(div);
+                    term.scrollTop = term.scrollHeight; // Auto scroll
+                }, line.time);
+            });
         }
-        function mobileNav(tab) { switchTab(tab); }
-
-        function handleSpotlight(e) {
-            const card = e.currentTarget;
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-        }
-
+        
+        // --- RESTORED TYPING LOGIC ---
         const typingText = "I transform complex business requirements into resilient, automated, and scalable cloud infrastructure. My focus is on driving efficiency and reliability across the SDLC with cutting-edge DevOps and SAS technologies.";
         let charIndex = 0;
         function typeWriter() {
             const el = document.getElementById('typing-text');
             if (!el) return;
-            if (charIndex < typingText.length) {
-                el.innerHTML += typingText.charAt(charIndex);
-                charIndex++;
-                setTimeout(typeWriter, 30);
-            } else { el.classList.add('typing-cursor'); }
+            if (charIndex < typingText.length) { el.innerHTML += typingText.charAt(charIndex); charIndex++; setTimeout(typeWriter, 30); } 
+            else { el.classList.add('typing-cursor'); }
         }
 
         const toolsTypingText = "The right tool for the right job: Continuous Integration, Infrastructure as Code, and Observability.";
@@ -966,218 +1314,524 @@
         function toolsTypeWriter() {
             const el = document.getElementById('tools-typing-text');
             if(!el) return;
-            if(toolsCharIndex < toolsTypingText.length) {
-                el.innerHTML += toolsTypingText.charAt(toolsCharIndex);
-                toolsCharIndex++;
-                setTimeout(toolsTypeWriter, 30);
-            }
+            if(toolsCharIndex < toolsTypingText.length) { el.innerHTML += toolsTypingText.charAt(toolsCharIndex); toolsCharIndex++; setTimeout(toolsTypeWriter, 30); }
         }
 
         const devopsQuotes = [
-            "You build it, you run it. That simple rule changes everything.",
-            "Automation is not just a trend; it's the foundation of modern delivery.",
-            "If you did not automate testing, you did not do DevOps.",
-            "DevOps is the culture that combines software development and IT operations.",
-            "To infinity and beyond, with continuous deployment!",
-            "Fast, frequent, and reliable releases are the hallmark of true DevOps.",
-            "Code is a liability, not an asset. The less code, the better.",
-            "It works on my machine is a backup, not a deployment strategy.",
-            "The most powerful tool we have as developers is automation.",
-            "Chaos engineering: breaking things on purpose so they don't break by accident.",
-            "Shift left on security, shift right on observability.",
-            "In God we trust; all others must bring data (and logs).",
-            "A manual deployment is a bug waiting to happen.",
-            "Infrastructure as Code: because clicking buttons in a GUI is not a strategy.",
-            "Failure is not fatal, but failure to change might be."
+            "You build it, you run it.", "Automation is not just a trend; it's the foundation.", "If you did not automate testing, you did not do DevOps.",
+            "Shift left on security, shift right on observability.", "Infrastructure as Code: because clicking buttons is not a strategy."
         ];
-        
         function setRandomQuote() {
             const quoteEl = document.getElementById('quote-container');
             if (quoteEl) {
                 const randomQuote = devopsQuotes[Math.floor(Math.random() * devopsQuotes.length)];
-                quoteEl.innerHTML = `
-                     <div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 dark:bg-blue-900/30 border-2 border-primary/30 dark:border-blue-700 text-sm font-semibold text-primary dark:text-blue-300 shadow-sm relative overflow-hidden animate-pulse-glow">
-                        <i class="fas fa-quote-left"></i> ${randomQuote}
-                    </div>
-                `;
+                quoteEl.innerHTML = `<div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 dark:bg-blue-900/30 border-2 border-primary/30 dark:border-blue-700 text-sm font-semibold text-primary dark:text-blue-300 shadow-sm relative overflow-hidden animate-pulse-glow"><i class="fas fa-quote-left"></i> ${randomQuote}</div>`;
             }
         }
+        function getDevOpsJoke() {
+            const jokes = ["Why do DevOps engineers prefer dark mode? Because light attracts bugs.", "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?", "How many DevOps engineers does it take to change a lightbulb? None, it's a hardware problem.", "Why did the DevOps engineer go broke? Because he used up all his cache.", "What do you call a DevOps engineer who can sing? A CI/CD pipeline.", "Why did the DevOps engineer get kicked out of school? Because he kept breaking the build.", "How do DevOps engineers stay calm during a crisis? They just Docker it.", "Why did the DevOps engineer cross the road? To automate the other side.", "What do you call a DevOps engineer who loves gardening? A Terraformer.", "Why did the DevOps engineer bring a ladder to work? Because he was scaling up.", "How do DevOps engineers prefer to communicate? Through Slack channels, of course!", "Why did the DevOps engineer go to therapy? Because he had too many unresolved dependencies.", "What do you call a DevOps engineer who can juggle? A multi-tasker.", "Why did the DevOps engineer get a promotion? Because he was outstanding in his field (of code).", "How do DevOps engineers like their coffee? With a lot of automation.", "Why did the DevOps engineer break up with his girlfriend? Because she couldn't handle his continuous integration.", "What do you call a DevOps engineer who loves music? A GitHubber.", "Why did the DevOps engineer get a pet cat? Because he wanted to practice his containerization skills.", "How do DevOps engineers stay fit? They run pipelines.", "Why did the DevOps engineer go to the beach? To test his new Kubernetes cluster on the sand.", "What do you call a DevOps engineer who can dance? A CI/CD groove master.", "Why did the DevOps engineer get a tattoo of a server? Because he wanted to show his dedication to uptime.", "How do DevOps engineers like their pizza? With extra automation and no manual toppings.", "Why did the DevOps engineer go to space? To deploy his code in zero gravity.", "What do you call a DevOps engineer who loves dogs? A Docker enthusiast.", "Why did the DevOps engineer get a job at the bakery? Because he wanted to automate the dough rising process.", "How do DevOps engineers prefer to travel? By container ship, of course!", "Why did the DevOps engineer go to the gym? To work on his continuous deployment.", "What do you call a DevOps engineer who can cook? A CI/CD chef.", "Why did the DevOps engineer get a job at the zoo? Because he wanted to automate the animal feeding process.", "How do DevOps engineers stay organized? They use Kanban boards and Jira tickets.", "Why did the DevOps engineer go to the doctor? Because he had too many bugs in his code.", "What do you call a DevOps engineer who loves sports? A GitHub athlete.", "Why did the DevOps engineer get a job at the library? Because he wanted to automate the book cataloging process.", "How do DevOps engineers prefer to relax? By watching logs and metrics dashboards.", "Why did the DevOps engineer go to the park? To test his new Kubernetes cluster on the grass.", "What do you call a DevOps engineer who can paint? A CI/CD artist.", "Why did the DevOps engineer get a job at the coffee shop? Because he wanted to automate the coffee brewing process.", "How do DevOps engineers stay motivated? They just keep pushing to production.", "Why did the DevOps engineer go to the concert? To test his new Kubernetes cluster on the stage.", "What do you call a DevOps engineer who loves movies? A GitHub director.", "Why did the DevOps engineer get a job at the gym? Because he wanted to automate the workout tracking process.", "How do DevOps engineers prefer to unwind? By deploying to staging and watching it work.", "Why did the DevOps engineer go to the amusement park? To test his new Kubernetes cluster on the roller coaster.", "What do you call a DevOps engineer who can write poetry? A CI/CD bard."];
+            return jokes[Math.floor(Math.random() * jokes.length)];
+        }
 
+        // --- OBSERVER ---
         function setupObserver() {
-            const options = {
-                root: document.getElementById('main-content'),
-                threshold: 0.1
-            };
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                    }
+                entries.forEach(entry => { 
+                    if (entry.isIntersecting) entry.target.classList.add('active'); 
                 });
-            }, options);
+            }, { root: document.getElementById('main-content'), threshold: 0.1 });
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
 
-        const yamlTemplates = {
-            'none': '',
-            'simple_deployment': `apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: nginx-deployment\n  labels:\n    app: nginx\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: nginx\n  template:\n    metadata:\n      labels:\n        app: nginx\n    spec:\n      containers:\n      - name: nginx\n        image: nginx:latest\n        ports:\n        - containerPort: 80`,
-            'complex_deployment': `apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api-deployment\n  labels:\n    app: api\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: api\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 25%\n      maxUnavailable: 25%\n  template:\n    metadata:\n      labels:\n        app: api\n    spec:\n      containers:\n      - name: api-container\n        image: custom-api:v1.2.0\n        ports:\n        - containerPort: 8080\n        resources:\n          limits:\n            cpu: "500m"\n            memory: "512Mi"\n          requests:\n            cpu: "250m"\n            memory: "250Mi"\n        env:\n        - name: DB_HOST\n          value: "database-service"\n        livenessProbe:\n          httpGet:\n            path: /healthz\n            port: 8080\n          initialDelaySeconds: 5\n          periodSeconds: 5`,
-            'simple_service': `apiVersion: v1\nkind: Service\nmetadata:\n  name: nginx-nodeport-service\nspec:\n  selector:\n    app: nginx\n  type: NodePort\n  ports:\n    - protocol: TCP\n      port: 80\n      targetPort: 80\n      nodePort: 30080`,
-            'pvc_and_deployment': `apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: my-app-pvc\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 1Gi\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: app-with-volume\nspec:\n  selector:\n    matchLabels:\n      app: my-app\n  replicas: 1\n  template:\n    metadata:\n      labels:\n        app: my-app\n    spec:\n      containers:\n      - name: my-container\n        image: busybox\n        command: ["/bin/sh", "-c", "echo 'Hello World' > /mnt/index.html && sleep 3600"]\n        volumeMounts:\n        - name: data-volume\n          mountPath: /mnt\n      volumes:\n      - name: data-volume\n        persistentVolumeClaim:\n          claimName: my-app-pvc`,
-            'jenkins_pipeline': `pipeline {\n    agent any\n    stages {\n        stage('Build') {\n            steps {\n                echo 'Building the application...'\n                // script: docker build -t my-app:latest .\n            }\n        }\n        stage('Test') {\n            steps {\n                echo 'Running unit tests...'\n                // script: npm test\n            }\n        }\n        stage('Deploy') {\n            steps {\n                echo 'Deploying to staging...'\n                // script: kubectl apply -f k8s/staging.yaml\n            }\n        }\n    }\n}`,
-            'github_workflow': `name: CI/CD Pipeline\n\non:\n  push:\n    branches:\n      - main\n  pull_request:\n    branches:\n      - main\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v3\n    - name: Set up Node.js\n      uses: actions/setup-node@v3\n      with:\n        node-version: '18'\n    - name: Install dependencies\n      run: npm install\n    - name: Run build\n      run: npm run build\n  \n  deploy:\n    needs: build\n    if: github.ref == 'refs/heads/main'\n    runs-on: ubuntu-latest\n    steps:\n    - name: Deploy to Production\n      run: echo "Deploying app to AWS/Azure/GCP..."`,
-            'ansible_playbook': `---\n- name: Configure Web Servers\n  hosts: webservers\n  become: yes\n  tasks:\n    - name: Ensure Apache is installed\n      yum:\n        name: httpd\n        state: present\n\n    - name: Ensure Apache is running\n      service:\n        name: httpd\n        state: started\n        enabled: yes\n\n    - name: Deploy index.html\n      copy:\n        content: "<h1>Hello from Ansible!</h1>"\n        dest: /var/www/html/index.html`,
-            'docker_compose': `version: '3.8'\nservices:\n  web:\n    image: nginx:latest\n    ports:\n      - "8080:80"\n    volumes:\n      - ./nginx.conf:/etc/nginx/nginx.conf\n    depends_on:\n      - db\n    networks:\n      - app-network\n\n  db:\n    image: postgres:14\n    environment:\n      POSTGRES_USER: user\n      POSTGRES_PASSWORD: password\n      POSTGRES_DB: mydb\n    volumes:\n      - db_data:/var/lib/postgresql/data/\n    networks:\n      - app-network\n\nnetworks:\n  app-network:\n    driver: bridge\n\nvolumes:\n  db_data:`
-        };
-
-        function loadYamlTemplate(key) {
-            const input = document.getElementById('yamlInput');
-            if(yamlTemplates[key]) {
-                input.value = yamlTemplates[key];
-                validateYaml();
-            }
+        // --- TOOL SWITCHING LOGIC ---
+        function switchTool(toolId) {
+            document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(toolId).classList.remove('hidden');
+            if(toolId === 'tool-ip') fetchMyIp();
+            if(toolId === 'tool-pass') generatePass();
         }
-        function clearYaml() { document.getElementById('yamlInput').value = ""; validateYaml(); }
+
+        // --- NEW TOOL: JSON <-> CSV ---
+        function jsonToCsv() {
+            const jsonStr = document.getElementById('csvJsonInput').value;
+            try {
+                const arr = JSON.parse(jsonStr);
+                if (!Array.isArray(arr) || arr.length === 0) throw new Error("Input must be a JSON array of objects.");
+                const keys = Object.keys(arr[0]);
+                const csv = [
+                    keys.join(','),
+                    ...arr.map(row => keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(','))
+                ].join('\n');
+                document.getElementById('csvOutput').value = csv;
+            } catch (e) { alert("Invalid JSON: " + e.message); }
+        }
+        function csvToJson() {
+            const csvStr = document.getElementById('csvOutput').value;
+            const lines = csvStr.split('\n').filter(l => l.trim());
+            if (lines.length < 2) return;
+            const headers = lines[0].split(',').map(h => h.trim());
+            const result = lines.slice(1).map(line => {
+                const data = line.split(','); 
+                const obj = {};
+                headers.forEach((h, i) => obj[h] = data[i]?.replace(/"/g, '') || '');
+                return obj;
+            });
+            document.getElementById('csvJsonInput').value = JSON.stringify(result, null, 2);
+        }
+
+        // --- 1. EDITOR ---
         function validateYaml() {
             const input = document.getElementById('yamlInput').value;
             const output = document.getElementById('yamlOutput');
             const status = document.getElementById('yamlStatus');
-            if (!input.trim() || input.trim().startsWith("#")) {
-                output.innerText = "Paste or select a YAML template to begin validation.";
-                status.innerText = "Waiting for input...";
-                status.className = "text-yellow-500";
-                return;
-            }
+            if(!input.trim()) { output.innerText = ""; status.innerText = "Ready"; return; }
             try {
                 const doc = jsyaml.loadAll(input);
                 output.innerText = JSON.stringify(doc, null, 2);
-                output.classList.remove('text-red-400', 'text-gray-400');
-                output.classList.add('text-green-400');
-                status.innerHTML = `<i class="fas fa-check-circle"></i> VALID YAML`;
-                status.className = "text-green-500 font-bold";
-            } catch (e) {
-                output.innerText = e.message;
-                output.classList.remove('text-green-400', 'text-gray-400');
-                output.classList.add('text-red-400');
-                status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> SYNTAX ERROR`;
-                status.className = "text-red-500 font-bold";
+                status.innerText = "Valid YAML"; status.className = "text-green-500 font-bold";
+                output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-green-600 dark:text-green-400";
+            } catch(e) {
+                try {
+                    JSON.parse(input);
+                    output.innerText = input; status.innerText = "Valid JSON"; status.className = "text-blue-500 font-bold";
+                    output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-blue-600 dark:text-blue-400";
+                } catch(j) {
+                    output.innerText = e.message; status.innerText = "Syntax Error"; status.className = "text-red-500 font-bold";
+                    output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-red-500";
+                }
             }
         }
-        function downloadYaml() {
-            const content = document.getElementById('yamlInput').value;
-            if(!content) return;
-            const blob = new Blob([content], {type: "text/yaml"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "devops-config.yaml";
-            a.click();
+        function convertYamlToJson() { const v = document.getElementById('yamlInput').value; try { document.getElementById('yamlOutput').innerText = JSON.stringify(jsyaml.load(v), null, 2); } catch(e){} }
+        function convertJsonToYaml() { const v = document.getElementById('yamlInput').value; try { document.getElementById('yamlOutput').innerText = jsyaml.dump(JSON.parse(v)); } catch(e){} }
+        function loadYamlTemplate(t) { 
+            const tmpl = { 'k8s_pod': "apiVersion: v1\nkind: Pod\nmetadata:\n  name: my-pod", 'k8s_svc': "apiVersion: v1\nkind: Service\nmetadata:\n  name: my-svc", 'github_action': "name: CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest" };
+            if(tmpl[t]) { document.getElementById('yamlInput').value = tmpl[t]; validateYaml(); }
+        }
+        function clearYaml() { document.getElementById('yamlInput').value=''; validateYaml(); }
+
+        // --- 2. CRON (FIXED & POPULATED) ---
+        function populateCronSelects() {
+            const addOpts = (id, start, end, label) => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = `<option value="*">*</option>`;
+                if(label) sel.innerHTML += `<option value="${label}">${label}</option>`;
+                for(let i=start; i<=end; i++) sel.innerHTML += `<option value="${i}">${i}</option>`;
+            };
+            addOpts('cronMin', 0, 59, '*/5');
+            addOpts('cronHour', 0, 23, '*/2');
+            addOpts('cronDay', 1, 31);
+            addOpts('cronMonth', 1, 12);
+            addOpts('cronWeek', 0, 6);
         }
 
-        // --- NEW DROID LOGIC ---
+        function updateCron() {
+            const m = document.getElementById('cronMin').value;
+            const h = document.getElementById('cronHour').value;
+            const d = document.getElementById('cronDay').value;
+            const mo = document.getElementById('cronMonth').value;
+            const w = document.getElementById('cronWeek').value;
+            document.getElementById('cronOutput').innerText = `${m} ${h} ${d} ${mo} ${w}`;
+            
+            let desc = "Run ";
+            desc += (m === "*") ? "every minute" : `at minute ${m}`;
+            desc += (h === "*") ? "" : `, past hour ${h}`;
+            desc += (d === "*") ? "" : `, on day ${d}`;
+            desc += (mo === "*") ? "" : `, in month ${mo}`;
+            desc += (w === "*") ? "" : `, on weekday ${w}`;
+            document.getElementById('cronDesc').innerText = desc;
+        }
+        
+        function applyCronPreset(val) {
+            if(!val) return;
+            const parts = val.split(' ');
+            document.getElementById('cronMin').value = parts[0];
+            document.getElementById('cronHour').value = parts[1];
+            document.getElementById('cronDay').value = parts[2];
+            document.getElementById('cronMonth').value = parts[3];
+            document.getElementById('cronWeek').value = parts[4];
+            updateCron();
+        }
+
+        // --- 3. PORT (New) ---
+        function checkPort() {
+            const p = parseInt(document.getElementById('portInput').value);
+            const ports = { 
+                21:'FTP', 22:'SSH', 25:'SMTP', 53:'DNS', 80:'HTTP', 443:'HTTPS', 
+                3306:'MySQL', 5432:'PostgreSQL', 6379:'Redis', 8080:'HTTP Alt', 
+                27017:'MongoDB', 9090:'Prometheus', 3000:'React/Node', 5000:'Flask/Docker Reg' 
+            };
+            const res = document.getElementById('portResult');
+            if(ports[p]) {
+                res.innerHTML = `<span class="text-green-600">Standard Service:</span> ${ports[p]}`;
+            } else {
+                res.innerHTML = `<span class="text-gray-500">Unknown/Custom Port</span>`;
+            }
+        }
+
+        // --- 4. CIDR ---
+        function calculateCidr() {
+            const val = document.getElementById('cidrInput').value;
+            if(!val.includes('/')) return;
+            try {
+                const [ip, mask] = val.split('/');
+                const m = parseInt(mask);
+                const hosts = Math.pow(2, 32 - m) - 2;
+                document.getElementById('cidrHosts').innerText = hosts > 0 ? hosts.toLocaleString() : 0;
+                document.getElementById('cidrNetmask').innerText = '/' + m;
+                document.getElementById('cidrFirst').innerText = ip.substring(0, ip.lastIndexOf('.')) + '.1'; 
+                document.getElementById('cidrLast').innerText = ip.substring(0, ip.lastIndexOf('.')) + '.254'; 
+            } catch(e) {}
+        }
+
+        // --- 5. BASE64 ---
+        function runBase64(mode) {
+            const i = document.getElementById('b64Input').value;
+            try { document.getElementById('b64Output').value = mode === 'enc' ? btoa(i) : atob(i); } catch(e) { document.getElementById('b64Output').value = "Error"; }
+        }
+
+        // --- 6. JWT ---
+        function decodeJwt() {
+            const token = document.getElementById('jwtInput').value;
+            if(!token.includes('.')) return;
+            const parts = token.split('.');
+            try {
+                document.getElementById('jwtHeader').innerText = JSON.stringify(JSON.parse(atob(parts[0])), null, 2);
+                document.getElementById('jwtPayload').innerText = JSON.stringify(JSON.parse(atob(parts[1])), null, 2);
+            } catch(e) {}
+        }
+
+        // --- 7. URL ---
+        let urlMode = 'enc';
+        function setUrlMode(m) { urlMode = m; runUrlTool(); }
+        function runUrlTool() {
+            const v = document.getElementById('urlInput').value;
+            document.getElementById('urlOutput').value = urlMode === 'enc' ? encodeURIComponent(v) : decodeURIComponent(v);
+        }
+
+        // --- 8. DNS ---
+        function fetchDns() {
+            const domain = document.getElementById('dnsDomain').value;
+            const type = document.getElementById('dnsType').value;
+            const resDiv = document.getElementById('dnsResult');
+            resDiv.innerText = "Querying Google DNS...";
+            fetch(`https://dns.google/resolve?name=${domain}&type=${type}`)
+                .then(r => r.json())
+                .then(d => {
+                    if(d.Answer) resDiv.innerText = d.Answer.map(a => `${a.name}  ${type}  ${a.data}`).join('\n');
+                    else resDiv.innerText = "No records found or invalid domain.";
+                })
+                .catch(e => resDiv.innerText = "Error fetching DNS.");
+        }
+
+        // --- 9. IP ---
+        function fetchMyIp() {
+            document.getElementById('myIpDisplay').innerText = "Loading...";
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(d => document.getElementById('myIpDisplay').innerText = d.ip)
+                .catch(() => document.getElementById('myIpDisplay').innerText = "Error");
+        }
+
+        // --- 10. SSL ---
+        function decodeCert() {
+            const v = document.getElementById('sslInput').value;
+            const out = document.getElementById('sslOutput');
+            if(v.includes('BEGIN CERTIFICATE')) {
+                out.innerHTML = `<div class="font-bold text-green-600">Certificate Detected</div><div class="mt-2 text-xs text-gray-500">Base64 Length: ${v.length} bytes</div>`;
+            }
+        }
+
+        // --- 11. REGEX ---
+        function runRegex() {
+            const pat = document.getElementById('regexPattern').value;
+            const flags = document.getElementById('regexFlags').value;
+            const str = document.getElementById('regexString').value;
+            const out = document.getElementById('regexOutput');
+            try {
+                const re = new RegExp(pat, flags);
+                const matches = str.match(re);
+                out.innerText = matches ? `Found ${matches.length} matches:\n` + JSON.stringify(matches, null, 2) : "No matches found.";
+            } catch(e) { out.innerText = "Invalid Regex"; }
+        }
+
+        // --- 12. CHMOD ---
+        function calcChmod() {
+            let o=0,g=0,p=0;
+            document.querySelectorAll('.chmod-check:checked').forEach(c => {
+                let v = parseInt(c.dataset.val);
+                if(v>=100) o+=(v/100); else if(v>=10) g+=(v/10); else p+=v;
+            });
+            document.getElementById('chmodResult').innerText = `${o}${g}${p}`;
+        }
+
+        // --- 13. PASS GEN ---
+        function generatePass() {
+            const len = document.getElementById('passLen').value;
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+            let pass = "";
+            for(let i=0; i<len; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+            document.getElementById('passOutput').value = pass;
+        }
+        function copyPass() { navigator.clipboard.writeText(document.getElementById('passOutput').value); alert("Copied!"); }
+
+        // --- ROBOT V3.0 LOGIC ---
         function initDroid() {
-            const droid = document.getElementById('droid');
             const eyes = document.querySelectorAll('.d-eye');
             
+            // Eye tracking
             document.addEventListener('mousemove', (e) => {
-                const rect = droid.getBoundingClientRect();
-                const anchorX = rect.left + rect.width / 2;
-                const anchorY = rect.top + rect.height / 2;
-                
+                const rect = document.getElementById('droid').getBoundingClientRect();
+                const anchorX = rect.left + rect.width / 2; const anchorY = rect.top + rect.height / 2;
                 const angle = Math.atan2(e.clientY - anchorY, e.clientX - anchorX);
                 const distance = Math.min(Math.hypot(e.clientX - anchorX, e.clientY - anchorY), 20);
-                
-                const moveX = Math.cos(angle) * distance * 0.2; 
-                const moveY = Math.sin(angle) * distance * 0.2;
-
-                eyes.forEach(eye => {
-                    eye.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                });
+                const moveX = Math.cos(angle) * distance * 0.2; const moveY = Math.sin(angle) * distance * 0.2;
+                eyes.forEach(eye => { eye.style.transform = `translate(${moveX}px, ${moveY}px)`; });
             });
 
-            // Initial Hello
+            // Draggable Logic
+            const elmnt = document.getElementById("droid");
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            elmnt.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // prevent dragging offscreen too much
+                const newTop = (elmnt.offsetTop - pos2);
+                const newLeft = (elmnt.offsetLeft - pos1);
+                elmnt.style.top = newTop + "px";
+                elmnt.style.left = newLeft + "px";
+                elmnt.style.bottom = "auto"; 
+                elmnt.style.right = "auto";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        function toggleBotMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('bot-menu');
+            const droid = document.getElementById('droid-body');
+            
+            if (menu.classList.contains('active')) {
+                menu.classList.remove('active');
+            } else {
+                menu.classList.add('active');
+                droid.classList.add('active');
+                setTimeout(() => droid.classList.remove('active'), 600);
+            }
+        }
+        
+        function handleGlobalClick(e) {
+            const menu = document.getElementById('bot-menu');
+            if (menu.classList.contains('active')) {
+                menu.classList.remove('active');
+            }
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                 window.speechSynthesis.cancel();
+            }
+            // Ensure visual state resets
+            document.getElementById('droid').classList.remove('talking', 'listening');
+        }
+        
+        // --- VOICE RECOGNITION (V3) ---
+        let recognition;
+        let isListening = false;
+
+        function toggleVoice(btn) {
+            const bubble = document.getElementById('bot-bubble');
+            
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                botSpeak("Voice control not supported in this browser.");
+                return;
+            }
+            
+            if (isListening) {
+                stopListening();
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                isListening = true;
+                btn.classList.add('listening');
+                document.getElementById('mic-status').innerText = "Listening...";
+                document.getElementById('droid').classList.add('listening');
+                bubble.innerText = "Listening... 🎤";
+                bubble.classList.add('show');
+            };
+
+            recognition.onend = function() {
+                stopListening();
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                bubble.innerText = `"${transcript}"`;
+                processVoiceCommand(transcript);
+            };
+
+            recognition.start();
+        }
+
+        function stopListening() {
+            if (recognition) recognition.stop();
+            isListening = false;
+            const btn = document.getElementById('mic-btn');
+            if(btn) btn.classList.remove('listening');
+            document.getElementById('mic-status').innerText = "Tap to speak...";
+            document.getElementById('droid').classList.remove('listening');
+            // bubble hide handled by next action
+        }
+
+        function processVoiceCommand(cmd) {
+            if (cmd.includes('home')) switchTab('home');
+            else if (cmd.includes('project')) switchTab('projects');
+            else if (cmd.includes('tool') || cmd.includes('stack')) switchTab('tools');
+            else if (cmd.includes('about')) switchTab('about');
+            else if (cmd.includes('contact')) switchTab('contact');
+            else if (cmd.includes('playground')) switchTab('yaml');
+            else if (cmd.includes('dark')) { document.documentElement.classList.add('dark'); botSpeak("Dark mode enabled."); }
+            else if (cmd.includes('light')) { document.documentElement.classList.remove('dark'); botSpeak("Lights on."); }
+            else if (cmd.includes('scan')) runSystemScan();
+            else if (cmd.includes('hello')) botSpeak("Hello there! I am fully operational.");
+            else if (cmd.includes('joke')) botSpeak(getDevOpsJoke());
+            else botSpeak("Command not recognized.");
+        }
+
+        // --- SYSTEM SCAN SIMULATION ---
+        function runSystemScan() {
+            const scanner = document.getElementById('scanner');
+            const bubble = document.getElementById('bot-bubble');
+            
+            scanner.style.display = 'block';
+            botSpeak("Scanning system parameters...");
+            
             setTimeout(() => {
-                const bubble = document.getElementById('bot-bubble');
-                if(bubble) {
-                    bubble.classList.add('show');
-                    setTimeout(() => bubble.classList.remove('show'), 3000);
+                const ua = navigator.userAgent;
+                const platform = navigator.platform;
+                const cores = navigator.hardwareConcurrency || 4;
+                
+                let report = `System: ${platform}. Cores: ${cores}. Security: Optimal.`;
+                botSpeak(report);
+                scanner.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- TTS ---
+        let lastSpokenText = "";
+        
+        function botSpeak(text) {
+            const bubble = document.getElementById('bot-bubble');
+            const droid = document.getElementById('droid');
+
+            if ('speechSynthesis' in window) {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    if (text === lastSpokenText) {
+                        bubble.innerText = "Muted 😶";
+                        bubble.classList.add('show');
+                        setTimeout(() => bubble.classList.remove('show'), 2000);
+                        lastSpokenText = "";
+                        droid.classList.remove('talking');
+                        return;
+                    }
                 }
+                
+                lastSpokenText = text;
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                utterance.onstart = () => droid.classList.add('talking');
+                utterance.onend = () => droid.classList.remove('talking');
+                
+                window.speechSynthesis.speak(utterance);
+            }
+            
+            bubble.innerText = text.length > 30 ? "Playing audio..." : text;
+            bubble.classList.add('show');
+            setTimeout(() => bubble.classList.remove('show'), 4000);
+            
+            document.getElementById('bot-menu').classList.remove('active');
+        }
+
+        // --- CONTACT ---
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Sending...'; btn.disabled = true;
+            setTimeout(() => {
+                document.getElementById('toast').classList.remove('hidden');
+                document.getElementById('toast').classList.add('toast-enter');
+                btn.innerHTML = "Sent! <i class='fas fa-check'></i>";
+                setTimeout(() => {
+                    e.target.reset(); btn.innerHTML = originalText; btn.disabled = false;
+                    document.getElementById('toast').classList.add('hidden');
+                    switchTab('home');
+                }, 2000);
             }, 1000);
         }
 
-        // Updated Droid Jokes with Smileys/Kaomoji
-        const droidJokes = [
-            "I'm keeping an eye on your mouse... 操",
-            "Are you a robot too? Click the captcha! ､",
-            "My favorite music? Heavy Metal. 失",
-            "I dream of electric sheep. 髄",
-            "I speak binary. 01001000 01101001! 惠",
-            "I don't need sleep, I need electricity! 笞｡",
-            "Scanning for bugs... found none (hopefully). 菅",
-            "Beep boop! That translates to 'Have a nice day!' 嵜",
-            "Why did I cross the road? To get to the other repo. 而",
-            "Do you like my floating animation? 死",
-            "404: Joke not found. Just kidding! 恪"
-        ];
+        // --- SCROLL PROGRESS ---
+        document.getElementById('main-content').addEventListener('scroll', () => {
+            const el = document.getElementById('main-content');
+            const scrollTotal = el.scrollHeight - el.clientHeight;
+            const scrolled = (el.scrollTop / scrollTotal) * 100;
+            document.getElementById('scroll-progress').style.width = scrolled + '%';
+        });
 
-        function robotInteract() {
-            const body = document.getElementById('droid-body');
-            const bubble = document.getElementById('bot-bubble');
-            
-            // Barrel Roll
-            body.classList.add('rolling');
-            setTimeout(() => body.classList.remove('rolling'), 1000);
-            
-            // Speak
-            const joke = droidJokes[Math.floor(Math.random() * droidJokes.length)];
-            bubble.innerText = joke;
-            bubble.classList.add('show');
-            setTimeout(() => bubble.classList.remove('show'), 3000);
-        }
+        // Init
+        document.addEventListener("DOMContentLoaded", () => {
+             // Force Light Mode Default unless dark is explicitly saved
+             if (localStorage.theme === 'dark') {
+                 document.documentElement.classList.add('dark');
+             } else {
+                 document.documentElement.classList.remove('dark');
+                 localStorage.setItem('theme', 'light');
+             }
 
-        function handleContactSubmit(e) {
-            e.preventDefault();
-            const myForm = e.target;
-            const formData = new FormData(myForm);
-            const btn = myForm.querySelector('button');
-            const originalText = btn.innerText;
+             renderProjects(); renderTools(); renderBlogs();
+             
+             // Run both effects
+             runTerminal(); 
+             typeWriter(); 
+             
+             toolsTypeWriter(); setRandomQuote();
+             setupObserver(); initDroid();
+             calcChmod(); populateCronSelects();
+             
+             const urlTab = new URLSearchParams(window.location.search).get('tab') || 'home';
+             switchTab(urlTab);
 
-            // Animation: Button Loading
-            btn.innerText = "Sending... ✈️";
-            btn.disabled = true;
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-
-            fetch("/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(formData).toString()
-            })
-            .then(() => {
-                // Animation: Success Toast
-                const toast = document.getElementById('toast');
-                toast.classList.remove('hidden');
-                toast.classList.add('toast-enter');
-                
-                btn.innerText = "Sent Successfully! 🎉";
-                
-                // Redirect: Wait 2s then switch tab
-                setTimeout(() => {
-                    myForm.reset();
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
-                    toast.classList.add('hidden');
-                    
-                    // Redirect to Home
-                    switchTab('home');
-                }, 2000);
-            })
-            .catch((error) => {
-                console.error(error);
-                btn.innerText = "Error! Try Again";
-                btn.disabled = false;
-            });
-        }
+             // Droid Greeting
+             setTimeout(() => {
+                const bubble = document.getElementById('bot-bubble');
+                bubble.innerText = "Hello! I am online and ready to assist.";
+                bubble.classList.add('show');
+                setTimeout(() => bubble.classList.remove('show'), 5000);
+             }, 1000);
+        });
     </script>
 </body>
 </html>

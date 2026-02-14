@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rahul Magar | DevOps & SAS Architect</title>
+    <title>Rahul Magar | Portfolio</title>
     <meta name="description" content="Portfolio of Rahul Magar - Senior DevOps Engineer & SAS Architect specializing in AWS, Kubernetes, and Automation.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -253,9 +253,12 @@
 
         /* --- ROBOT V4.0 (Enhanced) --- */
         .droid-container {
-            position: fixed; bottom: 60px; right: 20px; width: 80px; height: 100px;
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 80px;
             z-index: 999; cursor: grab; transition: transform 0.1s ease;
             touch-action: none;
+        }
+        @media(min-width: 768px) {
+            .droid-container { width: 80px; height: 100px; bottom: 60px; right: 20px; }
         }
         .droid-container:active { cursor: grabbing; }
         
@@ -284,6 +287,9 @@
             border-radius: 30px 30px 10px 10px; border: 2px solid #FFFBEB;
             box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); z-index: 2; overflow: hidden; transition: all 0.3s;
         }
+        @media(max-width: 768px) {
+             .d-head { width: 50px; height: 35px; left: 5px; }
+        }
         .dark .d-head { background: #06b6d4; border-color: #ecfeff; box-shadow: 0 0 20px rgba(6, 182, 212, 0.9); }
 
         .d-face {
@@ -309,6 +315,8 @@
             background: #D97706; border-radius: 10px 10px 25px 25px; 
             border: 2px solid #FCD34D; box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); z-index: 1;
         }
+        @media(max-width: 768px) { .d-body { top: 40px; left: 10px; width: 40px; height: 35px; } }
+
         .dark .d-body { background: #22d3ee; border-color: #ecfeff; box-shadow: 0 0 15px rgba(34, 211, 238, 0.6); border: 2px solid #ecfeff; }
 
         .d-hand { 
@@ -316,6 +324,8 @@
             background: #F59E0B; border-radius: 10px; transition: all 0.3s; 
             border: 1px solid #FFFBEB; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
         }
+        @media(max-width: 768px) { .d-hand { top: 45px; height: 20px; width: 10px; } }
+
         .dark .d-hand { background: #22d3ee; border-color: #cffafe; box-shadow: 0 0 5px rgba(34, 211, 238, 0.6); }
         .d-hand.left { left: 5px; } .d-hand.right { right: 5px; }
 
@@ -350,8 +360,8 @@
 
         /* --- MODERN GLASSMORPHIC MENU --- */
         .droid-hud {
-            position: absolute; bottom: 120%; right: -20px; width: 300px;
-            background: rgba(255, 255, 255, 0.85); 
+            position: absolute; bottom: 120%; right: -20px; width: 280px;
+            background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(25px) saturate(200%);
             -webkit-backdrop-filter: blur(25px) saturate(200%);
             border: 1px solid rgba(245, 158, 11, 0.3);
@@ -360,9 +370,10 @@
             box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.15), 0 0 30px rgba(255, 255, 255, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
             color: #1f2937; font-family: 'Outfit', sans-serif; z-index: 1000; overflow: hidden;
         }
+        @media(min-width: 768px) { .droid-hud { width: 300px; } }
         
         .dark .droid-hud {
-            background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05); color: #fff;
         }
 
@@ -385,6 +396,16 @@
         .hud-card i { font-size: 18px; color: #d97706; transition: transform 0.3s; }
         .hud-card:hover i { transform: scale(1.1); color: #b45309; }
         .hud-label { font-size: 11px; font-weight: 600; color: #4b5563; }
+
+        /* COMMAND LIST STYLE FOR HUD */
+        .hud-cmd-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .cmd-item { 
+            background: rgba(0,0,0,0.03); padding: 6px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; 
+            font-size: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.05); color: #6b7280;
+        }
+        .dark .cmd-item { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); color: #94a3b8; }
+        .cmd-item::before { content: '>'; color: #d97706; margin-right: 4px; font-weight: bold; }
+        .dark .cmd-item::before { color: #60a5fa; }
 
         .dark .hud-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
         .dark .hud-card:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2); }
@@ -442,15 +463,16 @@
         /* --- UPDATED: MORE ANIMATED & COMPACT TOOL BUTTONS --- */
         .tool-select-btn {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 0.75rem; /* SMALLER PADDING */
+            padding: 0.5rem; /* SMALLER PADDING */
             border-radius: 0.75rem; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             border: 1px solid rgba(255,255,255,0.5);
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
-            text-align: center; gap: 0.5rem;
+            text-align: center; gap: 0.25rem;
             position: relative; overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+        @media(min-width: 768px) { .tool-select-btn { padding: 0.75rem; gap: 0.5rem; } }
         
         .dark .tool-select-btn {
             background: rgba(30, 41, 59, 0.6);
@@ -480,13 +502,16 @@
         .tool-select-btn.active i { color: white !important; transform: scale(1.1); }
         
         .tool-select-btn i { 
-            font-size: 1.25rem; margin-bottom: 2px; transition: transform 0.3s; color: #4b5563;
+            font-size: 1.1rem; margin-bottom: 2px; transition: transform 0.3s; color: #4b5563;
         }
+        @media(min-width: 768px) { .tool-select-btn i { font-size: 1.25rem; } }
+
         .dark .tool-select-btn i { color: #94a3b8; }
         .tool-select-btn:hover i { transform: scale(1.2); color: #2563EB; }
         .dark .tool-select-btn:hover i { color: #60A5FA; }
         
-        .tool-select-btn span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tool-select-btn span { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        @media(min-width: 768px) { .tool-select-btn span { font-size: 0.7rem; } }
 
     </style>
 </head>
@@ -501,27 +526,27 @@
         <div class="blob-3"></div>
     </div>
 
-    <nav class="fixed top-0 left-0 w-full z-50 flex justify-center pt-4 px-4 transition-all duration-300" id="navbar">
-        <div class="glass-nav rounded-full px-4 py-3 flex items-center justify-between shadow-nav-glow max-w-5xl w-full bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-white/10 transition-all hover:shadow-glow">
+    <nav class="fixed top-0 left-0 w-full z-50 flex justify-center pt-2 md:pt-4 px-2 md:px-4 transition-all duration-300" id="navbar">
+        <div class="glass-nav rounded-full px-4 py-2 md:py-3 flex items-center justify-between shadow-nav-glow max-w-5xl w-full bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-white/10 transition-all hover:shadow-glow">
             <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md animate-pulse-glow">RM</div>
+                <div class="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md animate-pulse-glow">RM</div>
                 <div class="flex flex-col leading-tight">
-                    <span class="font-bold tracking-tight text-gray-900 dark:text-white transition-colors">Rahul Magar</span>
-                    <span class="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">DevOps Architect</span>
+                    <span class="font-bold tracking-tight text-sm md:text-base text-gray-900 dark:text-white transition-colors">Rahul Magar</span>
+                    <span class="text-[9px] md:text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">DevOps Architect</span>
                 </div>
             </div>
             
-            <div class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-home">Home</button>
-                <button onclick="switchTab('tools')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-tools">Stack</button>
-                <button onclick="switchTab('projects')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-projects">Projects</button>
-                <button onclick="switchTab('blog')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-blog">Blogs</button>
-                <button onclick="switchTab('yaml')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-yaml">PlayGround</button>
-                <button onclick="switchTab('about')" class="nav-btn px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-about">About</button>
+            <div class="hidden md:flex items-center space-x-1 lg:space-x-2">
+                <button onclick="switchTab('home')" class="nav-btn px-3 lg:px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-home">Home</button>
+                <button onclick="switchTab('tools')" class="nav-btn px-3 lg:px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-tools">Stack</button>
+                <button onclick="switchTab('projects')" class="nav-btn px-3 lg:px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-projects">Projects</button>
+                <button onclick="switchTab('blog')" class="nav-btn px-3 lg:px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-blog">Blogs</button>
+                <button onclick="switchTab('yaml')" class="nav-btn px-3 lg:px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-yaml">PlayGround</button>
+                <button onclick="switchTab('about')" class="nav-btn px-3 lg:px-4 py-2 text-sm text-gray-600 dark:text-gray-300 transition-colors hover:bg-white/50 dark:hover:bg-gray-800/50 rounded-lg" id="btn-about">About</button>
             </div>
 
             <div class="flex items-center gap-3">
-                <button onclick="toggleTheme()" class="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-all focus:outline-none shadow-inner">
+                <button onclick="toggleTheme()" class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-all focus:outline-none shadow-inner">
                     <i class="fas fa-sun dark:hidden"></i>
                     <i class="fas fa-moon hidden dark:block"></i>
                 </button>
@@ -547,43 +572,38 @@
 
     <main class="pt-24 pb-10 px-4 md:px-8 max-w-6xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar scroll-smooth" id="main-content">
         <section id="home" class="tab-content block reveal">
-             <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mt-0">
-                <div class="w-full md:w-1/2 space-y-8 reveal relative z-10">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm">
-                        <i class="fas fa-terminal text-sm"></i>
-                        <span>"Automating the world, one commit at a time."</span>
-                    </div>
+             <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20 mt-0">
+                <div class="w-full md:w-1/2 space-y-6 md:space-y-8 reveal relative z-10 text-center md:text-left">
+                    <div class="min-h-[50px] mb-4 md:mb-8 flex justify-center md:justify-start" id="quote-container"></div>
                     
                     <div class="relative">
                         <div class="absolute -inset-1 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-400 opacity-20 blur-2xl"></div>
-                        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-gray-900 dark:text-white drop-shadow-sm relative">
+                        <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-gray-900 dark:text-white drop-shadow-sm relative">
                             Rahul Magar
                         </h1>
                     </div>
                     
-                    <h2 class="text-2xl md:text-3xl font-medium text-gray-700 dark:text-gray-300">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-medium text-gray-700 dark:text-gray-300">
                         DevOps Engineer & <br>
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400 animate-pulse">SAS Platform Admin</span>
                     </h2>
                     
-                    <div class="h-28">
-                        <p id="typing-text" class="text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg typing-cursor font-medium"></p>
+                    <div class="h-32 md:h-28">
+                        <p id="typing-text" class="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg mx-auto md:mx-0 typing-cursor font-medium"></p>
                     </div>
                     
-                    <div class="flex flex-wrap gap-4 pt-4">
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start">
                         <button onclick="switchTab('about')" class="px-8 py-3.5 btn-glow-secondary text-base">
                             About Me
                         </button>
-                        <button onclick="switchTab('yaml')" class="px-8 py-3.5 btn-glow text-base flex items-center gap-2">
+                        <button onclick="switchTab('yaml')" class="px-8 py-3.5 btn-glow text-base flex items-center justify-center gap-2">
                             DevOps Playground <i class="fas fa-rocket animate-bounce"></i>
                         </button>
                     </div>
-
-                    <div class="pt-6 h-24" id="quote-container"></div>
                 </div>
                 
-                <div class="w-full md:w-1/2 flex justify-center md:justify-end relative reveal delay-200">
-                    <div class="liquid-wrapper -mt-24 md:-mt-32 mr-0 md:mr-10">
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end relative reveal delay-200 mt-8 md:mt-0">
+                    <div class="liquid-wrapper -mt-0 md:-mt-32 mr-0 md:mr-10 scale-90 md:scale-100">
                         <div class="liquid-bg"></div>
                         <div class="liquid-img-box group">
                             <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Rahul Magar">
@@ -604,7 +624,7 @@
              <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1">
-                        <div class="group relative p-0.5 rounded-2xl sticky top-20 reveal transition-all duration-500 hover:scale-[1.01] max-w-sm mx-auto">
+                        <div class="group relative p-0.5 rounded-2xl lg:sticky lg:top-20 reveal transition-all duration-500 hover:scale-[1.01] max-w-sm mx-auto w-full">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-20 blur-sm group-hover:opacity-50 transition-all duration-500"></div>
                             <div class="relative h-full bg-white/30 dark:bg-gray-900/40 backdrop-blur-xl p-5 rounded-xl flex flex-col items-center border border-white/30 dark:border-white/10 shadow-lg">
                                 <div class="relative w-24 h-24 mb-3">
@@ -858,7 +878,6 @@
                 </div>
                 
                 <div class="glass-panel p-1 rounded-2xl border border-white/50 dark:border-white/10 mx-auto max-w-6xl shadow-2xl overflow-hidden min-h-[500px] relative transition-all duration-300" id="tool-container">
-                    
                     <div id="game-vim" class="tool-view hidden h-full flex flex-col items-center justify-center relative overflow-hidden bg-gray-900 text-green-400 font-mono p-8">
                         <div class="absolute inset-0 bg-black opacity-50"></div>
                         <div class="relative z-10 text-center">
@@ -890,7 +909,7 @@
                     </div>
 
                     <div id="game-dino" class="tool-view hidden h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative">
-                        <canvas id="dinoCanvas" width="600" height="200" class="border-b-2 border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg cursor-pointer"></canvas>
+                        <canvas id="dinoCanvas" width="600" height="200" class="border-b-2 border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg cursor-pointer max-w-full"></canvas>
                         <div class="mt-4 text-center">
                             <p class="text-sm text-gray-500 mb-2">Press SPACE or Click to Jump over Firewalls</p>
                             <button onclick="startDinoGame()" class="btn-glow px-6 py-2 text-sm">Deploy / Restart</button>
@@ -917,7 +936,7 @@
 
                     <div id="game-snake" class="tool-view hidden h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
                         <h3 class="text-xl font-bold mb-2">Python Memory Eater</h3>
-                        <canvas id="snakeCanvas" width="400" height="400" class="bg-gray-200 dark:bg-black border border-gray-400 rounded"></canvas>
+                        <canvas id="snakeCanvas" width="400" height="400" class="bg-gray-200 dark:bg-black border border-gray-400 rounded max-w-full"></canvas>
                         <div class="flex justify-between w-full max-w-[400px] mt-2">
                             <span class="text-sm text-gray-500">Arrows to move</span>
                             <span class="font-bold">RAM Consumed: <span id="snakeScore">0</span>MB</span>
@@ -927,10 +946,10 @@
 
                     <div id="tool-editor" class="tool-view h-full">
                         <div class="bg-gray-100 dark:bg-gray-900/90 px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
-                            <div class="flex items-center gap-2"><div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div><span class="text-xs font-bold text-gray-500 uppercase ml-2">Editor.yaml</span></div>
+                            <div class="flex items-center gap-2"><div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div><span class="text-xs font-bold text-gray-500 uppercase ml-2 hidden sm:inline">Editor.yaml</span></div>
                             <div class="flex gap-2">
                                 <button onclick="copyToClipboard('yamlInput')" class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300 hover:bg-gray-300"><i class="fas fa-copy"></i> Copy</button>
-                                <select onchange="loadYamlTemplate(this.value)" class="bg-white dark:bg-gray-800 text-xs rounded px-2 py-1 border border-gray-300 dark:border-gray-700">
+                                <select onchange="loadYamlTemplate(this.value)" class="bg-white dark:bg-gray-800 text-xs rounded px-2 py-1 border border-gray-300 dark:border-gray-700 max-w-[120px] sm:max-w-none">
                                     <option value="" disabled selected>Load Template</option>
                                     <option value="k8s_pod">K8s Pod</option>
                                     <option value="k8s_svc">K8s Service</option>
@@ -944,7 +963,7 @@
                             </div>
                         </div>
                         <div class="flex flex-col md:flex-row h-[500px] bg-gray-50 dark:bg-[#0d1117]">
-                            <div class="w-full md:w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-800 relative">
+                            <div class="w-full md:w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-800 relative h-1/2 md:h-full">
                                 <textarea id="yamlInput" class="flex-grow p-4 font-mono text-sm bg-transparent resize-none focus:outline-none text-gray-800 dark:text-gray-300" placeholder="# Paste YAML/JSON here..." oninput="validateYaml()"></textarea>
                                 <div class="absolute bottom-2 right-2 flex gap-1 bg-white/80 dark:bg-gray-800/80 p-1 rounded border border-gray-200 dark:border-gray-700">
                                     <button onclick="minifyJson()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">MINIFY</button>
@@ -953,7 +972,7 @@
                                     <button onclick="convertJsonToYaml()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">TO YAML</button>
                                 </div>
                             </div>
-                            <div class="w-full md:w-1/2 flex flex-col bg-gray-100 dark:bg-[#0d1117]">
+                            <div class="w-full md:w-1/2 flex flex-col bg-gray-100 dark:bg-[#0d1117] h-1/2 md:h-full">
                                 <div class="px-4 py-1 text-[10px] font-bold text-gray-500 bg-gray-200 dark:bg-gray-800 flex justify-between"><span>OUTPUT</span><span id="yamlStatus">Ready</span></div>
                                 <div id="yamlOutput" class="flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-green-600 dark:text-green-400"></div>
                             </div>
@@ -966,15 +985,15 @@
                             <button onclick="runDiff()" class="btn-glow px-4 py-1 text-xs">Compare</button>
                         </div>
                         <div class="flex flex-col md:flex-row h-full">
-                            <div class="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700 p-2">
+                            <div class="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700 p-2 h-1/3 md:h-full">
                                 <label class="text-xs font-bold text-gray-500 mb-1">Original Text</label>
                                 <textarea id="diffA" class="flex-grow p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded resize-none font-mono text-xs" placeholder="Paste original text..."></textarea>
                             </div>
-                            <div class="flex-1 flex flex-col p-2 border-r border-gray-200 dark:border-gray-700">
+                            <div class="flex-1 flex flex-col p-2 border-r border-gray-200 dark:border-gray-700 h-1/3 md:h-full">
                                 <label class="text-xs font-bold text-gray-500 mb-1">Modified Text</label>
                                 <textarea id="diffB" class="flex-grow p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded resize-none font-mono text-xs" placeholder="Paste modified text..."></textarea>
                             </div>
-                            <div class="flex-1 flex flex-col p-2 bg-gray-100 dark:bg-black/30">
+                            <div class="flex-1 flex flex-col p-2 bg-gray-100 dark:bg-black/30 h-1/3 md:h-full">
                                 <label class="text-xs font-bold text-gray-500 mb-1">Comparison Output</label>
                                 <div id="diffOutput" class="flex-grow p-3 overflow-auto font-mono text-xs whitespace-pre-wrap"></div>
                             </div>
@@ -1004,12 +1023,12 @@
                     <div id="tool-unit" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
                         <i class="fas fa-weight-hanging text-5xl text-pink-500 mb-6"></i>
                         <h3 class="text-2xl font-bold mb-6">Digital Unit Converter</h3>
-                        <div class="flex gap-4 w-full max-w-xl items-end">
-                            <div class="flex-1">
+                        <div class="flex flex-col sm:flex-row gap-4 w-full max-w-xl items-end">
+                            <div class="flex-1 w-full">
                                 <label class="text-xs font-bold mb-1">Value</label>
                                 <input type="number" id="unitVal" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700" oninput="convertUnits()">
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 w-full">
                                 <label class="text-xs font-bold mb-1">From</label>
                                 <select id="unitFrom" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700" onchange="convertUnits()">
                                     <option value="B">Bytes (B)</option><option value="KB">Kilobytes (KB)</option>
@@ -1019,12 +1038,12 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mt-8 w-full max-w-2xl">
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Bytes</div><div id="outB" class="font-mono font-bold">0</div></div>
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Kilobytes</div><div id="outKB" class="font-mono font-bold">0</div></div>
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Megabytes</div><div id="outMB" class="font-mono font-bold">0</div></div>
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Gigabytes</div><div id="outGB" class="font-mono font-bold">0</div></div>
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Terabytes</div><div id="outTB" class="font-mono font-bold">0</div></div>
-                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Petabytes</div><div id="outPB" class="font-mono font-bold">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Bytes</div><div id="outB" class="font-mono font-bold break-all">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Kilobytes</div><div id="outKB" class="font-mono font-bold break-all">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Megabytes</div><div id="outMB" class="font-mono font-bold break-all">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Gigabytes</div><div id="outGB" class="font-mono font-bold break-all">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Terabytes</div><div id="outTB" class="font-mono font-bold break-all">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Petabytes</div><div id="outPB" class="font-mono font-bold break-all">0</div></div>
                         </div>
                     </div>
 
@@ -1263,21 +1282,21 @@
 
         <section id="contact" class="tab-content hidden pb-20 reveal">
             <div class="max-w-6xl mx-auto">
-                <div class="grid md:grid-cols-2 gap-8 rounded-[2.5rem] overflow-hidden reveal">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 rounded-[2.5rem] overflow-hidden reveal">
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl -mr-16 -mt-16 animate-pulse-glow"></div>
                         <div class="relative z-10 space-y-8">
                             <div class="border-l-4 border-blue-600 pl-6 py-2">
-                                <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white italic">"Chaos is merely an unconfigured variable."</h3>
+                                <h3 class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white italic">"Chaos is merely an unconfigured variable."</h3>
                             </div>
                             <div class="border-l-4 border-purple-600 pl-6 py-2">
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Deployment Fridays are for the brave, or the automated.</h3>
+                                <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">Deployment Fridays are for the brave, or the automated.</h3>
                             </div>
                             <div class="border-l-4 border-green-500 pl-6 py-2">
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">I don't just fix servers; I engineer sleep.</h3>
+                                <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-200">I don't just fix servers; I engineer sleep.</h3>
                             </div>
                             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                <span class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-400">99.99% Uptime</span>
+                                <span class="text-3xl sm:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-400">99.99% Uptime</span>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest font-bold">Is not a goal, it's a lifestyle.</p>
                             </div>
                             <h4 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Why Contact Me?</h4>
@@ -1331,12 +1350,19 @@
                 <div class="hud-voice-text"><div>Voice Command</div><div id="mic-status">Tap to speak...</div></div>
                 <div class="hud-voice-icon"><i class="fas fa-microphone"></i></div>
             </div>
-            <div class="hud-grid">
-                <div class="hud-card" onclick="switchTab('home'); closeMenu()"><i class="fas fa-home"></i><span class="hud-label">Home</span></div>
-                <div class="hud-card" onclick="switchTab('projects'); closeMenu()"><i class="fas fa-project-diagram"></i><span class="hud-label">Projects</span></div>
-                <div class="hud-card" onclick="switchTab('tools'); closeMenu()"><i class="fas fa-layer-group"></i><span class="hud-label">Stack</span></div>
-                <div class="hud-card" onclick="switchTab('yaml'); closeMenu()"><i class="fas fa-tools"></i><span class="hud-label">Tools</span></div>
+            
+            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Available Commands</div>
+            <div class="hud-cmd-list">
+                <div class="cmd-item">"Go Home"</div>
+                <div class="cmd-item">"Open Stack"</div>
+                <div class="cmd-item">"Projects"</div>
+                <div class="cmd-item">"About Me"</div>
+                <div class="cmd-item">"Tell Joke"</div>
+                <div class="cmd-item">"Turbo Mode"</div>
+                <div class="cmd-item">"System Scan"</div>
+                <div class="cmd-item">"Dance"</div>
             </div>
+            
             <div class="hud-footer">
                 <div class="hud-mini-btn" onclick="toggleTheme(); closeMenu()" title="Toggle Theme"><i class="fas fa-adjust"></i></div>
                 <div class="hud-mini-btn" onclick="toggleTurboMode(); closeMenu()" title="Turbo Mode"><i class="fas fa-bolt text-yellow-500"></i></div>
@@ -1397,8 +1423,13 @@
         // --- GLOBAL FUNCTIONS (UNCHANGED) ---
         function toggleTheme() {
             const html = document.documentElement;
-            if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } 
-            else { html.classList.add('dark'); localStorage.setItem('theme', 'dark'); }
+            if (html.classList.contains('dark')) { 
+                html.classList.remove('dark'); 
+                localStorage.setItem('theme', 'light'); 
+            } else { 
+                html.classList.add('dark'); 
+                localStorage.setItem('theme', 'dark'); 
+            }
         }
 
         function switchTab(tabId) {
@@ -1511,7 +1542,14 @@
 
         const devopsQuotes = [
             "You build it, you run it.", "Automation is not just a trend; it's the foundation.", "If you did not automate testing, you did not do DevOps.",
-            "Shift left on security, shift right on observability.", "Infrastructure as Code: because clicking buttons is not a strategy."
+            "Shift left on security, shift right on observability.", "Infrastructure as Code: because clicking buttons is not a strategy.", "In DevOps, failure is not the opposite of success; it's part of success.", "The best way to predict the future is to automate it.",
+            "DevOps is a culture, not a job title.", "Monitoring is the eyes and alerting is the ears of your system.", "Containers are to DevOps what electricity was to the industrial revolution.",
+            "The cloud is not a place, it's a way of thinking.", "Microservices: because monoliths are so 2000s.", "In DevOps, we don't do 'it works on my machine.'", "Continuous Integration is like brushing your teeth; you do it every day to avoid cavities.",
+            "The only constant in DevOps is change, and the only way to manage it is through automation.", "DevOps is not about tools, it's about collaboration and culture.", "The road to DevOps is paved with good intentions and broken builds.",
+            "If you're not automating, you're just orchestrating manual work.", "In DevOps, we don't wait for problems to happen; we create them in staging and fix them before they reach production.", "The best DevOps engineers are part coder, part psychologist, and part firefighter.",
+            "DevOps is like a good joke: if you have to explain it, it's not working.", "The true measure of DevOps success is not how fast you can deploy, but how quickly you can recover from failure.", "In DevOps, we don't just break things on purpose; we break them to learn how to fix them faster.", "The DevOps mindset is not about avoiding failure, but about embracing it as a learning opportunity.",
+            "The best way to predict the future of your system is to create it through automation and continuous improvement.", "DevOps is not a destination, it's a journey of continuous learning and adaptation.", "In DevOps, we don't just deploy code; we deploy confidence.", "The only way to win in DevOps is to continuously improve and never stop learning.", "DevOps is not about being perfect; it's about being better than yesterday.", "The best DevOps teams are those that can balance speed with stability, and innovation with reliability.",
+            
         ];
         function setRandomQuote() {
             const quoteEl = document.getElementById('quote-container');
@@ -1938,6 +1976,7 @@
             const btn = myForm.querySelector('button');
             const originalText = btn.innerHTML;
             btn.innerHTML = 'Sending...'; btn.disabled = true;
+            // Netlify AJAX submission requires application/x-www-form-urlencoded
             const urlEncodedData = new URLSearchParams(formData).toString();
             fetch('/', {
                 method: 'POST',
@@ -2015,6 +2054,30 @@
                 droidEl.style.cursor = 'grabbing';
                 // Removed botSpeak here to keep it mute
             });
+            
+            // Add touch support for mobile drag
+            droidEl.addEventListener('touchstart', (e) => {
+                if(e.target.closest('.droid-hud')) return;
+                isDraggingDroid = true;
+                const touch = e.touches[0];
+                const rect = droidEl.getBoundingClientRect();
+                droidOffsets.x = touch.clientX - rect.left;
+                droidOffsets.y = touch.clientY - rect.top;
+                // e.preventDefault(); // allow scrolling unless specifically dragging
+            }, {passive: false});
+            
+            document.addEventListener('touchmove', (e) => {
+                 if(isDraggingDroid) {
+                    const touch = e.touches[0];
+                    droidEl.style.left = (touch.clientX - droidOffsets.x) + 'px';
+                    droidEl.style.top = (touch.clientY - droidOffsets.y) + 'px';
+                    droidEl.style.bottom = 'auto'; 
+                    droidEl.style.right = 'auto';
+                    e.preventDefault(); // Stop scrolling while dragging robot
+                 }
+            }, {passive: false});
+            
+            document.addEventListener('touchend', () => { isDraggingDroid = false; });
 
             // --- 3. SINGLE CLICK (PETTING MODE - MUTED) ---
             // Single click triggers visual "petting" (hearts) but NO voice.
@@ -2118,11 +2181,6 @@
                 botSpeak("Landing gear deployed. Stabilizing.");
                 container.classList.remove('rocket-active');
                 document.body.classList.remove('turbo-mode');
-                
-                // Ensure it resets position style if drag messed it up
-                // setTimeout(() => {
-                //    container.style.transform = ''; // Clear transform after transition if needed
-                // }, 1000);
             }
         }
         
@@ -2169,7 +2227,15 @@
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-             if (localStorage.theme === 'dark') document.documentElement.classList.add('dark'); else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
+             // MODIFIED: Ensure Light mode is default if no preference is set
+             if (!localStorage.getItem('theme')) {
+                 localStorage.setItem('theme', 'light');
+                 document.documentElement.classList.remove('dark');
+             } else {
+                 if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
+                 else document.documentElement.classList.remove('dark');
+             }
+             
              renderProjects(); renderTools(); renderBlogs(); typeWriter(); toolsTypeWriter(); setRandomQuote();
              setupObserver(); initDroid(); calcChmod(); populateCronSelects();
              switchTab(new URLSearchParams(window.location.search).get('tab') || 'home');

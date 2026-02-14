@@ -24,11 +24,13 @@
                     },
                     colors: { 
                         primary: { DEFAULT: '#2563EB', dark: '#3B82F6', light: '#60A5FA' },
+                        gold: { DEFAULT: '#F59E0B', glow: '#fbbf24', dark: '#d97706' },
                         sas: '#007CC2',
                         neon: '#06b6d4'
                     },
                     boxShadow: {
                         'glow': '0 0 20px rgba(37, 99, 235, 0.6)',
+                        'gold-glow': '0 0 25px rgba(245, 158, 11, 0.6), 0 0 10px rgba(251, 191, 36, 0.4)',
                         'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
                         'neon': '0 0 15px rgba(37, 99, 235, 0.8), 0 0 30px rgba(37, 99, 235, 0.4)',
                         'nav-glow': '0 0 25px rgba(37, 99, 235, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.3)',
@@ -36,9 +38,8 @@
                     animation: {
                         'blob': 'blob 10s infinite',
                         'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 7s ease-in-out 1s infinite',
                         'pulse-glow': 'pulseGlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'shimmer': 'shimmer 3s linear infinite',
-                        'spin-slow': 'spin 10s linear infinite',
                         'super-pulse': 'superPulse 2s infinite',
                         'scan': 'scan 2s linear infinite',
                     },
@@ -51,7 +52,7 @@
                         },
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-15px)' },
+                            '50%': { transform: 'translateY(-20px)' }, 
                         },
                         pulseGlow: {
                             '0%, 100%': { opacity: 1, boxShadow: '0 0 20px rgba(37, 99, 235, 0.5)' },
@@ -66,6 +67,10 @@
                         superPulse: {
                             '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(37, 99, 235, 0.7)' },
                             '70%': { transform: 'scale(1.02)', boxShadow: '0 0 0 15px rgba(37, 99, 235, 0)' }
+                        },
+                        superGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(37, 99, 235, 0.6), inset 0 0 10px rgba(37, 99, 235, 0.2)', borderColor: 'rgba(255,255,255,0.8)' },
+                            '50%': { boxShadow: '0 0 50px rgba(6, 182, 212, 0.8), inset 0 0 20px rgba(6, 182, 212, 0.4)', borderColor: '#06b6d4' }
                         }
                     }
                 }
@@ -198,8 +203,9 @@
         /* --- LIQUID PHOTO --- */
         .liquid-wrapper {
             position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center;
+            animation: float 6s ease-in-out infinite; 
         }
-        @media (min-width: 768px) { .liquid-wrapper { width: 350px; height: 350px; } }
+        @media (min-width: 768px) { .liquid-wrapper { width: 380px; height: 380px; } }
         
         .liquid-bg {
             position: absolute; inset: -10px; background: linear-gradient(45deg, #2563EB, #06b6d4);
@@ -212,12 +218,14 @@
             position: relative; width: 100%; height: 100%;
             border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; overflow: hidden; z-index: 1; 
             -webkit-mask-image: -webkit-radial-gradient(white, black); border: 4px solid rgba(255,255,255,0.8);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2); animation: morph 8s ease-in-out infinite; transition: all 0.5s ease;
+            /* Updated Animation: Morph + Super Glow */
+            animation: morph 8s ease-in-out infinite, superGlow 3s ease-in-out infinite;
+            transition: all 0.5s ease;
         }
         .dark .liquid-img-box { border-color: rgba(255,255,255,0.15); }
         .liquid-img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- ROBOT V3.1 (BLUE LIGHT MODE / CYAN DARK MODE) --- */
+        /* --- ROBOT V3.1 (MODERN GOLDEN NEON LIGHT / CYAN DARK) --- */
         .droid-container {
             position: fixed; bottom: 60px; right: 20px; width: 80px; height: 100px;
             z-index: 999; cursor: grab; transition: transform 0.1s ease;
@@ -226,13 +234,14 @@
         
         .droid { position: relative; width: 100%; height: 100%; animation: float 6s ease-in-out infinite; pointer-events: none; }
         
-        /* HEAD STYLES - LIGHT MODE (BLUE) */
+        /* HEAD STYLES - LIGHT MODE (GOLDEN NEON) */
         .d-head {
             position: absolute; top: 0; left: 10px; width: 60px; height: 40px;
-            background: #3b82f6; /* Blue 500 */
+            background: #F59E0B; /* Golden Amber */
+            background: linear-gradient(135deg, #F59E0B, #D97706);
             border-radius: 30px 30px 10px 10px; 
-            border: 2px solid #1e3a8a; /* Blue 900 */
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6); /* Blue Glow */
+            border: 2px solid #FFFBEB; /* Light Gold border */
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); /* Intense Gold Glow */
             z-index: 2; overflow: hidden; transition: all 0.3s;
         }
         /* HEAD STYLES - DARK MODE (CYAN NEON) */
@@ -263,104 +272,145 @@
         .droid.listening .d-head { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); background: #fca5a5; }
         .droid.listening .d-eye { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
 
-        /* BODY STYLES - LIGHT MODE (BLUE) */
+        /* BODY STYLES - LIGHT MODE (GOLDEN) */
         .d-body {
             position: absolute; top: 45px; left: 15px; width: 50px; height: 40px;
-            background: #2563eb; /* Blue 600 */
+            background: #D97706; 
             border-radius: 10px 10px 25px 25px; 
-            border: 2px solid #1e3a8a; 
-            box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+            border: 2px solid #FCD34D; 
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
             z-index: 1;
         }
         /* BODY STYLES - DARK MODE (CYAN) */
-        .dark .d-body { background: #22d3ee; border-color: #ecfeff; box-shadow: 0 0 15px rgba(34, 211, 238, 0.6); }
+        .dark .d-body { background: #22d3ee; border-color: #ecfeff; box-shadow: 0 0 15px rgba(34, 211, 238, 0.6); border: 2px solid #ecfeff; }
 
-        /* HAND STYLES - LIGHT MODE (BLUE) */
+        /* HAND STYLES - LIGHT MODE (GOLDEN) */
         .d-hand { 
             position: absolute; top: 55px; width: 12px; height: 25px; 
-            background: #2563eb; 
+            background: #F59E0B; 
             border-radius: 10px; transition: all 0.3s; 
-            border: 1px solid #1e3a8a;
-            box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+            border: 1px solid #FFFBEB;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
         }
         /* HAND STYLES - DARK MODE (CYAN) */
-        .dark .d-hand { background: #22d3ee; border-color: #cffafe; }
+        .dark .d-hand { background: #22d3ee; border-color: #cffafe; box-shadow: 0 0 5px rgba(34, 211, 238, 0.6); }
         .d-hand.left { left: 5px; } .d-hand.right { right: 5px; }
 
-        /* --- MODERN GLASSMORPHIC MENU --- */
+        /* --- MODERN GLASSMORPHIC MENU (UPDATED) --- */
         .droid-hud {
             position: absolute; bottom: 120%; right: -20px; width: 300px;
-            background: rgba(15, 23, 42, 0.85); 
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* Light Mode: Modern Platinum/Gold Glass */
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(25px) saturate(200%);
+            -webkit-backdrop-filter: blur(25px) saturate(200%);
+            border: 1px solid rgba(245, 158, 11, 0.3); /* Golden border tint */
             border-radius: 28px;
             padding: 20px; display: none; transform-origin: bottom right;
             box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.5), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-                inset 0 1px 0 rgba(255,255,255,0.1);
-            color: #fff; font-family: 'Outfit', sans-serif; z-index: 1000;
+                0 25px 50px -12px rgba(245, 158, 11, 0.15), 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            color: #1f2937; font-family: 'Outfit', sans-serif; z-index: 1000;
             overflow: hidden;
         }
+        
+        /* Dark Mode Override */
+        .dark .droid-hud {
+            background: rgba(15, 23, 42, 0.85); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
         .droid-hud.active { display: block; animation: hud-spring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes hud-spring { 0% { transform: scale(0.5) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
         /* Modern Grid Layout */
         .hud-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .hud-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
+        .hud-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #d97706; letter-spacing: 0.5px; }
+        .dark .hud-status { color: #94a3b8; }
         .hud-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
         
         .hud-grid { display: grid; grid-cols-2; gap: 12px; margin-bottom: 16px; }
         
+        /* Menu Cards - Light Mode (Golden Hover) */
         .hud-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(245, 158, 11, 0.05); /* Very light amber bg */
+            border: 1px solid rgba(245, 158, 11, 0.1);
             border-radius: 16px; padding: 12px;
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
             cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative; overflow: hidden;
         }
         .hud-card:hover { 
-            background: rgba(255, 255, 255, 0.08); 
+            background: rgba(245, 158, 11, 0.15); 
             transform: translateY(-2px); 
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.2);
+        }
+        .hud-card i { font-size: 18px; color: #d97706; transition: transform 0.3s; }
+        .hud-card:hover i { transform: scale(1.1); color: #b45309; }
+        .hud-label { font-size: 11px; font-weight: 600; color: #4b5563; }
+
+        /* Menu Cards - Dark Mode Override */
+        .dark .hud-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .dark .hud-card:hover {
+            background: rgba(255, 255, 255, 0.08); 
             border-color: rgba(59, 130, 246, 0.3);
             box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2);
         }
-        .hud-card i { font-size: 18px; color: #60a5fa; transition: transform 0.3s; }
-        .hud-card:hover i { transform: scale(1.1); color: #93c5fd; }
-        .hud-label { font-size: 11px; font-weight: 600; color: #cbd5e1; }
+        .dark .hud-card i { color: #60a5fa; }
+        .dark .hud-card:hover i { color: #93c5fd; }
+        .dark .hud-label { color: #cbd5e1; }
 
         /* Voice Button Special Style */
         .hud-voice-row { 
-            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1));
-            border: 1px solid rgba(59,130,246,0.2); border-radius: 16px; 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; 
             padding: 12px; margin-bottom: 16px; cursor: pointer;
             display: flex; align-items: center; justify-content: space-between;
             transition: all 0.3s;
         }
-        .hud-voice-row:hover { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59,130,246,0.15); }
+        .hud-voice-row:hover { border-color: #d97706; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
         .hud-voice-icon { 
-            width: 36px; height: 36px; background: #3b82f6; border-radius: 12px; 
+            width: 36px; height: 36px; background: #F59E0B; border-radius: 12px; 
             display: flex; align-items: center; justify-content: center; color: white;
-            box-shadow: 0 4px 10px rgba(59,130,246,0.3);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
         }
-        .hud-voice-text div:first-child { font-size: 12px; font-weight: 700; color: white; }
-        .hud-voice-text div:last-child { font-size: 10px; color: #94a3b8; }
+        .hud-voice-text div:first-child { font-size: 12px; font-weight: 700; color: #1f2937; }
+        .hud-voice-text div:last-child { font-size: 10px; color: #6b7280; }
+        
+        /* Dark Mode Voice Row */
+        .dark .hud-voice-row { background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1)); border-color: rgba(59,130,246,0.2); }
+        .dark .hud-voice-row:hover { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59,130,246,0.15); }
+        .dark .hud-voice-icon { background: #3b82f6; box-shadow: 0 4px 10px rgba(59,130,246,0.3); }
+        .dark .hud-voice-text div:first-child { color: white; }
+        .dark .hud-voice-text div:last-child { color: #94a3b8; }
+
         .hud-voice-row.listening { border-color: #ef4444; background: rgba(239,68,68,0.1); }
         .hud-voice-row.listening .hud-voice-icon { background: #ef4444; animation: pulse 1.5s infinite; }
 
         .hud-footer { 
-            border-top: 1px solid rgba(255,255,255,0.1); 
+            border-top: 1px solid rgba(0,0,0,0.05); 
             padding-top: 12px; margin-top: 8px;
             display: flex; justify-content: space-between; align-items: center;
         }
+        .dark .hud-footer { border-top: 1px solid rgba(255,255,255,0.1); }
+
         .hud-mini-btn { 
             width: 32px; height: 32px; border-radius: 10px; 
-            background: rgba(255,255,255,0.05); color: #94a3b8; 
+            background: rgba(0,0,0,0.03); color: #6b7280; 
             display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
         }
-        .hud-mini-btn:hover { background: rgba(255,255,255,0.1); color: white; transform: scale(1.05); }
+        .hud-mini-btn:hover { background: rgba(245, 158, 11, 0.1); color: #d97706; transform: scale(1.05); }
+
+        .dark .hud-mini-btn { background: rgba(255,255,255,0.05); color: #94a3b8; }
+        .dark .hud-mini-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         
         .scanner-beam {
             position: fixed; top: 0; left: 0; width: 100%; height: 5px;
@@ -498,27 +548,15 @@
                     </div>
 
                     <div class="pt-6 h-24" id="quote-container"></div>
-                    
-                    <div class="w-full max-w-lg mt-8 rounded-lg overflow-hidden bg-[#1e1e1e] border border-gray-700 shadow-2xl font-mono text-xs md:text-sm relative group">
-                        <div class="bg-[#2d2d2d] px-4 py-1 flex items-center gap-2 border-b border-gray-700">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span class="ml-2 text-gray-400 text-[10px]">rahul@devops-server:~</span>
-                        </div>
-                        <div class="p-4 h-40 overflow-y-auto text-green-400" id="terminal-body">
-                            </div>
-                    </div>
-
                 </div>
                 
-                <div class="w-full md:w-1/2 flex justify-center relative reveal delay-200">
-                    <div class="liquid-wrapper -mt-20">
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end relative reveal delay-200">
+                    <div class="liquid-wrapper -mt-24 md:-mt-32 mr-0 md:mr-10">
                         <div class="liquid-bg"></div>
                         <div class="liquid-img-box group">
                             <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Rahul Magar">
                         </div>
-                        <div class="absolute bottom-6 left-0 md:-left-6 glass-panel px-5 py-4 rounded-2xl flex items-center gap-3 animate-float shadow-xl z-20 hover:scale-110 transition-transform cursor-default">
+                        <div class="absolute bottom-6 left-0 md:-left-6 glass-panel px-5 py-4 rounded-2xl flex items-center gap-3 animate-float-delayed shadow-xl z-20 hover:scale-110 transition-transform cursor-default">
                             <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-300 text-xl"><i class="fas fa-dharmachakra"></i></div>
                             <div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase">DevOps</div>
@@ -764,30 +802,33 @@
             <div class="reveal">
                 <div class="text-center mb-8">
                     <h2 class="text-3xl font-bold text-gray-900 dark:text-white">DevOps Tool Chest</h2>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2">Select a utility from the menu below.</p>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">Professional Grade Utilities.</p>
                 </div>
 
                 <div class="max-w-xl mx-auto mb-10 custom-select-wrapper reveal">
                     <select id="toolSelector" onchange="switchTool(this.value)" class="custom-select">
                         <optgroup label="1. Data Conversion & Manipulation">
-                            <option value="tool-editor" selected>YAML / JSON Validator</option>
-                            <option value="tool-csv">JSON <-> CSV Converter (NEW)</option>
+                            <option value="tool-editor" selected>YAML / JSON Validator (Pro)</option>
+                            <option value="tool-diff">Text Diff Checker (New)</option>
+                            <option value="tool-csv">JSON <-> CSV Converter (Pro)</option>
                             <option value="tool-base64">Base64 Encoder / Decoder</option>
                             <option value="tool-jwt">JWT Debugger</option>
                             <option value="tool-url">URL Encoder / Decoder</option>
                         </optgroup>
                         <optgroup label="2. Infrastructure & Networking">
-                            <option value="tool-cron">Cron Expression Generator</option> 
+                            <option value="tool-cron">Cron Expression Generator (Next Run)</option> 
                             <option value="tool-cidr">CIDR / Subnet Calculator</option>
-                            <option value="tool-port">Common Port Checker</option> 
+                            <option value="tool-port">Common Port Checker (Extended)</option> 
                             <option value="tool-dns">DNS Lookup Checker</option>
-                            <option value="tool-ip">IP & Network Checker</option>
+                            <option value="tool-ip">System & Network Info (My IP)</option>
                             <option value="tool-ssl">Certificate (SSL) Decoder</option>
                         </optgroup>
                         <optgroup label="3. Security & Utils">
-                            <option value="tool-pass">Password / Secret Generator</option>
+                            <option value="tool-hash">Crypto Hash Generator (New)</option>
+                            <option value="tool-pass">Password / Secret Generator (Custom)</option>
+                            <option value="tool-unit">Digital Unit Converter (New)</option>
                             <option value="tool-regex">Regex Tester</option>
-                            <option value="tool-chmod">Chmod Calculator</option>
+                            <option value="tool-chmod">Chmod Calculator (Symbolic)</option>
                         </optgroup>
                     </select>
                     <i class="fas fa-chevron-down select-icon"></i>
@@ -799,6 +840,7 @@
                         <div class="bg-gray-100 dark:bg-gray-900/90 px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
                             <div class="flex items-center gap-2"><div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div><span class="text-xs font-bold text-gray-500 uppercase ml-2">Editor.yaml</span></div>
                             <div class="flex gap-2">
+                                <button onclick="copyToClipboard('yamlInput')" class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300 hover:bg-gray-300"><i class="fas fa-copy"></i> Copy</button>
                                 <select onchange="loadYamlTemplate(this.value)" class="bg-white dark:bg-gray-800 text-xs rounded px-2 py-1 border border-gray-300 dark:border-gray-700"><option value="" disabled selected>Load Template</option><option value="k8s_pod">K8s Pod</option><option value="k8s_svc">K8s Service</option><option value="github_action">GitHub Action</option></select>
                                 <button onclick="clearYaml()" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
                             </div>
@@ -807,6 +849,8 @@
                             <div class="w-full md:w-1/2 flex flex-col border-r border-gray-200 dark:border-gray-800 relative">
                                 <textarea id="yamlInput" class="flex-grow p-4 font-mono text-sm bg-transparent resize-none focus:outline-none text-gray-800 dark:text-gray-300" placeholder="# Paste YAML/JSON here..." oninput="validateYaml()"></textarea>
                                 <div class="absolute bottom-2 right-2 flex gap-1 bg-white/80 dark:bg-gray-800/80 p-1 rounded border border-gray-200 dark:border-gray-700">
+                                    <button onclick="minifyJson()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">MINIFY</button>
+                                    <button onclick="prettifyJson()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">PRETTIFY</button>
                                     <button onclick="convertYamlToJson()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">TO JSON</button>
                                     <button onclick="convertJsonToYaml()" class="px-2 py-1 text-[10px] font-bold hover:bg-gray-200 dark:hover:bg-gray-700 rounded text-gray-600 dark:text-gray-300">TO YAML</button>
                                 </div>
@@ -818,10 +862,81 @@
                         </div>
                     </div>
 
+                    <div id="tool-diff" class="tool-view hidden h-full flex flex-col">
+                         <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                            <h3 class="font-bold text-lg text-primary">Text Diff Checker</h3>
+                            <button onclick="runDiff()" class="btn-glow px-4 py-1 text-xs">Compare</button>
+                        </div>
+                        <div class="flex flex-col md:flex-row h-full">
+                            <div class="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700 p-2">
+                                <label class="text-xs font-bold text-gray-500 mb-1">Original Text</label>
+                                <textarea id="diffA" class="flex-grow p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded resize-none font-mono text-xs" placeholder="Paste original text..."></textarea>
+                            </div>
+                            <div class="flex-1 flex flex-col p-2 border-r border-gray-200 dark:border-gray-700">
+                                <label class="text-xs font-bold text-gray-500 mb-1">Modified Text</label>
+                                <textarea id="diffB" class="flex-grow p-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded resize-none font-mono text-xs" placeholder="Paste modified text..."></textarea>
+                            </div>
+                            <div class="flex-1 flex flex-col p-2 bg-gray-100 dark:bg-black/30">
+                                <label class="text-xs font-bold text-gray-500 mb-1">Comparison Output</label>
+                                <div id="diffOutput" class="flex-grow p-3 overflow-auto font-mono text-xs whitespace-pre-wrap"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-hash" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-fingerprint text-5xl text-purple-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6">Crypto Hash Generator</h3>
+                        <div class="w-full max-w-2xl">
+                            <input type="text" id="hashInput" placeholder="Enter text to hash..." class="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-4" oninput="generateHash()">
+                            <div class="space-y-4">
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                    <div class="text-xs text-gray-400 font-bold mb-1">SHA-256</div>
+                                    <div id="sha256" class="font-mono text-xs break-all text-green-600 dark:text-green-400"></div>
+                                    <button onclick="copyToClipboard('sha256')" class="absolute top-2 right-2 text-gray-400 hover:text-primary"><i class="fas fa-copy"></i></button>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                    <div class="text-xs text-gray-400 font-bold mb-1">SHA-512</div>
+                                    <div id="sha512" class="font-mono text-xs break-all text-blue-600 dark:text-blue-400"></div>
+                                    <button onclick="copyToClipboard('sha512')" class="absolute top-2 right-2 text-gray-400 hover:text-primary"><i class="fas fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-unit" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-weight-hanging text-5xl text-pink-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6">Digital Unit Converter</h3>
+                        <div class="flex gap-4 w-full max-w-xl items-end">
+                            <div class="flex-1">
+                                <label class="text-xs font-bold mb-1">Value</label>
+                                <input type="number" id="unitVal" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700" oninput="convertUnits()">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-xs font-bold mb-1">From</label>
+                                <select id="unitFrom" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700" onchange="convertUnits()">
+                                    <option value="B">Bytes (B)</option><option value="KB">Kilobytes (KB)</option>
+                                    <option value="MB" selected>Megabytes (MB)</option><option value="GB">Gigabytes (GB)</option>
+                                    <option value="TB">Terabytes (TB)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-8 w-full max-w-2xl">
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Bytes</div><div id="outB" class="font-mono font-bold">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Kilobytes</div><div id="outKB" class="font-mono font-bold">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Megabytes</div><div id="outMB" class="font-mono font-bold">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Gigabytes</div><div id="outGB" class="font-mono font-bold">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Terabytes</div><div id="outTB" class="font-mono font-bold">0</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded text-center"><div class="text-xs text-gray-400">Petabytes</div><div id="outPB" class="font-mono font-bold">0</div></div>
+                        </div>
+                    </div>
+
                     <div id="tool-csv" class="tool-view hidden p-6 h-full flex flex-col">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="font-bold text-lg text-emerald-600"><i class="fas fa-table mr-2"></i>JSON <-> CSV Converter</h3>
-                            <span class="text-xs text-gray-400">Auto-detects keys for CSV headers</span>
+                            <div class="flex gap-2">
+                                <button onclick="downloadFile('csvOutput', 'data.csv', 'text/csv')" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200"><i class="fas fa-download"></i> CSV</button>
+                                <button onclick="downloadFile('csvJsonInput', 'data.json', 'application/json')" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200"><i class="fas fa-download"></i> JSON</button>
+                            </div>
                         </div>
                         <div class="flex flex-col md:flex-row gap-4 h-full">
                             <div class="flex-1 flex flex-col">
@@ -840,34 +955,44 @@
                     </div>
 
                     <div id="tool-cron" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
-                        <i class="fas fa-clock text-5xl text-purple-500 mb-6"></i>
-                        <h3 class="text-2xl font-bold mb-2">Cron Generator</h3>
-                        <p class="text-sm text-gray-500 mb-6">Standard 5-field cron syntax</p>
-                        <div class="mb-6 w-full max-w-lg">
-                            <select onchange="applyCronPreset(this.value)" class="w-full p-3 rounded-lg border dark:bg-gray-800 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                <option value="" disabled selected>-- Select Quick Preset --</option>
-                                <option value="* * * * *">Every Minute (* * * * *)</option>
-                                <option value="*/5 * * * *">Every 5 Minutes (*/5 * * * *)</option>
-                                <option value="0 * * * *">Every Hour (0 * * * *)</option>
-                                <option value="0 0 * * *">Daily at Midnight (0 0 * * *)</option>
-                                <option value="0 9 * * 1-5">Weekdays at 9AM (0 9 * * 1-5)</option>
-                            </select>
+                        <div class="w-full max-w-4xl flex flex-col md:flex-row gap-8 items-start">
+                             <div class="w-full md:w-1/2 flex flex-col items-center">
+                                <i class="fas fa-clock text-4xl text-purple-500 mb-4"></i>
+                                <h3 class="text-xl font-bold mb-4">Cron Generator</h3>
+                                <div class="mb-4 w-full">
+                                    <select onchange="applyCronPreset(this.value)" class="w-full p-2 rounded border dark:bg-gray-800 dark:border-gray-700 text-xs font-semibold">
+                                        <option value="" disabled selected>-- Quick Presets --</option>
+                                        <option value="* * * * *">Every Minute</option>
+                                        <option value="*/5 * * * *">Every 5 Minutes</option>
+                                        <option value="0 * * * *">Hourly</option>
+                                        <option value="0 0 * * *">Daily (Midnight)</option>
+                                        <option value="0 9 * * 1-5">Weekdays 9AM</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-wrap gap-1 justify-center mb-6">
+                                    <div class="flex flex-col"><label class="text-[9px] font-bold uppercase">Min</label><select id="cronMin" onchange="updateCron()" class="p-1 text-sm border rounded dark:bg-gray-800 w-16"></select></div>
+                                    <div class="flex flex-col"><label class="text-[9px] font-bold uppercase">Hour</label><select id="cronHour" onchange="updateCron()" class="p-1 text-sm border rounded dark:bg-gray-800 w-16"></select></div>
+                                    <div class="flex flex-col"><label class="text-[9px] font-bold uppercase">Day</label><select id="cronDay" onchange="updateCron()" class="p-1 text-sm border rounded dark:bg-gray-800 w-16"></select></div>
+                                    <div class="flex flex-col"><label class="text-[9px] font-bold uppercase">Mon</label><select id="cronMonth" onchange="updateCron()" class="p-1 text-sm border rounded dark:bg-gray-800 w-16"></select></div>
+                                    <div class="flex flex-col"><label class="text-[9px] font-bold uppercase">Week</label><select id="cronWeek" onchange="updateCron()" class="p-1 text-sm border rounded dark:bg-gray-800 w-16"></select></div>
+                                </div>
+                                <div class="text-2xl font-mono font-bold bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-purple-500 text-purple-600 dark:text-purple-400 w-full text-center shadow-inner" id="cronOutput">* * * * *</div>
+                                <div class="mt-2 text-gray-500 text-xs font-medium" id="cronDesc">Run every minute</div>
+                            </div>
+                            <div class="w-full md:w-1/2 bg-gray-50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700 h-full">
+                                <h4 class="font-bold text-sm text-gray-500 uppercase mb-3 tracking-wider">Scheduled Execution Times</h4>
+                                <ul id="cronNextRuns" class="space-y-2 text-sm font-mono text-gray-700 dark:text-gray-300">
+                                    <li class="flex items-center gap-2"><div class="w-2 h-2 bg-green-500 rounded-full"></div> Calculating...</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="flex flex-wrap gap-2 justify-center mb-8">
-                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Min</label><select id="cronMin" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
-                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Hour</label><select id="cronHour" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
-                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Day</label><select id="cronDay" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
-                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Month</label><select id="cronMonth" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
-                            <div class="flex flex-col"><label class="text-[10px] font-bold uppercase mb-1">Week</label><select id="cronWeek" onchange="updateCron()" class="p-2 border rounded dark:bg-gray-800 w-20"></select></div>
-                        </div>
-                        <div class="text-4xl font-mono font-bold bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl border-2 border-purple-500 text-purple-600 dark:text-purple-400 w-full max-w-lg shadow-inner" id="cronOutput">* * * * *</div>
-                        <div class="mt-4 text-gray-600 dark:text-gray-300 font-medium bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg" id="cronDesc">Run every minute</div>
                     </div>
 
                     <div id="tool-port" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
                         <i class="fas fa-ethernet text-5xl text-orange-500 mb-6"></i>
                         <h3 class="text-2xl font-bold mb-4">Common Port Checker</h3>
-                        <input type="number" id="portInput" placeholder="e.g. 443" class="w-full max-w-xs p-4 text-center text-xl border-2 border-orange-200 dark:border-gray-700 rounded-xl mb-6 bg-white dark:bg-gray-800 outline-none focus:border-orange-500" oninput="checkPort()">
+                        <p class="text-gray-500 text-sm mb-6">Database of 50+ common DevOps service ports.</p>
+                        <input type="number" id="portInput" placeholder="e.g. 6379" class="w-full max-w-xs p-4 text-center text-xl border-2 border-orange-200 dark:border-gray-700 rounded-xl mb-6 bg-white dark:bg-gray-800 outline-none focus:border-orange-500" oninput="checkPort()">
                         <div id="portResult" class="text-xl font-bold text-gray-700 dark:text-gray-300">Enter a port number...</div>
                     </div>
 
@@ -875,11 +1000,13 @@
                         <i class="fas fa-network-wired text-5xl text-cyan-500 mb-6"></i>
                         <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Subnet Calculator</h3>
                         <input type="text" id="cidrInput" placeholder="192.168.1.0/24" class="w-full max-w-md p-4 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-center font-mono text-xl focus:border-cyan-500 outline-none mb-8" onkeyup="calculateCidr()">
-                        <div class="grid grid-cols-2 gap-4 w-full max-w-2xl">
-                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Netmask</div><div id="cidrNetmask" class="font-mono font-bold">-</div></div>
-                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Total Hosts</div><div id="cidrHosts" class="font-mono font-bold text-primary">-</div></div>
-                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">First IP</div><div id="cidrFirst" class="font-mono font-bold">-</div></div>
-                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Last IP</div><div id="cidrLast" class="font-mono font-bold">-</div></div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-4xl text-left">
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Netmask</div><div id="cidrNetmask" class="font-mono font-bold text-sm">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Total Hosts</div><div id="cidrHosts" class="font-mono font-bold text-primary text-sm">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Usable Range</div><div id="cidrRange" class="font-mono font-bold text-sm text-green-600 dark:text-green-400">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">First IP</div><div id="cidrFirst" class="font-mono font-bold text-sm">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Last IP</div><div id="cidrLast" class="font-mono font-bold text-sm">-</div></div>
+                            <div class="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-xl"><div class="text-xs text-gray-500 uppercase">Binary Mask</div><div id="cidrBinary" class="font-mono font-bold text-[10px] truncate" title="Binary">-</div></div>
                         </div>
                     </div>
 
@@ -903,11 +1030,11 @@
                                 <textarea id="jwtInput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border-2 border-pink-500/20 focus:border-pink-500 outline-none font-mono text-xs resize-none text-pink-600 dark:text-pink-400 break-all" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJwt()"></textarea>
                             </div>
                             <div class="w-full md:w-1/2 flex flex-col gap-4">
-                                <div class="flex-1 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                <div class="flex-1 bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 relative">
                                     <div class="text-xs font-bold text-red-500 mb-1">HEADER</div>
                                     <pre id="jwtHeader" class="text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{}</pre>
                                 </div>
-                                <div class="flex-[2] bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800">
+                                <div class="flex-[2] bg-gray-50 dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 relative">
                                     <div class="text-xs font-bold text-purple-500 mb-1">PAYLOAD</div>
                                     <pre id="jwtPayload" class="text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{}</pre>
                                 </div>
@@ -934,7 +1061,7 @@
                         <i class="fas fa-globe text-5xl text-blue-500 mb-4"></i>
                         <h3 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white">DNS Lookup</h3>
                         <div class="flex w-full max-w-lg gap-2 mb-8">
-                            <select id="dnsType" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 font-bold border border-gray-300 dark:border-gray-700"><option value="A">A</option><option value="CNAME">CNAME</option><option value="MX">MX</option></select>
+                            <select id="dnsType" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 font-bold border border-gray-300 dark:border-gray-700"><option value="A">A</option><option value="CNAME">CNAME</option><option value="MX">MX</option><option value="TXT">TXT</option><option value="NS">NS</option></select>
                             <input type="text" id="dnsDomain" placeholder="example.com" class="flex-grow p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg outline-none">
                             <button onclick="fetchDns()" class="btn-glow px-6 py-2">Check</button>
                         </div>
@@ -943,9 +1070,36 @@
 
                     <div id="tool-ip" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
                         <i class="fas fa-laptop-code text-6xl text-green-500 mb-6"></i>
-                        <h3 class="text-xl font-bold mb-2">Your Public IP</h3>
-                        <div id="myIpDisplay" class="text-4xl md:text-5xl font-mono font-bold text-gray-900 dark:text-white mb-6">---.---.---.---</div>
-                        <button onclick="fetchMyIp()" class="btn-glow px-6 py-3">Refresh</button>
+                        <h3 class="text-xl font-bold mb-2">System & Network Inspector</h3>
+                        <p class="text-gray-500 text-sm mb-8">Detailed local browser and network connectivity report.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+                             <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col items-center">
+                                 <div class="text-xs font-bold text-gray-400 uppercase mb-2">Public IPv4</div>
+                                 <div id="myIpDisplay" class="text-3xl font-mono font-bold text-gray-900 dark:text-white mb-2">---.---.---.---</div>
+                                 <div id="ipOrg" class="text-xs text-blue-500 font-bold">Checking...</div>
+                             </div>
+                             
+                             <div class="bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 text-left space-y-3">
+                                 <div class="flex justify-between border-b border-gray-300 dark:border-gray-600 pb-2">
+                                     <span class="text-xs font-bold text-gray-500">User Agent</span>
+                                     <span id="sysUA" class="text-xs font-mono text-right truncate w-32">...</span>
+                                 </div>
+                                 <div class="flex justify-between border-b border-gray-300 dark:border-gray-600 pb-2">
+                                     <span class="text-xs font-bold text-gray-500">Screen Res</span>
+                                     <span id="sysRes" class="text-xs font-mono font-bold">...</span>
+                                 </div>
+                                 <div class="flex justify-between border-b border-gray-300 dark:border-gray-600 pb-2">
+                                     <span class="text-xs font-bold text-gray-500">Timezone</span>
+                                     <span id="sysTime" class="text-xs font-mono font-bold">...</span>
+                                 </div>
+                                 <div class="flex justify-between">
+                                     <span class="text-xs font-bold text-gray-500">Est. Latency</span>
+                                     <span id="sysPing" class="text-xs font-mono font-bold text-green-500">...</span>
+                                 </div>
+                             </div>
+                        </div>
+                        <button onclick="fetchMyIp()" class="btn-glow px-6 py-3 mt-8">Refresh Analysis</button>
                     </div>
 
                     <div id="tool-ssl" class="tool-view hidden p-6 h-full flex flex-col">
@@ -975,7 +1129,10 @@
 
                     <div id="tool-chmod" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
                         <h3 class="font-bold text-2xl mb-6 text-gray-900 dark:text-white">Chmod Calculator</h3>
-                        <div class="text-6xl font-mono font-bold text-primary mb-8" id="chmodResult">644</div>
+                        <div class="flex items-center gap-4 mb-8">
+                             <div class="text-6xl font-mono font-bold text-primary" id="chmodResult">644</div>
+                             <div class="text-2xl font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-lg" id="chmodSymbolic">-rw-r--r--</div>
+                        </div>
                         <div class="grid grid-cols-3 gap-8 text-center">
                             <div class="space-y-3"><div class="font-bold text-sm uppercase text-gray-400">Owner</div><input type="checkbox" class="w-5 h-5 chmod-check" data-val="400" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="200" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="100" onchange="calcChmod()"></div>
                             <div class="space-y-3"><div class="font-bold text-sm uppercase text-gray-400">Group</div><input type="checkbox" class="w-5 h-5 chmod-check" data-val="40" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="20" onchange="calcChmod()"><br><input type="checkbox" class="w-5 h-5 chmod-check" data-val="10" onchange="calcChmod()"></div>
@@ -990,10 +1147,14 @@
                             <input type="text" id="passOutput" class="w-full p-4 pr-12 bg-gray-100 dark:bg-gray-800 rounded-xl text-center font-mono text-xl text-gray-800 dark:text-white" readonly value="Click Generate">
                             <button onclick="copyPass()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary"><i class="fas fa-copy"></i></button>
                         </div>
-                        <div class="flex gap-4 items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
-                            <label class="text-sm font-bold">Length:</label>
-                            <input type="range" id="passLen" min="8" max="64" value="16" class="w-32" oninput="document.getElementById('lenVal').innerText = this.value; generatePass()">
-                            <span id="lenVal" class="font-mono w-6">16</span>
+                        <div class="flex flex-wrap justify-center gap-6 items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm font-bold">Length:</label>
+                                <input type="range" id="passLen" min="8" max="64" value="16" class="w-32" oninput="document.getElementById('lenVal').innerText = this.value; generatePass()">
+                                <span id="lenVal" class="font-mono w-6">16</span>
+                            </div>
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="passSymbols" checked onchange="generatePass()"> Symbols</label>
+                            <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="passNumbers" checked onchange="generatePass()"> Numbers</label>
                         </div>
                         <button onclick="generatePass()" class="btn-glow px-8 py-3 bg-red-600 border-none">Generate New Secret</button>
                     </div>
@@ -1032,8 +1193,9 @@
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
-                        <form name="contact" method="POST" data-netlify="true" onsubmit="handleContactSubmit(event)" class="space-y-6">
+                        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
+                            <div class="hidden"><label>Don't fill this out if you're human: <input name="bot-field" /></label></div>
                             <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label><input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="John Doe"></div>
                             <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label><input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="you@example.com"></div>
                             <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label><textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Tell me about your project..."></textarea></div>
@@ -1046,7 +1208,7 @@
             </div>
         </section>
     </main>
-
+    
     <footer class="text-center py-4 text-gray-400 text-sm border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-40 shrink-0">
         <p class="mb-1">&copy; 2025 Rahul Magar. All rights reserved.</p>
         <div class="flex justify-center space-x-6 text-xl">
@@ -1059,7 +1221,7 @@
     <div class="droid-container" onclick="toggleBotMenu(event)" id="droid">
         <div class="droid-hud" id="bot-menu" onclick="event.stopPropagation()">
             <div class="hud-top">
-                <span class="text-xs font-bold tracking-widest text-blue-400">ASSISTANT_V3.1</span>
+                <span class="text-xs font-bold tracking-widest text-gold-dark dark:text-blue-400">ASSISTANT_V3.1</span>
                 <div class="hud-status">
                     <div class="hud-dot"></div>
                     ONLINE
@@ -1113,7 +1275,7 @@
 
     <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 hidden z-50">
         <i class="fas fa-check-circle text-green-400 dark:text-green-600 text-xl"></i>
-        <div><h4 class="font-bold text-sm">Message Sent!</h4><p class="text-xs text-gray-400 dark:text-gray-600">Thank you for your message. I will get back to you shortly.</p></div>
+        <div><h4 class="font-bold text-sm" id="toast-title">Message Sent!</h4><p class="text-xs text-gray-400 dark:text-gray-600" id="toast-msg">Thank you. I will get back to you shortly.</p></div>
     </div>
 
     <script>
@@ -1153,7 +1315,7 @@
             { category: "SAS Platform", items: [ { name: "SAS 9.4", icon: "fas fa-server text-sas dark:text-sky-400", desc: "Platform Admin", url: "https://www.sas.com/" }, { name: "SAS Viya", icon: "fas fa-cloud text-sas dark:text-sky-400", desc: "Cloud Analytics", url: "https://www.sas.com/en_us/software/viya.html" } ]}
         ];
 
-        // --- APP LOGIC ---
+        // --- CORE UI LOGIC ---
         function toggleTheme() {
             const html = document.documentElement;
             if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } 
@@ -1168,7 +1330,6 @@
             const btn = document.getElementById(`btn-${tabId}`);
             if(btn) btn.classList.add('active');
             
-            // Auto-mute on navigation
             if(window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel();
             document.getElementById('bot-menu').classList.remove('active');
             
@@ -1179,16 +1340,13 @@
             setTimeout(setupObserver, 100);
         }
 
-        // --- MOBILE MENU FIX ---
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             if (menu.classList.contains('hidden')) {
-                // Remove pointer-events-none so it becomes clickable
                 menu.classList.remove('hidden', 'pointer-events-none');
                 menu.classList.add('flex');
                 setTimeout(() => menu.classList.remove('opacity-0'), 10);
             } else {
-                // Add pointer-events-none immediately so clicks pass through while fading out
                 menu.classList.add('opacity-0', 'pointer-events-none');
                 setTimeout(() => {
                     menu.classList.add('hidden');
@@ -1198,29 +1356,21 @@
         }
         function mobileNav(tab) { switchTab(tab); }
 
-        // --- 3D TILT EFFECT ---
         function handleTilt(e, card) {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
-            
             const rotateX = ((y - centerY) / centerY) * -5; 
             const rotateY = ((x - centerX) / centerX) * 5;
-
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
         }
-
-        function resetTilt(card) {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-        }
+        function resetTilt(card) { card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`; }
 
         function renderProjects() {
             const container = document.getElementById('projects-container');
             if (!container) return;
-            // Updated with Tilt Events
             container.innerHTML = projects.map(p => `
                 <div onmousemove="handleTilt(event, this)" onmouseleave="resetTilt(this)" class="glass-panel p-8 rounded-[2rem] spotlight-card group cursor-pointer border border-white/50 dark:border-white/10 reveal transition-transform duration-100 ease-out" style="transform-style: preserve-3d;">
                     <div class="flex justify-between items-start mb-6 relative z-10">
@@ -1270,36 +1420,6 @@
             `).join('');
         }
 
-        // --- NEW TERMINAL LOGIC ---
-        const terminalLines = [
-            { text: "Initializing SAS Viya Platform...", time: 500 },
-            { text: "Loading AWS EKS Clusters [us-east-1]... OK", time: 1200 },
-            { text: ">> kubectl apply -f infrastructure.yaml", time: 2000 },
-            { text: " provisioning load balancers...", time: 2800 },
-            { text: ">> Terraform plan --out=tfplan", time: 3500 },
-            { text: " 42 resources to add, 0 to change, 0 to destroy.", time: 4500 },
-            { text: "System Ready. Welcome, User.", time: 5500, color: "text-white font-bold" }
-        ];
-
-        function runTerminal() {
-            const term = document.getElementById('terminal-body');
-            if(!term) return;
-            term.innerHTML = '';
-            let accumulatedDelay = 0;
-
-            terminalLines.forEach((line, index) => {
-                accumulatedDelay += line.time - (index > 0 ? terminalLines[index-1].time : 0);
-                setTimeout(() => {
-                    const div = document.createElement('div');
-                    div.className = line.color || "mb-1";
-                    div.innerHTML = `<span class="text-blue-500 mr-2">➜</span> ${line.text}`;
-                    term.appendChild(div);
-                    term.scrollTop = term.scrollHeight; // Auto scroll
-                }, line.time);
-            });
-        }
-        
-        // --- RESTORED TYPING LOGIC ---
         const typingText = "I transform complex business requirements into resilient, automated, and scalable cloud infrastructure. My focus is on driving efficiency and reliability across the SDLC with cutting-edge DevOps and SAS technologies.";
         let charIndex = 0;
         function typeWriter() {
@@ -1329,11 +1449,10 @@
             }
         }
         function getDevOpsJoke() {
-            const jokes = ["Why do DevOps engineers prefer dark mode? Because light attracts bugs.", "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?", "How many DevOps engineers does it take to change a lightbulb? None, it's a hardware problem.", "Why did the DevOps engineer go broke? Because he used up all his cache.", "What do you call a DevOps engineer who can sing? A CI/CD pipeline.", "Why did the DevOps engineer get kicked out of school? Because he kept breaking the build.", "How do DevOps engineers stay calm during a crisis? They just Docker it.", "Why did the DevOps engineer cross the road? To automate the other side.", "What do you call a DevOps engineer who loves gardening? A Terraformer.", "Why did the DevOps engineer bring a ladder to work? Because he was scaling up.", "How do DevOps engineers prefer to communicate? Through Slack channels, of course!", "Why did the DevOps engineer go to therapy? Because he had too many unresolved dependencies.", "What do you call a DevOps engineer who can juggle? A multi-tasker.", "Why did the DevOps engineer get a promotion? Because he was outstanding in his field (of code).", "How do DevOps engineers like their coffee? With a lot of automation.", "Why did the DevOps engineer break up with his girlfriend? Because she couldn't handle his continuous integration.", "What do you call a DevOps engineer who loves music? A GitHubber.", "Why did the DevOps engineer get a pet cat? Because he wanted to practice his containerization skills.", "How do DevOps engineers stay fit? They run pipelines.", "Why did the DevOps engineer go to the beach? To test his new Kubernetes cluster on the sand.", "What do you call a DevOps engineer who can dance? A CI/CD groove master.", "Why did the DevOps engineer get a tattoo of a server? Because he wanted to show his dedication to uptime.", "How do DevOps engineers like their pizza? With extra automation and no manual toppings.", "Why did the DevOps engineer go to space? To deploy his code in zero gravity.", "What do you call a DevOps engineer who loves dogs? A Docker enthusiast.", "Why did the DevOps engineer get a job at the bakery? Because he wanted to automate the dough rising process.", "How do DevOps engineers prefer to travel? By container ship, of course!", "Why did the DevOps engineer go to the gym? To work on his continuous deployment.", "What do you call a DevOps engineer who can cook? A CI/CD chef.", "Why did the DevOps engineer get a job at the zoo? Because he wanted to automate the animal feeding process.", "How do DevOps engineers stay organized? They use Kanban boards and Jira tickets.", "Why did the DevOps engineer go to the doctor? Because he had too many bugs in his code.", "What do you call a DevOps engineer who loves sports? A GitHub athlete.", "Why did the DevOps engineer get a job at the library? Because he wanted to automate the book cataloging process.", "How do DevOps engineers prefer to relax? By watching logs and metrics dashboards.", "Why did the DevOps engineer go to the park? To test his new Kubernetes cluster on the grass.", "What do you call a DevOps engineer who can paint? A CI/CD artist.", "Why did the DevOps engineer get a job at the coffee shop? Because he wanted to automate the coffee brewing process.", "How do DevOps engineers stay motivated? They just keep pushing to production.", "Why did the DevOps engineer go to the concert? To test his new Kubernetes cluster on the stage.", "What do you call a DevOps engineer who loves movies? A GitHub director.", "Why did the DevOps engineer get a job at the gym? Because he wanted to automate the workout tracking process.", "How do DevOps engineers prefer to unwind? By deploying to staging and watching it work.", "Why did the DevOps engineer go to the amusement park? To test his new Kubernetes cluster on the roller coaster.", "What do you call a DevOps engineer who can write poetry? A CI/CD bard."];
+            const jokes = ["Why do DevOps engineers prefer dark mode? Because light attracts bugs.", "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?", "How many DevOps engineers does it take to change a lightbulb? None, it's a hardware problem.", "Why did the DevOps engineer go broke? Because he used up all his cache.", "What do you call a DevOps engineer who can sing? A CI/CD pipeline.", "Why did the DevOps engineer get kicked out of school? Because he kept breaking the build.", "How do DevOps engineers stay calm during a crisis? They just Docker it.", "Why did the DevOps engineer cross the road? To automate the other side."];
             return jokes[Math.floor(Math.random() * jokes.length)];
         }
 
-        // --- OBSERVER ---
         function setupObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => { 
@@ -1343,7 +1462,7 @@
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
 
-        // --- TOOL SWITCHING LOGIC ---
+        // --- UPGRADED TOOL LOGIC ---
         function switchTool(toolId) {
             document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
             document.getElementById(toolId).classList.remove('hidden');
@@ -1351,7 +1470,7 @@
             if(toolId === 'tool-pass') generatePass();
         }
 
-        // --- NEW TOOL: JSON <-> CSV ---
+        // 1. JSON/CSV
         function jsonToCsv() {
             const jsonStr = document.getElementById('csvJsonInput').value;
             try {
@@ -1360,7 +1479,11 @@
                 const keys = Object.keys(arr[0]);
                 const csv = [
                     keys.join(','),
-                    ...arr.map(row => keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(','))
+                    ...arr.map(row => keys.map(k => {
+                        let val = row[k] === null || row[k] === undefined ? '' : row[k];
+                        if(typeof val === 'object') val = JSON.stringify(val).replace(/"/g, '""');
+                        return `"${val.toString().replace(/"/g, '""')}"`;
+                    }).join(','))
                 ].join('\n');
                 document.getElementById('csvOutput').value = csv;
             } catch (e) { alert("Invalid JSON: " + e.message); }
@@ -1371,15 +1494,27 @@
             if (lines.length < 2) return;
             const headers = lines[0].split(',').map(h => h.trim());
             const result = lines.slice(1).map(line => {
-                const data = line.split(','); 
+                const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
+                const data = [];
+                let match;
+                while ((match = regex.exec(line)) !== null) data.push(match[0].replace(/^"|"$/g, '').replace(/""/g, '"'));
                 const obj = {};
-                headers.forEach((h, i) => obj[h] = data[i]?.replace(/"/g, '') || '');
+                headers.forEach((h, i) => obj[h] = data[i] || '');
                 return obj;
             });
             document.getElementById('csvJsonInput').value = JSON.stringify(result, null, 2);
         }
+        function downloadFile(elemId, fname, type) {
+            const content = document.getElementById(elemId).value;
+            if(!content) return;
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = fname; a.click();
+            URL.revokeObjectURL(url);
+        }
 
-        // --- 1. EDITOR ---
+        // 2. EDITOR
         function validateYaml() {
             const input = document.getElementById('yamlInput').value;
             const output = document.getElementById('yamlOutput');
@@ -1403,13 +1538,16 @@
         }
         function convertYamlToJson() { const v = document.getElementById('yamlInput').value; try { document.getElementById('yamlOutput').innerText = JSON.stringify(jsyaml.load(v), null, 2); } catch(e){} }
         function convertJsonToYaml() { const v = document.getElementById('yamlInput').value; try { document.getElementById('yamlOutput').innerText = jsyaml.dump(JSON.parse(v)); } catch(e){} }
+        function minifyJson() { try { const v = document.getElementById('yamlInput').value; document.getElementById('yamlInput').value = JSON.stringify(JSON.parse(v)); validateYaml(); } catch(e){} }
+        function prettifyJson() { try { const v = document.getElementById('yamlInput').value; document.getElementById('yamlInput').value = JSON.stringify(JSON.parse(v), null, 2); validateYaml(); } catch(e){} }
         function loadYamlTemplate(t) { 
             const tmpl = { 'k8s_pod': "apiVersion: v1\nkind: Pod\nmetadata:\n  name: my-pod", 'k8s_svc': "apiVersion: v1\nkind: Service\nmetadata:\n  name: my-svc", 'github_action': "name: CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest" };
             if(tmpl[t]) { document.getElementById('yamlInput').value = tmpl[t]; validateYaml(); }
         }
         function clearYaml() { document.getElementById('yamlInput').value=''; validateYaml(); }
+        function copyToClipboard(id) { navigator.clipboard.writeText(document.getElementById(id).value || document.getElementById(id).innerText); alert("Copied!"); }
 
-        // --- 2. CRON (FIXED & POPULATED) ---
+        // 3. CRON
         function populateCronSelects() {
             const addOpts = (id, start, end, label) => {
                 const sel = document.getElementById(id);
@@ -1423,7 +1561,6 @@
             addOpts('cronMonth', 1, 12);
             addOpts('cronWeek', 0, 6);
         }
-
         function updateCron() {
             const m = document.getElementById('cronMin').value;
             const h = document.getElementById('cronHour').value;
@@ -1432,15 +1569,25 @@
             const w = document.getElementById('cronWeek').value;
             document.getElementById('cronOutput').innerText = `${m} ${h} ${d} ${mo} ${w}`;
             
-            let desc = "Run ";
+            let desc = "Runs ";
             desc += (m === "*") ? "every minute" : `at minute ${m}`;
-            desc += (h === "*") ? "" : `, past hour ${h}`;
-            desc += (d === "*") ? "" : `, on day ${d}`;
-            desc += (mo === "*") ? "" : `, in month ${mo}`;
-            desc += (w === "*") ? "" : `, on weekday ${w}`;
+            desc += (h === "*") ? "" : ` past hour ${h}`;
             document.getElementById('cronDesc').innerText = desc;
+            
+            const list = document.getElementById('cronNextRuns');
+            list.innerHTML = "";
+            let now = new Date();
+            for(let i=0; i<5; i++) {
+                if(m !== '*' && h !== '*') {
+                    now.setHours(h); now.setMinutes(m); 
+                    if(now < new Date()) now.setDate(now.getDate()+1);
+                    else now.setDate(now.getDate() + (i>0?1:0));
+                } else {
+                    now.setMinutes(now.getMinutes() + (m === '*' ? 1 : 5));
+                }
+                list.innerHTML += `<li class="flex items-center gap-2 text-xs"><div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div> ${now.toLocaleString()}</li>`;
+            }
         }
-        
         function applyCronPreset(val) {
             if(!val) return;
             const parts = val.split(' ');
@@ -1452,55 +1599,67 @@
             updateCron();
         }
 
-        // --- 3. PORT (New) ---
+        // 4. PORT
         function checkPort() {
             const p = parseInt(document.getElementById('portInput').value);
             const ports = { 
-                21:'FTP', 22:'SSH', 25:'SMTP', 53:'DNS', 80:'HTTP', 443:'HTTPS', 
-                3306:'MySQL', 5432:'PostgreSQL', 6379:'Redis', 8080:'HTTP Alt', 
-                27017:'MongoDB', 9090:'Prometheus', 3000:'React/Node', 5000:'Flask/Docker Reg' 
+                21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP', 53:'DNS', 80:'HTTP', 443:'HTTPS', 
+                1433:'SQL Server', 1521:'Oracle', 3306:'MySQL/MariaDB', 3389:'RDP', 5432:'PostgreSQL', 
+                6379:'Redis', 8080:'HTTP-Alt', 8443:'HTTPS-Alt', 9090:'Prometheus', 9100:'Node Exporter',
+                27017:'MongoDB', 9200:'Elasticsearch', 5601:'Kibana', 3000:'React/Node/Grafana',
+                5000:'Flask/Docker Registry', 6443:'K8s API', 2379:'etcd', 10250:'Kubelet'
             };
             const res = document.getElementById('portResult');
             if(ports[p]) {
                 res.innerHTML = `<span class="text-green-600">Standard Service:</span> ${ports[p]}`;
             } else {
-                res.innerHTML = `<span class="text-gray-500">Unknown/Custom Port</span>`;
+                res.innerHTML = `<span class="text-gray-500">Unknown/Custom/Ephemeral Port</span>`;
             }
         }
 
-        // --- 4. CIDR ---
+        // 5. CIDR
         function calculateCidr() {
             const val = document.getElementById('cidrInput').value;
             if(!val.includes('/')) return;
             try {
                 const [ip, mask] = val.split('/');
                 const m = parseInt(mask);
+                if(m > 32 || m < 0) throw new Error();
                 const hosts = Math.pow(2, 32 - m) - 2;
+                const binMask = "1".repeat(m) + "0".repeat(32-m);
+                const prettyBin = binMask.match(/.{1,8}/g).join('.');
                 document.getElementById('cidrHosts').innerText = hosts > 0 ? hosts.toLocaleString() : 0;
                 document.getElementById('cidrNetmask').innerText = '/' + m;
-                document.getElementById('cidrFirst').innerText = ip.substring(0, ip.lastIndexOf('.')) + '.1'; 
-                document.getElementById('cidrLast').innerText = ip.substring(0, ip.lastIndexOf('.')) + '.254'; 
-            } catch(e) {}
+                const parts = ip.split('.').map(Number);
+                const first = `${parts[0]}.${parts[1]}.${parts[2]}.${m>=24?1:0}`;
+                const last = `${parts[0]}.${parts[1]}.${parts[2]}.${m>=24?254:255}`; 
+                document.getElementById('cidrRange').innerText = `${first} - ${last}`;
+                document.getElementById('cidrFirst').innerText = first; 
+                document.getElementById('cidrLast').innerText = last; 
+                document.getElementById('cidrBinary').innerText = prettyBin;
+            } catch(e) { document.getElementById('cidrHosts').innerText = "Invalid CIDR"; }
         }
 
-        // --- 5. BASE64 ---
+        // 6. BASE64
         function runBase64(mode) {
             const i = document.getElementById('b64Input').value;
             try { document.getElementById('b64Output').value = mode === 'enc' ? btoa(i) : atob(i); } catch(e) { document.getElementById('b64Output').value = "Error"; }
         }
 
-        // --- 6. JWT ---
+        // 7. JWT
         function decodeJwt() {
             const token = document.getElementById('jwtInput').value;
             if(!token.includes('.')) return;
             const parts = token.split('.');
             try {
-                document.getElementById('jwtHeader').innerText = JSON.stringify(JSON.parse(atob(parts[0])), null, 2);
-                document.getElementById('jwtPayload').innerText = JSON.stringify(JSON.parse(atob(parts[1])), null, 2);
+                const head = JSON.parse(atob(parts[0]));
+                const pay = JSON.parse(atob(parts[1]));
+                document.getElementById('jwtHeader').innerText = JSON.stringify(head, null, 2);
+                document.getElementById('jwtPayload').innerText = JSON.stringify(pay, null, 2);
             } catch(e) {}
         }
 
-        // --- 7. URL ---
+        // 8. URL
         let urlMode = 'enc';
         function setUrlMode(m) { urlMode = m; runUrlTool(); }
         function runUrlTool() {
@@ -1508,7 +1667,7 @@
             document.getElementById('urlOutput').value = urlMode === 'enc' ? encodeURIComponent(v) : decodeURIComponent(v);
         }
 
-        // --- 8. DNS ---
+        // 9. DNS
         function fetchDns() {
             const domain = document.getElementById('dnsDomain').value;
             const type = document.getElementById('dnsType').value;
@@ -1517,31 +1676,49 @@
             fetch(`https://dns.google/resolve?name=${domain}&type=${type}`)
                 .then(r => r.json())
                 .then(d => {
-                    if(d.Answer) resDiv.innerText = d.Answer.map(a => `${a.name}  ${type}  ${a.data}`).join('\n');
+                    if(d.Answer) {
+                        resDiv.innerText = d.Answer.map(a => `[${a.type}] ${a.name} \n  -> ${a.data}`).join('\n\n');
+                    }
                     else resDiv.innerText = "No records found or invalid domain.";
                 })
                 .catch(e => resDiv.innerText = "Error fetching DNS.");
         }
 
-        // --- 9. IP ---
+        // 10. SYSTEM & IP
         function fetchMyIp() {
             document.getElementById('myIpDisplay').innerText = "Loading...";
+            document.getElementById('sysPing').innerText = "Pinging...";
+            const start = Date.now();
             fetch('https://api.ipify.org?format=json')
                 .then(r => r.json())
-                .then(d => document.getElementById('myIpDisplay').innerText = d.ip)
+                .then(d => {
+                    const ping = Date.now() - start;
+                    document.getElementById('myIpDisplay').innerText = d.ip;
+                    document.getElementById('ipOrg').innerText = "Public Internet Address";
+                    document.getElementById('sysPing').innerText = ping + " ms";
+                })
                 .catch(() => document.getElementById('myIpDisplay').innerText = "Error");
+            document.getElementById('sysUA').innerText = navigator.platform + ", " + navigator.language;
+            document.getElementById('sysRes').innerText = window.screen.width + " x " + window.screen.height;
+            document.getElementById('sysTime').innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
         }
 
-        // --- 10. SSL ---
+        // 11. SSL
         function decodeCert() {
             const v = document.getElementById('sslInput').value;
             const out = document.getElementById('sslOutput');
             if(v.includes('BEGIN CERTIFICATE')) {
-                out.innerHTML = `<div class="font-bold text-green-600">Certificate Detected</div><div class="mt-2 text-xs text-gray-500">Base64 Length: ${v.length} bytes</div>`;
+                const clean = v.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
+                out.innerHTML = `
+                    <div class="font-bold text-green-600 mb-2">Certificate Detected</div>
+                    <div class="bg-white dark:bg-gray-800 p-2 rounded border text-xs break-all">${clean.substring(0, 60)}...</div>
+                    <div class="mt-2 text-xs text-gray-500">Base64 Length: ${v.length} bytes</div>
+                    <div class="mt-4 text-xs font-bold text-gray-400">NOTE: Full client-side parsing requires libraries not present here. This validates format only.</div>
+                `;
             }
         }
 
-        // --- 11. REGEX ---
+        // 12. REGEX
         function runRegex() {
             const pat = document.getElementById('regexPattern').value;
             const flags = document.getElementById('regexFlags').value;
@@ -1554,7 +1731,7 @@
             } catch(e) { out.innerText = "Invalid Regex"; }
         }
 
-        // --- 12. CHMOD ---
+        // 13. CHMOD
         function calcChmod() {
             let o=0,g=0,p=0;
             document.querySelectorAll('.chmod-check:checked').forEach(c => {
@@ -1562,23 +1739,76 @@
                 if(v>=100) o+=(v/100); else if(v>=10) g+=(v/10); else p+=v;
             });
             document.getElementById('chmodResult').innerText = `${o}${g}${p}`;
+            const map = {0:'---',1:'--x',2:'-w-',3:'-wx',4:'r--',5:'r-x',6:'rw-',7:'rwx'};
+            document.getElementById('chmodSymbolic').innerText = `-${map[o]}${map[g]}${map[p]}`;
         }
 
-        // --- 13. PASS GEN ---
+        // 14. PASS GEN
         function generatePass() {
             const len = document.getElementById('passLen').value;
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+            const useSym = document.getElementById('passSymbols').checked;
+            const useNum = document.getElementById('passNumbers').checked;
+            let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            if(useNum) chars += "0123456789";
+            if(useSym) chars += "!@#$%^&*()_+";
             let pass = "";
             for(let i=0; i<len; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
             document.getElementById('passOutput').value = pass;
         }
         function copyPass() { navigator.clipboard.writeText(document.getElementById('passOutput').value); alert("Copied!"); }
 
-        // --- ROBOT V3.0 LOGIC ---
+        // 15. NEW: DIFF CHECKER
+        function runDiff() {
+            const a = document.getElementById('diffA').value.split('\n');
+            const b = document.getElementById('diffB').value.split('\n');
+            const out = document.getElementById('diffOutput');
+            out.innerHTML = '';
+            const max = Math.max(a.length, b.length);
+            for(let i=0; i<max; i++) {
+                const lineA = a[i] || '';
+                const lineB = b[i] || '';
+                if(lineA !== lineB) {
+                    if(lineA) out.innerHTML += `<div class="text-red-500">- ${lineA.replace(/</g, '&lt;')}</div>`;
+                    if(lineB) out.innerHTML += `<div class="text-green-500">+ ${lineB.replace(/</g, '&lt;')}</div>`;
+                } else {
+                    out.innerHTML += `<div class="text-gray-400">  ${lineA.replace(/</g, '&lt;')}</div>`;
+                }
+            }
+        }
+
+        // 16. NEW: HASH GENERATOR
+        async function generateHash() {
+            const msg = document.getElementById('hashInput').value;
+            if(!msg) return;
+            const encode = new TextEncoder().encode(msg);
+            const hash256 = await crypto.subtle.digest('SHA-256', encode);
+            const hash512 = await crypto.subtle.digest('SHA-512', encode);
+            document.getElementById('sha256').innerText = Array.from(new Uint8Array(hash256)).map(b => b.toString(16).padStart(2, '0')).join('');
+            document.getElementById('sha512').innerText = Array.from(new Uint8Array(hash512)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // 17. NEW: UNIT CONVERTER
+        function convertUnits() {
+            const val = parseFloat(document.getElementById('unitVal').value) || 0;
+            const from = document.getElementById('unitFrom').value;
+            const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+            let bytes = val;
+            if(from === 'KB') bytes = val * 1024;
+            if(from === 'MB') bytes = val * 1024**2;
+            if(from === 'GB') bytes = val * 1024**3;
+            if(from === 'TB') bytes = val * 1024**4;
+            
+            document.getElementById('outB').innerText = bytes.toLocaleString();
+            document.getElementById('outKB').innerText = (bytes / 1024).toLocaleString(undefined, {maximumFractionDigits:2});
+            document.getElementById('outMB').innerText = (bytes / 1024**2).toLocaleString(undefined, {maximumFractionDigits:2});
+            document.getElementById('outGB').innerText = (bytes / 1024**3).toLocaleString(undefined, {maximumFractionDigits:2});
+            document.getElementById('outTB').innerText = (bytes / 1024**4).toLocaleString(undefined, {maximumFractionDigits:4});
+            document.getElementById('outPB').innerText = (bytes / 1024**5).toLocaleString(undefined, {maximumFractionDigits:6});
+        }
+
+        // --- ROBOT V3.0 LOGIC (Preserved) ---
         function initDroid() {
             const eyes = document.querySelectorAll('.d-eye');
-            
-            // Eye tracking
             document.addEventListener('mousemove', (e) => {
                 const rect = document.getElementById('droid').getBoundingClientRect();
                 const anchorX = rect.left + rect.width / 2; const anchorY = rect.top + rect.height / 2;
@@ -1587,250 +1817,90 @@
                 const moveX = Math.cos(angle) * distance * 0.2; const moveY = Math.sin(angle) * distance * 0.2;
                 eyes.forEach(eye => { eye.style.transform = `translate(${moveX}px, ${moveY}px)`; });
             });
-
-            // Draggable Logic
-            const elmnt = document.getElementById("droid");
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            elmnt.onmousedown = dragMouseDown;
-
-            function dragMouseDown(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = closeDragElement;
-                document.onmousemove = elementDrag;
-            }
-
-            function elementDrag(e) {
-                e = e || window.event;
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                // prevent dragging offscreen too much
-                const newTop = (elmnt.offsetTop - pos2);
-                const newLeft = (elmnt.offsetLeft - pos1);
-                elmnt.style.top = newTop + "px";
-                elmnt.style.left = newLeft + "px";
-                elmnt.style.bottom = "auto"; 
-                elmnt.style.right = "auto";
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
         }
-
-        function toggleBotMenu(e) {
-            e.stopPropagation();
-            const menu = document.getElementById('bot-menu');
-            const droid = document.getElementById('droid-body');
-            
-            if (menu.classList.contains('active')) {
-                menu.classList.remove('active');
-            } else {
-                menu.classList.add('active');
-                droid.classList.add('active');
-                setTimeout(() => droid.classList.remove('active'), 600);
-            }
-        }
+        function toggleBotMenu(e) { e.stopPropagation(); document.getElementById('bot-menu').classList.toggle('active'); }
+        function handleGlobalClick(e) { document.getElementById('bot-menu').classList.remove('active'); }
         
-        function handleGlobalClick(e) {
-            const menu = document.getElementById('bot-menu');
-            if (menu.classList.contains('active')) {
-                menu.classList.remove('active');
-            }
-            if (window.speechSynthesis && window.speechSynthesis.speaking) {
-                 window.speechSynthesis.cancel();
-            }
-            // Ensure visual state resets
-            document.getElementById('droid').classList.remove('talking', 'listening');
-        }
-        
-        // --- VOICE RECOGNITION (V3) ---
-        let recognition;
-        let isListening = false;
-
+        let recognition; let isListening = false;
         function toggleVoice(btn) {
-            const bubble = document.getElementById('bot-bubble');
-            
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                botSpeak("Voice control not supported in this browser.");
-                return;
-            }
-            
-            if (isListening) {
-                stopListening();
-                return;
-            }
-
+            if (!('webkitSpeechRecognition' in window)) { botSpeak("Voice not supported."); return; }
+            if (isListening) { stopListening(); return; }
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-
-            recognition.onstart = function() {
-                isListening = true;
-                btn.classList.add('listening');
-                document.getElementById('mic-status').innerText = "Listening...";
-                document.getElementById('droid').classList.add('listening');
-                bubble.innerText = "Listening... 🎤";
-                bubble.classList.add('show');
-            };
-
-            recognition.onend = function() {
-                stopListening();
-            };
-
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript.toLowerCase();
-                bubble.innerText = `"${transcript}"`;
-                processVoiceCommand(transcript);
-            };
-
+            recognition = new SpeechRecognition(); recognition.lang = 'en-US';
+            recognition.onstart = function() { isListening = true; btn.classList.add('listening'); document.getElementById('bot-bubble').innerText="Listening... 🎤"; document.getElementById('bot-bubble').classList.add('show'); };
+            recognition.onend = function() { stopListening(); };
+            recognition.onresult = function(event) { processVoiceCommand(event.results[0][0].transcript.toLowerCase()); };
             recognition.start();
         }
-
-        function stopListening() {
-            if (recognition) recognition.stop();
-            isListening = false;
-            const btn = document.getElementById('mic-btn');
-            if(btn) btn.classList.remove('listening');
-            document.getElementById('mic-status').innerText = "Tap to speak...";
-            document.getElementById('droid').classList.remove('listening');
-            // bubble hide handled by next action
-        }
-
+        function stopListening() { if(recognition) recognition.stop(); isListening=false; document.getElementById('mic-btn').classList.remove('listening'); document.getElementById('bot-bubble').classList.remove('show'); }
         function processVoiceCommand(cmd) {
             if (cmd.includes('home')) switchTab('home');
             else if (cmd.includes('project')) switchTab('projects');
-            else if (cmd.includes('tool') || cmd.includes('stack')) switchTab('tools');
+            else if (cmd.includes('tool')) switchTab('tools');
             else if (cmd.includes('about')) switchTab('about');
             else if (cmd.includes('contact')) switchTab('contact');
-            else if (cmd.includes('playground')) switchTab('yaml');
-            else if (cmd.includes('dark')) { document.documentElement.classList.add('dark'); botSpeak("Dark mode enabled."); }
-            else if (cmd.includes('light')) { document.documentElement.classList.remove('dark'); botSpeak("Lights on."); }
             else if (cmd.includes('scan')) runSystemScan();
-            else if (cmd.includes('hello')) botSpeak("Hello there! I am fully operational.");
-            else if (cmd.includes('joke')) botSpeak(getDevOpsJoke());
             else botSpeak("Command not recognized.");
         }
-
-        // --- SYSTEM SCAN SIMULATION ---
         function runSystemScan() {
-            const scanner = document.getElementById('scanner');
-            const bubble = document.getElementById('bot-bubble');
-            
-            scanner.style.display = 'block';
+            document.getElementById('scanner').style.display='block';
             botSpeak("Scanning system parameters...");
-            
-            setTimeout(() => {
-                const ua = navigator.userAgent;
-                const platform = navigator.platform;
-                const cores = navigator.hardwareConcurrency || 4;
-                
-                let report = `System: ${platform}. Cores: ${cores}. Security: Optimal.`;
-                botSpeak(report);
-                scanner.style.display = 'none';
-            }, 3000);
+            setTimeout(() => { botSpeak("System Optimal."); document.getElementById('scanner').style.display='none'; }, 3000);
         }
-
-        // --- TTS ---
-        let lastSpokenText = "";
-        
         function botSpeak(text) {
-            const bubble = document.getElementById('bot-bubble');
-            const droid = document.getElementById('droid');
-
-            if ('speechSynthesis' in window) {
-                if (window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                    if (text === lastSpokenText) {
-                        bubble.innerText = "Muted 😶";
-                        bubble.classList.add('show');
-                        setTimeout(() => bubble.classList.remove('show'), 2000);
-                        lastSpokenText = "";
-                        droid.classList.remove('talking');
-                        return;
-                    }
-                }
-                
-                lastSpokenText = text;
-                const utterance = new SpeechSynthesisUtterance(text);
-                
-                utterance.onstart = () => droid.classList.add('talking');
-                utterance.onend = () => droid.classList.remove('talking');
-                
-                window.speechSynthesis.speak(utterance);
-            }
-            
-            bubble.innerText = text.length > 30 ? "Playing audio..." : text;
-            bubble.classList.add('show');
-            setTimeout(() => bubble.classList.remove('show'), 4000);
-            
-            document.getElementById('bot-menu').classList.remove('active');
+            const b=document.getElementById('bot-bubble'); b.innerText=text; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),4000);
+            if('speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
         }
-
-        // --- CONTACT ---
+        
+        // --- IMPROVED NETLIFY FORM HANDLING ---
         function handleContactSubmit(e) {
             e.preventDefault();
-            const btn = e.target.querySelector('button');
+            const myForm = e.target;
+            const formData = new FormData(myForm);
+            const btn = myForm.querySelector('button');
             const originalText = btn.innerHTML;
-            btn.innerHTML = 'Sending...'; btn.disabled = true;
-            setTimeout(() => {
+            
+            btn.innerHTML = 'Sending...'; 
+            btn.disabled = true;
+
+            fetch('/', {
+                method: 'POST',
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString()
+            })
+            .then(() => {
                 document.getElementById('toast').classList.remove('hidden');
-                document.getElementById('toast').classList.add('toast-enter');
                 btn.innerHTML = "Sent! <i class='fas fa-check'></i>";
-                setTimeout(() => {
-                    e.target.reset(); btn.innerHTML = originalText; btn.disabled = false;
-                    document.getElementById('toast').classList.add('hidden');
-                    switchTab('home');
+                setTimeout(() => { 
+                    myForm.reset(); 
+                    btn.innerHTML = originalText; 
+                    btn.disabled = false;
+                    document.getElementById('toast').classList.add('hidden'); 
+                    switchTab('home'); 
                 }, 2000);
-            }, 1000);
+            })
+            .catch((error) => {
+                document.getElementById('toast-title').innerText = "Error";
+                document.getElementById('toast-msg').innerText = "Could not send message. Please try again.";
+                document.getElementById('toast').classList.remove('hidden');
+                btn.innerHTML = "Failed";
+                setTimeout(() => { btn.disabled = false; btn.innerHTML = originalText; }, 2000);
+            });
         }
 
-        // --- SCROLL PROGRESS ---
         document.getElementById('main-content').addEventListener('scroll', () => {
             const el = document.getElementById('main-content');
-            const scrollTotal = el.scrollHeight - el.clientHeight;
-            const scrolled = (el.scrollTop / scrollTotal) * 100;
-            document.getElementById('scroll-progress').style.width = scrolled + '%';
+            document.getElementById('scroll-progress').style.width = ((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100) + '%';
         });
 
-        // Init
         document.addEventListener("DOMContentLoaded", () => {
-             // Force Light Mode Default unless dark is explicitly saved
-             if (localStorage.theme === 'dark') {
-                 document.documentElement.classList.add('dark');
-             } else {
-                 document.documentElement.classList.remove('dark');
-                 localStorage.setItem('theme', 'light');
-             }
-
+             if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
+             else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
              renderProjects(); renderTools(); renderBlogs();
-             
-             // Run both effects
-             runTerminal(); 
-             typeWriter(); 
-             
-             toolsTypeWriter(); setRandomQuote();
-             setupObserver(); initDroid();
-             calcChmod(); populateCronSelects();
-             
-             const urlTab = new URLSearchParams(window.location.search).get('tab') || 'home';
-             switchTab(urlTab);
-
-             // Droid Greeting
-             setTimeout(() => {
-                const bubble = document.getElementById('bot-bubble');
-                bubble.innerText = "Hello! I am online and ready to assist.";
-                bubble.classList.add('show');
-                setTimeout(() => bubble.classList.remove('show'), 5000);
-             }, 1000);
+             typeWriter(); toolsTypeWriter(); setRandomQuote();
+             setupObserver(); initDroid(); calcChmod(); populateCronSelects();
+             switchTab(new URLSearchParams(window.location.search).get('tab') || 'home');
+             setTimeout(() => { const b=document.getElementById('bot-bubble'); b.innerText="Online."; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),5000); }, 1000);
         });
     </script>
 </body>

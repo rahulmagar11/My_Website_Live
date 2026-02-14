@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rahul Magar | DevOps & SAS Architect</title>
+    <meta name="description" content="Portfolio of Rahul Magar - Senior DevOps Engineer & SAS Architect specializing in AWS, Kubernetes, and Automation.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +13,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -42,6 +44,12 @@
                         'pulse-glow': 'pulseGlow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'super-pulse': 'superPulse 2s infinite',
                         'scan': 'scan 2s linear infinite',
+                        'dance': 'dance 0.6s ease-in-out infinite',
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                        'rocket-shake': 'rocketShake 0.1s linear infinite',
+                        'flame': 'flame 0.1s alternate infinite',
+                        'heart-float': 'heartFloat 1s ease-out forwards',
+                        'sleep-breath': 'sleepBreath 4s ease-in-out infinite',
                     },
                     keyframes: {
                         blob: {
@@ -71,6 +79,43 @@
                         superGlow: {
                             '0%, 100%': { boxShadow: '0 0 20px rgba(37, 99, 235, 0.6), inset 0 0 10px rgba(37, 99, 235, 0.2)', borderColor: 'rgba(255,255,255,0.8)' },
                             '50%': { boxShadow: '0 0 50px rgba(6, 182, 212, 0.8), inset 0 0 20px rgba(6, 182, 212, 0.4)', borderColor: '#06b6d4' }
+                        },
+                        dance: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '25%': { transform: 'translateY(-15px) rotate(-15deg)' },
+                            '50%': { transform: 'translateY(0) rotate(0deg)' },
+                            '75%': { transform: 'translateY(-15px) rotate(15deg)' }
+                        },
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        },
+                        rocketShake: {
+                            '0%': { transform: 'translate(1px, 1px)' },
+                            '10%': { transform: 'translate(-1px, -2px)' },
+                            '20%': { transform: 'translate(-3px, 0px)' },
+                            '30%': { transform: 'translate(3px, 2px)' },
+                            '40%': { transform: 'translate(1px, -1px)' },
+                            '50%': { transform: 'translate(-1px, 2px)' },
+                            '60%': { transform: 'translate(-3px, 1px)' },
+                            '70%': { transform: 'translate(3px, 1px)' },
+                            '80%': { transform: 'translate(-1px, -1px)' },
+                            '90%': { transform: 'translate(1px, 2px)' },
+                            '100%': { transform: 'translate(1px, -2px)' }
+                        },
+                        flame: {
+                            '0%': { height: '40px', transform: 'translateX(-50%) scale(1)' },
+                            '100%': { height: '70px', transform: 'translateX(-50%) scale(1.1)' }
+                        },
+                        heartFloat: {
+                            '0%': { transform: 'translateY(0) scale(0.5)', opacity: 1 },
+                            '100%': { transform: 'translateY(-50px) scale(1.5)', opacity: 0 }
+                        },
+                        sleepBreath: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(3px)' }
                         }
                     }
                 }
@@ -182,24 +227,6 @@
             box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5);
         }
 
-        /* --- SELECTS & INPUTS --- */
-        .custom-select-wrapper { position: relative; }
-        .custom-select {
-            appearance: none; -webkit-appearance: none; width: 100%;
-            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5); padding: 1rem 1.5rem;
-            border-radius: 1rem; font-weight: 600; color: #1f2937; cursor: pointer;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
-        }
-        .dark .custom-select {
-            background: rgba(15, 23, 42, 0.6); border-color: rgba(255, 255, 255, 0.1);
-            color: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-        .select-icon {
-            position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%);
-            pointer-events: none; color: #3B82F6; transition: transform 0.3s ease;
-        }
-
         /* --- LIQUID PHOTO --- */
         .liquid-wrapper {
             position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center;
@@ -218,38 +245,46 @@
             position: relative; width: 100%; height: 100%;
             border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; overflow: hidden; z-index: 1; 
             -webkit-mask-image: -webkit-radial-gradient(white, black); border: 4px solid rgba(255,255,255,0.8);
-            /* Updated Animation: Morph + Super Glow */
             animation: morph 8s ease-in-out infinite, superGlow 3s ease-in-out infinite;
             transition: all 0.5s ease;
         }
         .dark .liquid-img-box { border-color: rgba(255,255,255,0.15); }
         .liquid-img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- ROBOT V3.1 (MODERN GOLDEN NEON LIGHT / CYAN DARK) --- */
+        /* --- ROBOT V4.0 (Enhanced) --- */
         .droid-container {
             position: fixed; bottom: 60px; right: 20px; width: 80px; height: 100px;
             z-index: 999; cursor: grab; transition: transform 0.1s ease;
+            touch-action: none;
         }
         .droid-container:active { cursor: grabbing; }
         
+        .droid-tooltip {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9); color: #60a5fa; 
+            padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold;
+            opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; whitespace: pre; border: 1px solid rgba(96, 165, 250, 0.3);
+            margin-bottom: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .droid-container:hover .droid-tooltip { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+
         .droid { position: relative; width: 100%; height: 100%; animation: float 6s ease-in-out infinite; pointer-events: none; }
+        .droid.dancing { animation: dance 0.6s infinite ease-in-out !important; }
         
-        /* HEAD STYLES - LIGHT MODE (GOLDEN NEON) */
+        /* SLEEP MODE */
+        .droid.sleeping .d-eye { height: 2px !important; width: 14px; border-radius: 0; animation: none; background: #94a3b8; box-shadow: none; opacity: 0.7; }
+        .droid.sleeping .d-head { animation: sleep-breath 4s ease-in-out infinite; border-color: #475569; box-shadow: 0 0 10px rgba(71, 85, 105, 0.5); }
+        .droid.sleeping .d-body { animation: sleep-breath 4s ease-in-out infinite 0.5s; opacity: 0.8; }
+        .droid.sleeping .d-hand { transform: rotate(10deg); }
+
         .d-head {
             position: absolute; top: 0; left: 10px; width: 60px; height: 40px;
-            background: #F59E0B; /* Golden Amber */
-            background: linear-gradient(135deg, #F59E0B, #D97706);
-            border-radius: 30px 30px 10px 10px; 
-            border: 2px solid #FFFBEB; /* Light Gold border */
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); /* Intense Gold Glow */
-            z-index: 2; overflow: hidden; transition: all 0.3s;
+            background: #F59E0B; background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-radius: 30px 30px 10px 10px; border: 2px solid #FFFBEB;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); z-index: 2; overflow: hidden; transition: all 0.3s;
         }
-        /* HEAD STYLES - DARK MODE (CYAN NEON) */
-        .dark .d-head { 
-            background: #06b6d4; 
-            border-color: #ecfeff; 
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.9);
-        }
+        .dark .d-head { background: #06b6d4; border-color: #ecfeff; box-shadow: 0 0 20px rgba(6, 182, 212, 0.9); }
 
         .d-face {
             position: absolute; top: 10px; left: 5px; right: 5px; bottom: 5px;
@@ -257,77 +292,83 @@
             display: flex; justify-content: center; align-items: center; gap: 8px; overflow: hidden;
             box-shadow: inset 0 0 5px #000;
         }
-        /* Eyes */
         .d-eye {
             width: 12px; height: 12px; background: #60a5fa; border-radius: 50%;
-            box-shadow: 0 0 8px #60a5fa; transition: all 0.1s; position: relative;
+            box-shadow: 0 0 8px #60a5fa; transition: all 0.2s; position: relative;
         }
         .d-eye::after { content: ''; position: absolute; top: 2px; left: 2px; width: 4px; height: 4px; background: white; border-radius: 50%; }
         
-        /* Talking State */
         .droid.talking .d-eye { animation: talk-blink 0.2s infinite alternate; height: 4px; border-radius: 2px; }
         @keyframes talk-blink { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 15px #38bdf8; } }
 
-        /* Listening State */
-        .droid.listening .d-head { border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); background: #fca5a5; }
-        .droid.listening .d-eye { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
+        /* HEART PARTICLES */
+        .heart-particle { position: absolute; color: #ef4444; font-size: 14px; animation: heart-float 1s ease-out forwards; pointer-events: none; z-index: 1001; }
 
-        /* BODY STYLES - LIGHT MODE (GOLDEN) */
         .d-body {
             position: absolute; top: 45px; left: 15px; width: 50px; height: 40px;
-            background: #D97706; 
-            border-radius: 10px 10px 25px 25px; 
-            border: 2px solid #FCD34D; 
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
-            z-index: 1;
+            background: #D97706; border-radius: 10px 10px 25px 25px; 
+            border: 2px solid #FCD34D; box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); z-index: 1;
         }
-        /* BODY STYLES - DARK MODE (CYAN) */
         .dark .d-body { background: #22d3ee; border-color: #ecfeff; box-shadow: 0 0 15px rgba(34, 211, 238, 0.6); border: 2px solid #ecfeff; }
 
-        /* HAND STYLES - LIGHT MODE (GOLDEN) */
         .d-hand { 
             position: absolute; top: 55px; width: 12px; height: 25px; 
-            background: #F59E0B; 
-            border-radius: 10px; transition: all 0.3s; 
-            border: 1px solid #FFFBEB;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+            background: #F59E0B; border-radius: 10px; transition: all 0.3s; 
+            border: 1px solid #FFFBEB; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
         }
-        /* HAND STYLES - DARK MODE (CYAN) */
         .dark .d-hand { background: #22d3ee; border-color: #cffafe; box-shadow: 0 0 5px rgba(34, 211, 238, 0.6); }
         .d-hand.left { left: 5px; } .d-hand.right { right: 5px; }
 
-        /* --- MODERN GLASSMORPHIC MENU (UPDATED) --- */
+        /* ROCKET MODE (TURBO) STYLES */
+        .droid-container.rocket-active {
+            transform: translateY(-250px) scale(1.1); /* Fly up */
+            transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        /* Rocket Shake & Flame Effects */
+        .droid-container.rocket-active .droid {
+            animation: rocket-shake 0.1s linear infinite;
+        }
+
+        .droid-container.rocket-active::after {
+            content: '';
+            position: absolute; top: 85%; left: 50%; transform: translateX(-50%);
+            width: 30px; height: 60px;
+            background: linear-gradient(to bottom, #F59E0B, #ef4444, transparent);
+            border-radius: 0 0 20px 20px;
+            filter: blur(4px);
+            animation: flame 0.1s alternate infinite;
+            z-index: -1;
+            opacity: 0.8;
+        }
+        
+        .turbo-mode .d-head, .turbo-mode .d-body, .turbo-mode .d-hand {
+            box-shadow: 0 0 30px #ef4444, inset 0 0 10px #fca5a5;
+            border-color: #fee2e2;
+        }
+        .turbo-mode .d-eye { background: #ef4444; box-shadow: 0 0 15px #b91c1c; }
+
+        /* --- MODERN GLASSMORPHIC MENU --- */
         .droid-hud {
             position: absolute; bottom: 120%; right: -20px; width: 300px;
-            /* Light Mode: Modern Platinum/Gold Glass */
             background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(25px) saturate(200%);
             -webkit-backdrop-filter: blur(25px) saturate(200%);
-            border: 1px solid rgba(245, 158, 11, 0.3); /* Golden border tint */
+            border: 1px solid rgba(245, 158, 11, 0.3);
             border-radius: 28px;
             padding: 20px; display: none; transform-origin: bottom right;
-            box-shadow: 
-                0 25px 50px -12px rgba(245, 158, 11, 0.15), 
-                0 0 30px rgba(255, 255, 255, 0.8),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-            color: #1f2937; font-family: 'Outfit', sans-serif; z-index: 1000;
-            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.15), 0 0 30px rgba(255, 255, 255, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            color: #1f2937; font-family: 'Outfit', sans-serif; z-index: 1000; overflow: hidden;
         }
         
-        /* Dark Mode Override */
         .dark .droid-hud {
-            background: rgba(15, 23, 42, 0.85); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.5), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05); color: #fff;
         }
 
         .droid-hud.active { display: block; animation: hud-spring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes hud-spring { 0% { transform: scale(0.5) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
-        /* Modern Grid Layout */
         .hud-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .hud-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #d97706; letter-spacing: 0.5px; }
         .dark .hud-status { color: #94a3b8; }
@@ -335,57 +376,32 @@
         
         .hud-grid { display: grid; grid-cols-2; gap: 12px; margin-bottom: 16px; }
         
-        /* Menu Cards - Light Mode (Golden Hover) */
         .hud-card {
-            background: rgba(245, 158, 11, 0.05); /* Very light amber bg */
-            border: 1px solid rgba(245, 158, 11, 0.1);
-            border-radius: 16px; padding: 12px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-            cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative; overflow: hidden;
+            background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.1);
+            border-radius: 16px; padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; overflow: hidden;
         }
-        .hud-card:hover { 
-            background: rgba(245, 158, 11, 0.15); 
-            transform: translateY(-2px); 
-            border-color: rgba(245, 158, 11, 0.5);
-            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.2);
-        }
+        .hud-card:hover { background: rgba(245, 158, 11, 0.15); transform: translateY(-2px); border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.2); }
         .hud-card i { font-size: 18px; color: #d97706; transition: transform 0.3s; }
         .hud-card:hover i { transform: scale(1.1); color: #b45309; }
         .hud-label { font-size: 11px; font-weight: 600; color: #4b5563; }
 
-        /* Menu Cards - Dark Mode Override */
-        .dark .hud-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .dark .hud-card:hover {
-            background: rgba(255, 255, 255, 0.08); 
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2);
-        }
+        .dark .hud-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .dark .hud-card:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2); }
         .dark .hud-card i { color: #60a5fa; }
         .dark .hud-card:hover i { color: #93c5fd; }
         .dark .hud-label { color: #cbd5e1; }
 
-        /* Voice Button Special Style */
         .hud-voice-row { 
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
-            border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; 
-            padding: 12px; margin-bottom: 16px; cursor: pointer;
-            display: flex; align-items: center; justify-content: space-between;
-            transition: all 0.3s;
+            border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 16px; padding: 12px; margin-bottom: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between; transition: all 0.3s;
         }
         .hud-voice-row:hover { border-color: #d97706; box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
-        .hud-voice-icon { 
-            width: 36px; height: 36px; background: #F59E0B; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; color: white;
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
-        }
+        .hud-voice-icon { width: 36px; height: 36px; background: #F59E0B; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
         .hud-voice-text div:first-child { font-size: 12px; font-weight: 700; color: #1f2937; }
         .hud-voice-text div:last-child { font-size: 10px; color: #6b7280; }
         
-        /* Dark Mode Voice Row */
         .dark .hud-voice-row { background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1)); border-color: rgba(59,130,246,0.2); }
         .dark .hud-voice-row:hover { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59,130,246,0.15); }
         .dark .hud-voice-icon { background: #3b82f6; box-shadow: 0 4px 10px rgba(59,130,246,0.3); }
@@ -395,66 +411,83 @@
         .hud-voice-row.listening { border-color: #ef4444; background: rgba(239,68,68,0.1); }
         .hud-voice-row.listening .hud-voice-icon { background: #ef4444; animation: pulse 1.5s infinite; }
 
-        .hud-footer { 
-            border-top: 1px solid rgba(0,0,0,0.05); 
-            padding-top: 12px; margin-top: 8px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .hud-footer { border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
         .dark .hud-footer { border-top: 1px solid rgba(255,255,255,0.1); }
 
-        .hud-mini-btn { 
-            width: 32px; height: 32px; border-radius: 10px; 
-            background: rgba(0,0,0,0.03); color: #6b7280; 
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
-        }
+        .hud-mini-btn { width: 32px; height: 32px; border-radius: 10px; background: rgba(0,0,0,0.03); color: #6b7280; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
         .hud-mini-btn:hover { background: rgba(245, 158, 11, 0.1); color: #d97706; transform: scale(1.05); }
-
         .dark .hud-mini-btn { background: rgba(255,255,255,0.05); color: #94a3b8; }
         .dark .hud-mini-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         
-        .scanner-beam {
-            position: fixed; top: 0; left: 0; width: 100%; height: 5px;
-            background: #3b82f6; box-shadow: 0 0 20px #3b82f6;
-            z-index: 9999; animation: scan 2s linear infinite; display: none;
-        }
-
-        /* Speech Bubble */
-        .bot-bubble {
-            position: absolute; bottom: 100%; right: 0; background: #fff; padding: 10px 14px;
-            border-radius: 12px 12px 0 12px; font-size: 12px; font-weight: bold; color: #334155;
-            width: max-content; max-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            opacity: 0; transform: translateY(10px) scale(0.9); transition: all 0.3s;
-            pointer-events: none; border: 1px solid #e2e8f0; z-index: 101; text-align: right; margin-bottom: 10px;
-        }
+        .scanner-beam { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: #3b82f6; box-shadow: 0 0 20px #3b82f6; z-index: 9999; animation: scan 2s linear infinite; display: none; }
+        .bot-bubble { position: absolute; bottom: 100%; right: 0; background: #fff; padding: 10px 14px; border-radius: 12px 12px 0 12px; font-size: 12px; font-weight: bold; color: #334155; width: max-content; max-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); opacity: 0; transform: translateY(10px) scale(0.9); transition: all 0.3s; pointer-events: none; border: 1px solid #e2e8f0; z-index: 101; text-align: right; margin-bottom: 10px; }
         .dark .bot-bubble { background: #1e293b; color: #e2e8f0; border-color: #334155; }
         .bot-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
 
-        /* --- Scroll Reveal Animation V2 --- */
-        .reveal { 
-            opacity: 0; 
-            transform: translateY(40px) scale(0.95); 
-            filter: blur(10px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-        .reveal.active { 
-            opacity: 1; 
-            transform: translateY(0) scale(1); 
-            filter: blur(0);
-        }
+        .reveal { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 
         .nav-btn { position: relative; transition: all 0.3s ease; }
         .nav-btn.active { color: #2563EB; font-weight: 600; text-shadow: 0 0 10px rgba(37,99,235,0.3); }
         .dark .nav-btn.active { color: #60A5FA; text-shadow: 0 0 10px rgba(96,165,250,0.5); }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; color: #2563EB; }
         @keyframes blink { 50% { opacity: 0; } }
         
-        /* --- Timeline (New) --- */
         .timeline-item { position: relative; padding-left: 2rem; border-left: 2px solid #e2e8f0; padding-bottom: 2rem; }
         .dark .timeline-item { border-color: #334155; }
         .timeline-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; }
         .timeline-item:last-child { border-left: 2px solid transparent; }
+
+        /* --- UPDATED: MORE ANIMATED & COMPACT TOOL BUTTONS --- */
+        .tool-select-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 0.75rem; /* SMALLER PADDING */
+            border-radius: 0.75rem; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            text-align: center; gap: 0.5rem;
+            position: relative; overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .dark .tool-select-btn {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ANIMATION ON HOVER */
+        .tool-select-btn:hover {
+            transform: translateY(-5px) scale(1.05) rotate(1deg); /* MORE ANIMATED */
+            box-shadow: 0 12px 20px -5px rgba(37, 99, 235, 0.25);
+            border-color: rgba(37, 99, 235, 0.5);
+            z-index: 10;
+        }
+        .dark .tool-select-btn:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(96, 165, 250, 0.6);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(96, 165, 250, 0.2);
+        }
+        
+        .tool-select-btn.active {
+            background: linear-gradient(135deg, #2563EB, #4F46E5); 
+            color: white; border-color: transparent;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+            transform: scale(1.02);
+        }
+        .tool-select-btn.active i { color: white !important; transform: scale(1.1); }
+        
+        .tool-select-btn i { 
+            font-size: 1.25rem; margin-bottom: 2px; transition: transform 0.3s; color: #4b5563;
+        }
+        .dark .tool-select-btn i { color: #94a3b8; }
+        .tool-select-btn:hover i { transform: scale(1.2); color: #2563EB; }
+        .dark .tool-select-btn:hover i { color: #60A5FA; }
+        
+        .tool-select-btn span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
     </style>
 </head>
 <body class="text-gray-900 dark:text-gray-100 flex flex-col h-screen overflow-hidden" onclick="handleGlobalClick(event)">
@@ -513,9 +546,8 @@
     </div>
 
     <main class="pt-24 pb-10 px-4 md:px-8 max-w-6xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar scroll-smooth" id="main-content">
-        
-        <section id="home" class="tab-content block">
-            <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mt-0">
+        <section id="home" class="tab-content block reveal">
+             <div class="flex flex-col md:flex-row items-center gap-12 lg:gap-20 mt-0">
                 <div class="w-full md:w-1/2 space-y-8 reveal relative z-10">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider shadow-sm backdrop-blur-sm">
                         <i class="fas fa-terminal text-sm"></i>
@@ -568,10 +600,9 @@
             </div>
         </section>
 
-        <section id="about" class="tab-content hidden pb-20">
-            <div class="max-w-7xl mx-auto">
+        <section id="about" class="tab-content hidden pb-20 reveal">
+             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
                     <div class="lg:col-span-1">
                         <div class="group relative p-0.5 rounded-2xl sticky top-20 reveal transition-all duration-500 hover:scale-[1.01] max-w-sm mx-auto">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl opacity-20 blur-sm group-hover:opacity-50 transition-all duration-500"></div>
@@ -603,9 +634,7 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="lg:col-span-2 space-y-6">
-                        
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-4 text-primary flex items-center gap-3">
                                 <i class="fas fa-user-tie"></i> Professional Summary
@@ -614,7 +643,41 @@
                                 Results-driven <strong>DevOps Engineer</strong> and <strong>SAS Platform Engineer</strong> with 9+ years of experience transforming software delivery through <strong>Infrastructure as Code (IaC)</strong>, <strong>Cloud Engineering (AWS, Azure)</strong>, and <strong>CI/CD pipeline automation</strong>. Expertise in <strong>Kubernetes (EKS/AKS)</strong>, Terraform, Ansible, Jenkins, and comprehensive observability stacks. Dedicated to building resilient, scalable, and cost-optimized infrastructure while administering high-availability and managing <strong>SAS Grid and Viya</strong> platforms.
                             </p>
                         </div>
-
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-gold-dark dark:text-yellow-400 flex items-center gap-3">
+                                <i class="fas fa-certificate"></i> Certifications
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <div class="text-2xl text-orange-500"><i class="fab fa-aws"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-xs uppercase text-gray-500 dark:text-gray-400">Amazon Web Services</h4>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Certified Solutions Architect</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <div class="text-2xl text-blue-500"><i class="fas fa-dharmachakra"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-xs uppercase text-gray-500 dark:text-gray-400">CNCF</h4>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Certified Kubernetes Admin (CKA)</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <div class="text-2xl text-sas"><i class="fas fa-chart-pie"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-xs uppercase text-gray-500 dark:text-gray-400">SAS Institute</h4>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">SAS Certified Platform Admin</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <div class="text-2xl text-purple-600"><i class="fas fa-code"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-xs uppercase text-gray-500 dark:text-gray-400">HashiCorp</h4>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Terraform Associate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-4 text-green-600 dark:text-green-400 flex items-center gap-3">
                                 <i class="fas fa-cogs"></i> Core Expertise
@@ -638,7 +701,6 @@
                                 </li>
                             </ul>
                         </div>
-
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-6 text-indigo-600 dark:text-indigo-400 flex items-center gap-3">
                                 <i class="fas fa-trophy"></i> Key Achievements
@@ -662,61 +724,26 @@
                                         <div class="bg-blue-500 h-full rounded-full animate-pulse" style="width: 80%"></div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-6 text-blue-600 dark:text-blue-400 flex items-center gap-3">
-                                <i class="fas fa-flask"></i> Quick Skills Snapshot
-                            </h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4 text-center">
-                                <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl border border-orange-200 dark:border-orange-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fab fa-aws text-orange-600 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">AWS</p>
+                                <div class="reveal">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">SAS Grid Uptime</span>
+                                        <span class="text-sm font-bold text-purple-600 dark:text-purple-400">99.99%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-purple-500 h-full rounded-full animate-pulse" style="width: 99%"></div>
+                                    </div>
                                 </div>
-                                <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-200 dark:border-indigo-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-dharmachakra text-indigo-600 dark:text-indigo-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">K8s</p>
-                                </div>
-                                <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-200 dark:border-purple-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-code text-purple-600 dark:text-purple-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Terraform</p>
-                                </div>
-                                <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-terminal text-green-600 dark:text-green-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Ansible</p>
-                                </div>
-                                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl border border-red-200 dark:border-red-800 hover:scale-110 transition-transform duration-300 shadow-sm hover:shadow-lg">
-                                    <i class="fas fa-sync-alt text-red-600 dark:text-red-400 text-3xl mb-2"></i>
-                                    <p class="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase">Jenkins</p>
+                                <div class="reveal">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Cloud Migration Success Rate</span>
+                                        <span class="text-sm font-bold text-teal-600 dark:text-teal-400">100%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
+                                        <div class="bg-teal-500 h-full rounded-full animate-pulse" style="width: 100%"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-6 text-purple-600 dark:text-purple-400 flex items-center gap-3">
-                                <i class="fas fa-radar"></i> Tech Stack Radar
-                            </h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">Cloud & Infrastructure (AWS/Azure/Terraform)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">95%</span></div>
-                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[95%]"></div></div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">Containerization (Docker/K8s/Helm)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">90%</span></div>
-                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[90%]"></div></div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">CI/CD & Automation (Jenkins/Ansible/Git)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">85%</span></div>
-                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[85%]"></div></div>
-                                </div>
-                                <div>
-                                    <div class="flex justify-between mb-1"><span class="text-xs font-bold text-gray-500 uppercase">SAS Administration (Viya/9.4)</span><span class="text-xs font-bold text-gray-700 dark:text-gray-300">92%</span></div>
-                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[92%]"></div></div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-6 text-blue-600 dark:text-blue-400 flex items-center gap-3">
                                 <i class="fas fa-history"></i> My Journey
@@ -739,37 +766,12 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200 flex items-center gap-3">
-                                <i class="fas fa-certificate text-yellow-500"></i> Certifications
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="flex items-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800/30 hover:scale-105 transition-transform">
-                                    <i class="fas fa-award text-yellow-500 mr-3 text-lg"></i>
-                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">AWS Certified Solutions Architect</span>
-                                </div>
-                                <div class="flex items-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 hover:scale-105 transition-transform">
-                                    <i class="fas fa-award text-blue-500 mr-3 text-lg"></i>
-                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">Certified Kubernetes Admin (CKA)</span>
-                                </div>
-                                <div class="flex items-center p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 hover:scale-105 transition-transform">
-                                    <i class="fas fa-award text-red-500 mr-3 text-lg"></i>
-                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">Red Hat Certified Engineer (RHCE)</span>
-                                </div>
-                                <div class="flex items-center p-3 rounded-xl bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-800/30 hover:scale-105 transition-transform">
-                                    <i class="fas fa-award text-sky-500 mr-3 text-lg"></i>
-                                    <span class="text-xs font-medium text-gray-700 dark:text-gray-200">SAS Platform Admin for SAS 9</span>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="tools" class="tab-content hidden pb-20">
+        <section id="tools" class="tab-content hidden pb-20 reveal">
             <div class="text-center mb-16 reveal">
                 <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 dark:text-white">DevOps Tools Directory</h2>
                 <p id="tools-typing-text" class="text-primary text-lg font-medium max-w-2xl mx-auto h-8"></p>
@@ -777,7 +779,7 @@
             <div id="tools-grid" class="space-y-16"></div>
         </section>
 
-        <section id="projects" class="tab-content hidden pb-20">
+        <section id="projects" class="tab-content hidden pb-20 reveal">
             <div class="flex flex-col md:flex-row justify-between items-end mb-12 reveal">
                 <div>
                     <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-2">Featured Projects</h2>
@@ -790,7 +792,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" id="projects-container"></div>
         </section>
 
-        <section id="blog" class="tab-content hidden pb-20">
+        <section id="blog" class="tab-content hidden pb-20 reveal">
             <div class="text-center mb-12 reveal">
                 <h2 class="text-3xl md:text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">DevOps Insights</h2>
                 <p class="text-gray-500 dark:text-gray-400">Technical articles and tutorials.</p>
@@ -798,50 +800,146 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="blog-container"></div>
         </section>
 
-        <section id="yaml" class="tab-content hidden pb-20">
+        <section id="yaml" class="tab-content hidden pb-20 reveal">
             <div class="reveal">
-                <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">DevOps Tool Chest</h2>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2">Professional Grade Utilities.</p>
+                <div class="flex justify-center mb-8">
+                    <div class="bg-gray-200 dark:bg-gray-800 p-1 rounded-full flex relative">
+                        <div id="mode-bg" class="absolute top-1 left-1 w-[120px] h-[calc(100%-8px)] bg-white dark:bg-primary rounded-full shadow-md transition-all duration-300"></div>
+                        <button onclick="togglePlaygroundMode('tools')" class="relative z-10 w-[120px] py-2 text-sm font-bold text-center rounded-full transition-colors" id="btn-mode-tools">🛠️ Tools</button>
+                        <button onclick="togglePlaygroundMode('games')" class="relative z-10 w-[120px] py-2 text-sm font-bold text-center rounded-full transition-colors text-gray-500" id="btn-mode-games">🕹️ Arcade</button>
+                    </div>
                 </div>
 
-                <div class="max-w-xl mx-auto mb-10 custom-select-wrapper reveal">
-                    <select id="toolSelector" onchange="switchTool(this.value)" class="custom-select">
-                        <optgroup label="1. Data Conversion & Manipulation">
-                            <option value="tool-editor" selected>YAML / JSON Validator (Pro)</option>
-                            <option value="tool-diff">Text Diff Checker (New)</option>
-                            <option value="tool-csv">JSON <-> CSV Converter (Pro)</option>
-                            <option value="tool-base64">Base64 Encoder / Decoder</option>
-                            <option value="tool-jwt">JWT Debugger</option>
-                            <option value="tool-url">URL Encoder / Decoder</option>
-                        </optgroup>
-                        <optgroup label="2. Infrastructure & Networking">
-                            <option value="tool-cron">Cron Expression Generator (Next Run)</option> 
-                            <option value="tool-cidr">CIDR / Subnet Calculator</option>
-                            <option value="tool-port">Common Port Checker (Extended)</option> 
-                            <option value="tool-dns">DNS Lookup Checker</option>
-                            <option value="tool-ip">System & Network Info (My IP)</option>
-                            <option value="tool-ssl">Certificate (SSL) Decoder</option>
-                        </optgroup>
-                        <optgroup label="3. Security & Utils">
-                            <option value="tool-hash">Crypto Hash Generator (New)</option>
-                            <option value="tool-pass">Password / Secret Generator (Custom)</option>
-                            <option value="tool-unit">Digital Unit Converter (New)</option>
-                            <option value="tool-regex">Regex Tester</option>
-                            <option value="tool-chmod">Chmod Calculator (Symbolic)</option>
-                        </optgroup>
-                    </select>
-                    <i class="fas fa-chevron-down select-icon"></i>
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white" id="pg-title">DevOps Tool Chest</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2" id="pg-desc">Professional Grade Utilities.</p>
+                </div>
+
+                <div id="mode-tools" class="max-w-5xl mx-auto mb-10 reveal transition-all">
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 p-2">
+                        <button onclick="switchToolBtn(this, 'tool-editor')" class="tool-select-btn active"><i class="fas fa-file-code"></i><span>YAML/JSON</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-diff')" class="tool-select-btn"><i class="fas fa-exchange-alt"></i><span>Diff Checker</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-csv')" class="tool-select-btn"><i class="fas fa-table"></i><span>CSV/JSON</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-regex')" class="tool-select-btn"><i class="fas fa-code"></i><span>Regex</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-base64')" class="tool-select-btn"><i class="fas fa-lock"></i><span>Base64</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-jwt')" class="tool-select-btn"><i class="fas fa-key"></i><span>JWT Debug</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-url')" class="tool-select-btn"><i class="fas fa-link"></i><span>URL Enc</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-unit')" class="tool-select-btn"><i class="fas fa-weight-hanging"></i><span>Units</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-cron')" class="tool-select-btn"><i class="fas fa-clock"></i><span>Cron Gen</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-cidr')" class="tool-select-btn"><i class="fas fa-network-wired"></i><span>CIDR Calc</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-port')" class="tool-select-btn"><i class="fas fa-ethernet"></i><span>Ports</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-dns')" class="tool-select-btn"><i class="fas fa-globe"></i><span>DNS</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-ip')" class="tool-select-btn"><i class="fas fa-laptop-code"></i><span>My IP</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-ssl')" class="tool-select-btn"><i class="fas fa-certificate"></i><span>SSL Dec</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-hash')" class="tool-select-btn"><i class="fas fa-fingerprint"></i><span>Hash Gen</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-pass')" class="tool-select-btn"><i class="fas fa-shield-alt"></i><span>Secrets</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-chmod')" class="tool-select-btn"><i class="fas fa-calculator"></i><span>Chmod</span></button>
+                    </div>
+                </div>
+
+                <div id="mode-games" class="hidden max-w-5xl mx-auto mb-10 reveal">
+                     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <button onclick="switchGame('game-vim')" class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-green-100 dark:hover:bg-green-900/30 transition border border-transparent hover:border-green-500 group">
+                            <div class="text-3xl mb-2">🏃‍♂️</div><div class="font-bold text-sm">Escape Vim</div>
+                        </button>
+                        <button onclick="switchGame('game-bug')" class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/30 transition border border-transparent hover:border-red-500 group">
+                            <div class="text-3xl mb-2">🐛</div><div class="font-bold text-sm">Bug Smasher</div>
+                        </button>
+                        <button onclick="switchGame('game-dino')" class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition border border-transparent hover:border-blue-500 group">
+                            <div class="text-3xl mb-2">🦖</div><div class="font-bold text-sm">Dino Deploy</div>
+                        </button>
+                        <button onclick="switchGame('game-tictactoe')" class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/30 transition border border-transparent hover:border-purple-500 group">
+                            <div class="text-3xl mb-2">❌⭕</div><div class="font-bold text-sm">CI vs CD</div>
+                        </button>
+                        <button onclick="switchGame('game-snake')" class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition border border-transparent hover:border-yellow-500 group">
+                            <div class="text-3xl mb-2">🐍</div><div class="font-bold text-sm">Python Eater</div>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="glass-panel p-1 rounded-2xl border border-white/50 dark:border-white/10 mx-auto max-w-6xl shadow-2xl overflow-hidden min-h-[500px] relative transition-all duration-300" id="tool-container">
                     
+                    <div id="game-vim" class="tool-view hidden h-full flex flex-col items-center justify-center relative overflow-hidden bg-gray-900 text-green-400 font-mono p-8">
+                        <div class="absolute inset-0 bg-black opacity-50"></div>
+                        <div class="relative z-10 text-center">
+                            <h3 class="text-2xl font-bold mb-8">VIM EXIT CHALLENGE</h3>
+                            <p class="mb-12 text-sm text-gray-400">Type :q! to exit... just kidding, click the button.</p>
+                            <button id="vim-btn" onmouseover="moveVimBtn()" onclick="alert('Congratulations! You are a Senior DevOps Engineer now.')" class="px-6 py-2 bg-gray-700 border border-green-500 text-green-500 rounded hover:bg-gray-600 transition-all absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                :q!
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="game-bug" class="tool-view hidden h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
+                        <div class="flex justify-between w-full max-w-md mb-4">
+                            <div class="font-bold text-xl">Score: <span id="bugScore" class="text-primary">0</span></div>
+                            <div class="font-bold text-xl">Time: <span id="bugTime" class="text-red-500">30</span>s</div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 w-full max-w-md h-80">
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(0)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(1)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(2)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(3)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(4)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(5)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(6)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(7)"></div>
+                            <div class="bug-slot bg-gray-200 dark:bg-gray-800 rounded-lg relative cursor-pointer overflow-hidden" onclick="hitBug(8)"></div>
+                        </div>
+                        <button onclick="startBugGame()" class="mt-6 btn-glow px-8 py-2">Start Debugging</button>
+                    </div>
+
+                    <div id="game-dino" class="tool-view hidden h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative">
+                        <canvas id="dinoCanvas" width="600" height="200" class="border-b-2 border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg cursor-pointer"></canvas>
+                        <div class="mt-4 text-center">
+                            <p class="text-sm text-gray-500 mb-2">Press SPACE or Click to Jump over Firewalls</p>
+                            <button onclick="startDinoGame()" class="btn-glow px-6 py-2 text-sm">Deploy / Restart</button>
+                        </div>
+                        <div id="dinoScore" class="absolute top-8 right-12 font-mono font-bold text-xl text-gray-400">0</div>
+                    </div>
+
+                    <div id="game-tictactoe" class="tool-view hidden h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-8">
+                        <h3 class="text-2xl font-bold mb-2">CI (You) vs CD (Bot)</h3>
+                        <div id="ttt-status" class="mb-4 text-primary font-bold">Your Turn</div>
+                        <div class="grid grid-cols-3 gap-2 w-64 h-64">
+                            <div onclick="tttMove(0)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(1)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(2)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(3)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(4)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(5)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(6)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(7)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                            <div onclick="tttMove(8)" class="ttt-cell bg-white dark:bg-gray-800 rounded cursor-pointer flex items-center justify-center text-3xl font-bold border dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"></div>
+                        </div>
+                        <button onclick="resetTTT()" class="mt-6 btn-glow px-6 py-2">Restart Build</button>
+                    </div>
+
+                    <div id="game-snake" class="tool-view hidden h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+                        <h3 class="text-xl font-bold mb-2">Python Memory Eater</h3>
+                        <canvas id="snakeCanvas" width="400" height="400" class="bg-gray-200 dark:bg-black border border-gray-400 rounded"></canvas>
+                        <div class="flex justify-between w-full max-w-[400px] mt-2">
+                            <span class="text-sm text-gray-500">Arrows to move</span>
+                            <span class="font-bold">RAM Consumed: <span id="snakeScore">0</span>MB</span>
+                        </div>
+                        <button onclick="initSnake()" class="mt-4 btn-glow px-6 py-2">Run Script</button>
+                    </div>
+
                     <div id="tool-editor" class="tool-view h-full">
                         <div class="bg-gray-100 dark:bg-gray-900/90 px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
                             <div class="flex items-center gap-2"><div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div><span class="text-xs font-bold text-gray-500 uppercase ml-2">Editor.yaml</span></div>
                             <div class="flex gap-2">
                                 <button onclick="copyToClipboard('yamlInput')" class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-300 hover:bg-gray-300"><i class="fas fa-copy"></i> Copy</button>
-                                <select onchange="loadYamlTemplate(this.value)" class="bg-white dark:bg-gray-800 text-xs rounded px-2 py-1 border border-gray-300 dark:border-gray-700"><option value="" disabled selected>Load Template</option><option value="k8s_pod">K8s Pod</option><option value="k8s_svc">K8s Service</option><option value="github_action">GitHub Action</option></select>
+                                <select onchange="loadYamlTemplate(this.value)" class="bg-white dark:bg-gray-800 text-xs rounded px-2 py-1 border border-gray-300 dark:border-gray-700">
+                                    <option value="" disabled selected>Load Template</option>
+                                    <option value="k8s_pod">K8s Pod</option>
+                                    <option value="k8s_svc">K8s Service</option>
+                                    <option value="github_action">GitHub Action</option>
+                                    <option value="jenkins_pipeline">Jenkins Pipeline</option>
+                                    <option value="ansible_playbook">Ansible Playbook</option>
+                                    <option value="dockerfile">Dockerfile</option>
+                                    <option value="docker_compose">Docker Compose</option>
+                                </select>
                                 <button onclick="clearYaml()" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
@@ -861,10 +959,10 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <div id="tool-diff" class="tool-view hidden h-full flex flex-col">
                          <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <h3 class="font-bold text-lg text-primary">Text Diff Checker</h3>
+                            <h3 class="font-bold text-lg text-primary">Text Diff Checker (Robust)</h3>
                             <button onclick="runDiff()" class="btn-glow px-4 py-1 text-xs">Compare</button>
                         </div>
                         <div class="flex flex-col md:flex-row h-full">
@@ -882,7 +980,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <div id="tool-hash" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
                         <i class="fas fa-fingerprint text-5xl text-purple-500 mb-6"></i>
                         <h3 class="text-2xl font-bold mb-6">Crypto Hash Generator</h3>
@@ -1163,7 +1261,7 @@
             </div>
         </section>
 
-        <section id="contact" class="tab-content hidden pb-20">
+        <section id="contact" class="tab-content hidden pb-20 reveal">
             <div class="max-w-6xl mx-auto">
                 <div class="grid md:grid-cols-2 gap-8 rounded-[2.5rem] overflow-hidden reveal">
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden group">
@@ -1193,7 +1291,7 @@
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
-                        <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
+                        <form name="contact" action="/" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
                             <div class="hidden"><label>Don't fill this out if you're human: <input name="bot-field" /></label></div>
                             <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label><input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="John Doe"></div>
@@ -1218,55 +1316,35 @@
         </div>
     </footer>
 
-    <div class="droid-container" onclick="toggleBotMenu(event)" id="droid">
+    <div class="droid-container" id="droid">
+        <div class="droid-tooltip">Double-click for Menu</div>
+        
         <div class="droid-hud" id="bot-menu" onclick="event.stopPropagation()">
             <div class="hud-top">
-                <span class="text-xs font-bold tracking-widest text-gold-dark dark:text-blue-400">ASSISTANT_V3.1</span>
+                <span class="text-xs font-bold tracking-widest text-gold-dark dark:text-blue-400">ASSISTANT_V4.0</span>
                 <div class="hud-status">
                     <div class="hud-dot"></div>
                     ONLINE
                 </div>
             </div>
-
-            <div class="hud-voice-row" id="mic-btn" onclick="toggleVoice(this)">
-                <div class="hud-voice-text">
-                    <div>Voice Command</div>
-                    <div id="mic-status">Tap to speak...</div>
-                </div>
-                <div class="hud-voice-icon">
-                    <i class="fas fa-microphone"></i>
-                </div>
+            <div class="hud-voice-row" id="mic-btn" onclick="toggleVoice(this); closeMenu()">
+                <div class="hud-voice-text"><div>Voice Command</div><div id="mic-status">Tap to speak...</div></div>
+                <div class="hud-voice-icon"><i class="fas fa-microphone"></i></div>
             </div>
-            
             <div class="hud-grid">
-                <div class="hud-card" onclick="switchTab('home')">
-                    <i class="fas fa-home"></i>
-                    <span class="hud-label">Home</span>
-                </div>
-                <div class="hud-card" onclick="switchTab('projects')">
-                    <i class="fas fa-project-diagram"></i>
-                    <span class="hud-label">Projects</span>
-                </div>
-                <div class="hud-card" onclick="switchTab('tools')">
-                    <i class="fas fa-layer-group"></i>
-                    <span class="hud-label">Stack</span>
-                </div>
-                <div class="hud-card" onclick="switchTab('yaml')">
-                    <i class="fas fa-tools"></i>
-                    <span class="hud-label">Tools</span>
-                </div>
+                <div class="hud-card" onclick="switchTab('home'); closeMenu()"><i class="fas fa-home"></i><span class="hud-label">Home</span></div>
+                <div class="hud-card" onclick="switchTab('projects'); closeMenu()"><i class="fas fa-project-diagram"></i><span class="hud-label">Projects</span></div>
+                <div class="hud-card" onclick="switchTab('tools'); closeMenu()"><i class="fas fa-layer-group"></i><span class="hud-label">Stack</span></div>
+                <div class="hud-card" onclick="switchTab('yaml'); closeMenu()"><i class="fas fa-tools"></i><span class="hud-label">Tools</span></div>
             </div>
-
             <div class="hud-footer">
-                <div class="hud-mini-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fas fa-adjust"></i></div>
-                <div class="hud-mini-btn" onclick="botSpeak(getDevOpsJoke())" title="Tell Joke"><i class="fas fa-laugh-beam"></i></div>
-                <div class="hud-mini-btn" onclick="runSystemScan()" title="Scan System"><i class="fas fa-fingerprint"></i></div>
-                <div class="hud-mini-btn" onclick="switchTab('contact')" title="Contact"><i class="fas fa-paper-plane"></i></div>
+                <div class="hud-mini-btn" onclick="toggleTheme(); closeMenu()" title="Toggle Theme"><i class="fas fa-adjust"></i></div>
+                <div class="hud-mini-btn" onclick="toggleTurboMode(); closeMenu()" title="Turbo Mode"><i class="fas fa-bolt text-yellow-500"></i></div>
+                <div class="hud-mini-btn" onclick="runSystemScan(); closeMenu()" title="Scan System"><i class="fas fa-fingerprint"></i></div>
+                <div class="hud-mini-btn" onclick="tellJoke(); closeMenu()" title="Tell Joke"><i class="fas fa-laugh-beam text-pink-500"></i></div>
             </div>
         </div>
-        
-        <div class="bot-bubble" id="bot-bubble">Initializing v3.0...</div>
-        
+        <div class="bot-bubble" id="bot-bubble">Initializing v4.0...</div>
         <div class="droid" id="droid-body">
             <div class="d-head" id="d-head"><div class="d-face"><div class="d-eye"></div><div class="d-eye"></div></div></div>
             <div class="d-body"></div><div class="d-hand left"></div><div class="d-hand right"></div>
@@ -1279,6 +1357,7 @@
     </div>
 
     <script>
+        // --- DATA OBJECTS (UNCHANGED) ---
         const projects = [
             { title: "Kubernetes Cluster on AWS EKS", desc: "Production-ready Kubernetes cluster on AWS EKS with auto-scaling, monitoring, and logging.", tags: ["EKS", "Terraform", "Prometheus"], icon: "fas fa-dharmachakra", color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300" },
             { title: "Multi-Region AWS Infrastructure", desc: "Multi-region AWS infrastructure with disaster recovery and automated failover.", tags: ["AWS", "Terraform", "DR"], icon: "fab fa-aws", color: "text-orange-500 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300" },
@@ -1315,7 +1394,7 @@
             { category: "SAS Platform", items: [ { name: "SAS 9.4", icon: "fas fa-server text-sas dark:text-sky-400", desc: "Platform Admin", url: "https://www.sas.com/" }, { name: "SAS Viya", icon: "fas fa-cloud text-sas dark:text-sky-400", desc: "Cloud Analytics", url: "https://www.sas.com/en_us/software/viya.html" } ]}
         ];
 
-        // --- CORE UI LOGIC ---
+        // --- GLOBAL FUNCTIONS (UNCHANGED) ---
         function toggleTheme() {
             const html = document.documentElement;
             if (html.classList.contains('dark')) { html.classList.remove('dark'); localStorage.setItem('theme', 'light'); } 
@@ -1323,18 +1402,17 @@
         }
 
         function switchTab(tabId) {
+            stopAllGames();
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             const target = document.getElementById(tabId);
             if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const btn = document.getElementById(`btn-${tabId}`);
             if(btn) btn.classList.add('active');
-            
             if(window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel();
             document.getElementById('bot-menu').classList.remove('active');
-            
             const mobMenu = document.getElementById('mobile-menu');
-            if(!mobMenu.classList.contains('hidden')) toggleMobileMenu();
+            if(mobMenu && !mobMenu.classList.contains('hidden')) toggleMobileMenu();
             const mainContent = document.getElementById('main-content');
             if(mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
             setTimeout(setupObserver, 100);
@@ -1348,22 +1426,16 @@
                 setTimeout(() => menu.classList.remove('opacity-0'), 10);
             } else {
                 menu.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => {
-                    menu.classList.add('hidden');
-                    menu.classList.remove('flex');
-                }, 300);
+                setTimeout(() => { menu.classList.add('hidden'); menu.classList.remove('flex'); }, 300);
             }
         }
         function mobileNav(tab) { switchTab(tab); }
 
         function handleTilt(e, card) {
             const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -5; 
-            const rotateY = ((x - centerX) / centerX) * 5;
+            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+            const centerX = rect.width / 2; const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -5; const rotateY = ((x - centerX) / centerX) * 5;
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
         }
         function resetTilt(card) { card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`; }
@@ -1453,6 +1525,20 @@
             return jokes[Math.floor(Math.random() * jokes.length)];
         }
 
+        // New function to tell a joke when button clicked
+        function tellJoke() {
+            const joke = getDevOpsJoke();
+            botSpeak(joke);
+            const droid = document.getElementById('droid-body');
+            droid.classList.add('dancing'); 
+            setTimeout(() => droid.classList.remove('dancing'), 2000);
+        }
+        
+        // Helper function to close menu
+        function closeMenu() {
+            document.getElementById('bot-menu').classList.remove('active');
+        }
+
         function setupObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => { 
@@ -1462,364 +1548,583 @@
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
 
-        // --- UPGRADED TOOL LOGIC ---
+        function togglePlaygroundMode(mode) {
+            stopAllGames();
+            const toolDiv = document.getElementById('mode-tools');
+            const gameDiv = document.getElementById('mode-games');
+            const btnT = document.getElementById('btn-mode-tools');
+            const btnG = document.getElementById('btn-mode-games');
+            const bg = document.getElementById('mode-bg');
+            const title = document.getElementById('pg-title');
+            const desc = document.getElementById('pg-desc');
+
+            document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
+
+            if(mode === 'games') {
+                toolDiv.classList.add('hidden'); gameDiv.classList.remove('hidden'); bg.style.left = '50%';
+                btnT.classList.add('text-gray-500'); btnG.classList.remove('text-gray-500');
+                title.innerText = "DevOps Arcade"; desc.innerText = "Take a break. Deploy some fun.";
+            } else {
+                gameDiv.classList.add('hidden'); toolDiv.classList.remove('hidden'); bg.style.left = '4px';
+                btnG.classList.add('text-gray-500'); btnT.classList.remove('text-gray-500');
+                title.innerText = "DevOps Tool Chest"; desc.innerText = "Professional Grade Utilities.";
+                const activeBtn = document.querySelector('.tool-select-btn.active');
+                if(activeBtn) activeBtn.click(); else switchTool('tool-editor');
+            }
+        }
+
+        function switchToolBtn(btn, toolId) {
+            document.querySelectorAll('.tool-select-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            switchTool(toolId);
+        }
+
+        function stopAllGames() {
+            if(bugTimer) clearInterval(bugTimer);
+            if(dinoLoop) cancelAnimationFrame(dinoLoop); isGameOver = true;
+            if(snakeLoop) clearInterval(snakeLoop);
+        }
+
+        function switchGame(gameId) {
+            stopAllGames();
+            document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(gameId).classList.remove('hidden');
+            if(gameId === 'game-bug') startBugGame();
+            if(gameId === 'game-dino') startDinoGame();
+            if(gameId === 'game-snake') initSnake();
+            if(gameId === 'game-tictactoe') resetTTT();
+        }
+
+        function moveVimBtn() {
+            const btn = document.getElementById('vim-btn');
+            const x = Math.random() * 80 + 10; const y = Math.random() * 80 + 10;
+            btn.style.left = x + '%'; btn.style.top = y + '%';
+        }
+
+        let bugScore = 0; let bugTimer = null;
+        function startBugGame() {
+            bugScore = 0; document.getElementById('bugScore').innerText = 0;
+            let time = 30; document.getElementById('bugTime').innerText = time;
+            if(bugTimer) clearInterval(bugTimer);
+            bugTimer = setInterval(() => {
+                time--; document.getElementById('bugTime').innerText = time;
+                spawnBug();
+                if(time <= 0) { clearInterval(bugTimer); alert("Game Over! Bugs Smashed: " + bugScore); }
+            }, 800);
+        }
+        function spawnBug() {
+            const slots = document.querySelectorAll('.bug-slot');
+            slots.forEach(s => s.innerHTML = '');
+            const rand = Math.floor(Math.random() * 9);
+            slots[rand].innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl animate-bounce">🐛</div>';
+        }
+        function hitBug(idx) {
+            const slot = document.querySelectorAll('.bug-slot')[idx];
+            if(slot.innerHTML !== '') {
+                bugScore++; document.getElementById('bugScore').innerText = bugScore;
+                slot.innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl text-red-600 font-bold">💥</div>';
+            }
+        }
+
+        let dinoCtx, dinoLoop; let dinoY = 150, dinoVel = 0, obstacles = [], frame = 0, score=0; let isGameOver = false;
+        function startDinoGame() {
+            const canvas = document.getElementById('dinoCanvas');
+            dinoCtx = canvas.getContext('2d');
+            obstacles = []; frame = 0; score=0; dinoY = 150; dinoVel = 0; isGameOver = false;
+            if(dinoLoop) cancelAnimationFrame(dinoLoop);
+            updateDino();
+            document.onkeydown = (e) => { if(e.code === 'Space') { e.preventDefault(); if(isGameOver) { startDinoGame(); return; } if(dinoY >= 150) dinoVel = -12; } };
+            canvas.onclick = () => { if(isGameOver) { startDinoGame(); return; } if(dinoY >= 150) dinoVel = -12; };
+        }
+        function updateDino() {
+            dinoCtx.clearRect(0,0,600,200);
+            if(isGameOver) {
+                dinoCtx.fillStyle = '#ef4444'; dinoCtx.font = "bold 30px monospace"; dinoCtx.textAlign = "center";
+                dinoCtx.fillText("DEPLOYMENT FAILED!", 300, 90);
+                dinoCtx.fillStyle = '#6b7280'; dinoCtx.font = "16px sans-serif";
+                dinoCtx.fillText("Firewall blocked connection.", 300, 120); dinoCtx.fillText("Press Space / Click to Retry", 300, 145); return; 
+            }
+            dinoVel += 0.6; dinoY += dinoVel; if(dinoY > 150) { dinoY = 150; dinoVel = 0; }
+            dinoCtx.fillStyle = '#22c55e'; dinoCtx.fillRect(50, dinoY, 30, 30);
+            if(frame % 100 === 0) obstacles.push({x: 600, w: 20, h: 40});
+            obstacles.forEach(o => {
+                o.x -= 4; dinoCtx.fillStyle = '#ef4444'; dinoCtx.fillRect(o.x, 190 - o.h, o.w, o.h);
+                if (50 < o.x + o.w && 50 + 30 > o.x && dinoY < 190 && dinoY + 30 > 190 - o.h) isGameOver = true;
+            });
+            score++; document.getElementById('dinoScore').innerText = Math.floor(score/10); frame++; dinoLoop = requestAnimationFrame(updateDino);
+        }
+
+        let tttBoard = ['', '', '', '', '', '', '', '', '']; let tttActive = true;
+        function resetTTT() {
+            tttBoard = ['', '', '', '', '', '', '', '', '']; tttActive = true;
+            document.querySelectorAll('.ttt-cell').forEach(c => { c.innerText = ''; c.classList.remove('text-red-500', 'text-green-500'); });
+            document.getElementById('ttt-status').innerText = "Your Turn (CI)";
+        }
+        function tttMove(idx) {
+            if(!tttActive || tttBoard[idx] !== '') return;
+            tttBoard[idx] = 'X'; drawTTT(); checkTTT(); if(tttActive) setTimeout(tttBotMove, 400);
+        }
+        function tttBotMove() {
+            let available = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+            if(available.length === 0) return;
+            let move = available[Math.floor(Math.random() * available.length)];
+            tttBoard[move] = 'O'; drawTTT(); checkTTT();
+        }
+        function drawTTT() {
+            document.querySelectorAll('.ttt-cell').forEach((c, i) => {
+                c.innerText = tttBoard[i];
+                if(tttBoard[i] === 'X') c.classList.add('text-green-500'); if(tttBoard[i] === 'O') c.classList.add('text-red-500');
+            });
+        }
+        function checkTTT() {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            let won = false;
+            wins.forEach(w => {
+                if(tttBoard[w[0]] && tttBoard[w[0]] === tttBoard[w[1]] && tttBoard[w[0]] === tttBoard[w[2]]) {
+                    tttActive = false; won = true;
+                    document.getElementById('ttt-status').innerText = tttBoard[w[0]] === 'X' ? "Build Succeeded! (You Win)" : "Build Failed! (Bot Wins)";
+                }
+            });
+            if(!won && !tttBoard.includes('')) { tttActive = false; document.getElementById('ttt-status').innerText = "Merge Conflict (Draw)"; }
+        }
+
+        let snakeCtx, snakeLoop; let snake = [{x: 10, y: 10}]; let food = {x: 15, y: 15}; let dx = 0, dy = 0; let snakeScore = 0;
+        function initSnake() {
+            const cvs = document.getElementById('snakeCanvas'); snakeCtx = cvs.getContext('2d');
+            snake = [{x: 10, y: 10}]; snakeScore = 0; document.getElementById('snakeScore').innerText = 0;
+            dx = 1; dy = 0; if(snakeLoop) clearInterval(snakeLoop); snakeLoop = setInterval(runSnake, 100);
+            document.onkeydown = (e) => {
+                if(e.key === 'ArrowUp' && dy !== 1) { dx=0; dy=-1; }
+                if(e.key === 'ArrowDown' && dy !== -1) { dx=0; dy=1; }
+                if(e.key === 'ArrowLeft' && dx !== 1) { dx=-1; dy=0; }
+                if(e.key === 'ArrowRight' && dx !== -1) { dx=1; dy=0; }
+            };
+        }
+        function runSnake() {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            if(head.x < 0) head.x = 19; if(head.x > 19) head.x = 0; if(head.y < 0) head.y = 19; if(head.y > 19) head.y = 0;
+            if(snake.some(s => s.x === head.x && s.y === head.y)) { clearInterval(snakeLoop); alert("Memory Leak! Script Crashed."); return; }
+            snake.unshift(head);
+            if(head.x === food.x && head.y === food.y) { snakeScore += 64; document.getElementById('snakeScore').innerText = snakeScore; food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)}; } 
+            else { snake.pop(); }
+            drawSnake();
+        }
+        function drawSnake() {
+            snakeCtx.fillStyle = '#1f2937'; snakeCtx.fillRect(0,0,400,400);
+            snakeCtx.fillStyle = '#eab308'; snake.forEach(s => snakeCtx.fillRect(s.x*20, s.y*20, 18, 18));
+            snakeCtx.fillStyle = '#ef4444'; snakeCtx.fillRect(food.x*20, food.y*20, 18, 18);
+        }
+
         function switchTool(toolId) {
             document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
             document.getElementById(toolId).classList.remove('hidden');
-            if(toolId === 'tool-ip') fetchMyIp();
-            if(toolId === 'tool-pass') generatePass();
+            if(toolId === 'tool-ip') fetchMyIp(); if(toolId === 'tool-pass') generatePass();
         }
 
-        // 1. JSON/CSV
+        // --- UTILITY FUNCTIONS (CSV, YAML, HASH, ETC.) ---
         function jsonToCsv() {
             const jsonStr = document.getElementById('csvJsonInput').value;
             try {
                 const arr = JSON.parse(jsonStr);
                 if (!Array.isArray(arr) || arr.length === 0) throw new Error("Input must be a JSON array of objects.");
                 const keys = Object.keys(arr[0]);
-                const csv = [
-                    keys.join(','),
-                    ...arr.map(row => keys.map(k => {
-                        let val = row[k] === null || row[k] === undefined ? '' : row[k];
-                        if(typeof val === 'object') val = JSON.stringify(val).replace(/"/g, '""');
-                        return `"${val.toString().replace(/"/g, '""')}"`;
-                    }).join(','))
-                ].join('\n');
+                const csv = [keys.join(','), ...arr.map(row => keys.map(k => { let val = row[k]===null||row[k]===undefined?'':row[k]; if(typeof val==='object') val=JSON.stringify(val).replace(/"/g, '""'); return `"${val.toString().replace(/"/g, '""')}"`; }).join(','))].join('\n');
                 document.getElementById('csvOutput').value = csv;
             } catch (e) { alert("Invalid JSON: " + e.message); }
         }
         function csvToJson() {
-            const csvStr = document.getElementById('csvOutput').value;
-            const lines = csvStr.split('\n').filter(l => l.trim());
+            const csvStr = document.getElementById('csvOutput').value; const lines = csvStr.split('\n').filter(l => l.trim());
             if (lines.length < 2) return;
             const headers = lines[0].split(',').map(h => h.trim());
             const result = lines.slice(1).map(line => {
-                const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
-                const data = [];
-                let match;
+                const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g; const data = []; let match;
                 while ((match = regex.exec(line)) !== null) data.push(match[0].replace(/^"|"$/g, '').replace(/""/g, '"'));
-                const obj = {};
-                headers.forEach((h, i) => obj[h] = data[i] || '');
-                return obj;
+                const obj = {}; headers.forEach((h, i) => obj[h] = data[i] || ''); return obj;
             });
             document.getElementById('csvJsonInput').value = JSON.stringify(result, null, 2);
         }
         function downloadFile(elemId, fname, type) {
-            const content = document.getElementById(elemId).value;
-            if(!content) return;
-            const blob = new Blob([content], { type: type });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = fname; a.click();
-            URL.revokeObjectURL(url);
+            const content = document.getElementById(elemId).value; if(!content) return;
+            const blob = new Blob([content], { type: type }); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = fname; a.click(); URL.revokeObjectURL(url);
         }
 
-        // 2. EDITOR
         function validateYaml() {
-            const input = document.getElementById('yamlInput').value;
-            const output = document.getElementById('yamlOutput');
-            const status = document.getElementById('yamlStatus');
+            const input = document.getElementById('yamlInput').value; const output = document.getElementById('yamlOutput'); const status = document.getElementById('yamlStatus');
             if(!input.trim()) { output.innerText = ""; status.innerText = "Ready"; return; }
             try {
-                const doc = jsyaml.loadAll(input);
-                output.innerText = JSON.stringify(doc, null, 2);
-                status.innerText = "Valid YAML"; status.className = "text-green-500 font-bold";
-                output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-green-600 dark:text-green-400";
+                const doc = jsyaml.loadAll(input); output.innerText = JSON.stringify(doc, null, 2);
+                status.innerText = "Valid YAML"; status.className = "text-green-500 font-bold"; output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-green-600 dark:text-green-400";
             } catch(e) {
-                try {
-                    JSON.parse(input);
-                    output.innerText = input; status.innerText = "Valid JSON"; status.className = "text-blue-500 font-bold";
-                    output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-blue-600 dark:text-blue-400";
-                } catch(j) {
-                    output.innerText = e.message; status.innerText = "Syntax Error"; status.className = "text-red-500 font-bold";
-                    output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-red-500";
-                }
+                try { JSON.parse(input); output.innerText = input; status.innerText = "Valid JSON"; status.className = "text-blue-500 font-bold"; output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-blue-600 dark:text-blue-400"; }
+                catch(j) { output.innerText = e.message; status.innerText = "Syntax Error"; status.className = "text-red-500 font-bold"; output.className = "flex-grow p-4 font-mono text-xs overflow-auto whitespace-pre-wrap text-red-500"; }
             }
         }
         function convertYamlToJson() { const v = document.getElementById('yamlInput').value; try { document.getElementById('yamlOutput').innerText = JSON.stringify(jsyaml.load(v), null, 2); } catch(e){} }
         function convertJsonToYaml() { const v = document.getElementById('yamlInput').value; try { document.getElementById('yamlOutput').innerText = jsyaml.dump(JSON.parse(v)); } catch(e){} }
         function minifyJson() { try { const v = document.getElementById('yamlInput').value; document.getElementById('yamlInput').value = JSON.stringify(JSON.parse(v)); validateYaml(); } catch(e){} }
         function prettifyJson() { try { const v = document.getElementById('yamlInput').value; document.getElementById('yamlInput').value = JSON.stringify(JSON.parse(v), null, 2); validateYaml(); } catch(e){} }
+        
         function loadYamlTemplate(t) { 
-            const tmpl = { 'k8s_pod': "apiVersion: v1\nkind: Pod\nmetadata:\n  name: my-pod", 'k8s_svc': "apiVersion: v1\nkind: Service\nmetadata:\n  name: my-svc", 'github_action': "name: CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest" };
+            const tmpl = { 
+                'k8s_pod': "apiVersion: v1\nkind: Pod\nmetadata:\n  name: my-pod\nspec:\n  containers:\n  - name: my-app\n    image: nginx:latest\n    ports:\n    - containerPort: 80", 
+                'k8s_svc': "apiVersion: v1\nkind: Service\nmetadata:\n  name: my-svc\nspec:\n  selector:\n    app: my-app\n  ports:\n    - protocol: TCP\n      port: 80\n      targetPort: 80", 
+                'github_action': "name: CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v2\n    - name: Run a one-line script\n      run: echo Hello, world!",
+                'jenkins_pipeline': "pipeline {\n    agent any\n    stages {\n        stage('Build') {\n            steps {\n                echo 'Building...'\n            }\n        }\n        stage('Test') {\n            steps {\n                echo 'Testing...'\n            }\n        }\n        stage('Deploy') {\n            steps {\n                echo 'Deploying...'\n            }\n        }\n    }\n}",
+                'ansible_playbook': "---\n- name: Install Apache\n  hosts: webservers\n  become: yes\n  tasks:\n    - name: Install httpd\n      yum:\n        name: httpd\n        state: present\n    - name: Start service\n      service:\n        name: httpd\n        state: started",
+                'dockerfile': "# Use an official Python runtime as a parent image\nFROM python:3.9-slim\n\n# Set the working directory\nWORKDIR /app\n\n# Copy the current directory contents into the container at /app\nCOPY . /app\n\n# Install any needed packages specified in requirements.txt\nRUN pip install --no-cache-dir -r requirements.txt\n\n# Make port 80 available to the world outside this container\nEXPOSE 80\n\n# Run app.py when the container launches\nCMD [\"python\", \"app.py\"]",
+                'docker_compose': "version: '3'\nservices:\n  web:\n    build: .\n    ports:\n      - \"5000:5000\"\n  redis:\n    image: \"redis:alpine\""
+            };
             if(tmpl[t]) { document.getElementById('yamlInput').value = tmpl[t]; validateYaml(); }
         }
+        
         function clearYaml() { document.getElementById('yamlInput').value=''; validateYaml(); }
         function copyToClipboard(id) { navigator.clipboard.writeText(document.getElementById(id).value || document.getElementById(id).innerText); alert("Copied!"); }
 
-        // 3. CRON
         function populateCronSelects() {
             const addOpts = (id, start, end, label) => {
-                const sel = document.getElementById(id);
-                sel.innerHTML = `<option value="*">*</option>`;
+                const sel = document.getElementById(id); sel.innerHTML = `<option value="*">*</option>`;
                 if(label) sel.innerHTML += `<option value="${label}">${label}</option>`;
                 for(let i=start; i<=end; i++) sel.innerHTML += `<option value="${i}">${i}</option>`;
             };
-            addOpts('cronMin', 0, 59, '*/5');
-            addOpts('cronHour', 0, 23, '*/2');
-            addOpts('cronDay', 1, 31);
-            addOpts('cronMonth', 1, 12);
-            addOpts('cronWeek', 0, 6);
+            addOpts('cronMin', 0, 59, '*/5'); addOpts('cronHour', 0, 23, '*/2'); addOpts('cronDay', 1, 31); addOpts('cronMonth', 1, 12); addOpts('cronWeek', 0, 6);
         }
         function updateCron() {
-            const m = document.getElementById('cronMin').value;
-            const h = document.getElementById('cronHour').value;
-            const d = document.getElementById('cronDay').value;
-            const mo = document.getElementById('cronMonth').value;
-            const w = document.getElementById('cronWeek').value;
+            const m = document.getElementById('cronMin').value; const h = document.getElementById('cronHour').value;
+            const d = document.getElementById('cronDay').value; const mo = document.getElementById('cronMonth').value; const w = document.getElementById('cronWeek').value;
             document.getElementById('cronOutput').innerText = `${m} ${h} ${d} ${mo} ${w}`;
-            
-            let desc = "Runs ";
-            desc += (m === "*") ? "every minute" : `at minute ${m}`;
-            desc += (h === "*") ? "" : ` past hour ${h}`;
-            document.getElementById('cronDesc').innerText = desc;
-            
-            const list = document.getElementById('cronNextRuns');
-            list.innerHTML = "";
+            let desc = "Runs "; desc += (m === "*") ? "every minute" : `at minute ${m}`; desc += (h === "*") ? "" : ` past hour ${h}`; document.getElementById('cronDesc').innerText = desc;
+            const list = document.getElementById('cronNextRuns'); list.innerHTML = "";
             let now = new Date();
             for(let i=0; i<5; i++) {
-                if(m !== '*' && h !== '*') {
-                    now.setHours(h); now.setMinutes(m); 
-                    if(now < new Date()) now.setDate(now.getDate()+1);
-                    else now.setDate(now.getDate() + (i>0?1:0));
-                } else {
-                    now.setMinutes(now.getMinutes() + (m === '*' ? 1 : 5));
-                }
+                if(m !== '*' && h !== '*') { now.setHours(h); now.setMinutes(m); if(now < new Date()) now.setDate(now.getDate()+1); else now.setDate(now.getDate() + (i>0?1:0)); } 
+                else { now.setMinutes(now.getMinutes() + (m === '*' ? 1 : 5)); }
                 list.innerHTML += `<li class="flex items-center gap-2 text-xs"><div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div> ${now.toLocaleString()}</li>`;
             }
         }
         function applyCronPreset(val) {
             if(!val) return;
             const parts = val.split(' ');
-            document.getElementById('cronMin').value = parts[0];
-            document.getElementById('cronHour').value = parts[1];
-            document.getElementById('cronDay').value = parts[2];
-            document.getElementById('cronMonth').value = parts[3];
-            document.getElementById('cronWeek').value = parts[4];
+            document.getElementById('cronMin').value = parts[0]; document.getElementById('cronHour').value = parts[1];
+            document.getElementById('cronDay').value = parts[2]; document.getElementById('cronMonth').value = parts[3]; document.getElementById('cronWeek').value = parts[4];
             updateCron();
         }
 
-        // 4. PORT
         function checkPort() {
             const p = parseInt(document.getElementById('portInput').value);
-            const ports = { 
-                21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP', 53:'DNS', 80:'HTTP', 443:'HTTPS', 
-                1433:'SQL Server', 1521:'Oracle', 3306:'MySQL/MariaDB', 3389:'RDP', 5432:'PostgreSQL', 
-                6379:'Redis', 8080:'HTTP-Alt', 8443:'HTTPS-Alt', 9090:'Prometheus', 9100:'Node Exporter',
-                27017:'MongoDB', 9200:'Elasticsearch', 5601:'Kibana', 3000:'React/Node/Grafana',
-                5000:'Flask/Docker Registry', 6443:'K8s API', 2379:'etcd', 10250:'Kubelet'
-            };
+            const ports = { 21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP', 53:'DNS', 80:'HTTP', 443:'HTTPS', 1433:'SQL Server', 1521:'Oracle', 3306:'MySQL/MariaDB', 3389:'RDP', 5432:'PostgreSQL', 6379:'Redis', 8080:'HTTP-Alt', 8443:'HTTPS-Alt', 9090:'Prometheus', 9100:'Node Exporter', 27017:'MongoDB', 9200:'Elasticsearch', 5601:'Kibana', 3000:'React/Node/Grafana', 5000:'Flask/Docker Registry', 6443:'K8s API', 2379:'etcd', 10250:'Kubelet' };
             const res = document.getElementById('portResult');
-            if(ports[p]) {
-                res.innerHTML = `<span class="text-green-600">Standard Service:</span> ${ports[p]}`;
-            } else {
-                res.innerHTML = `<span class="text-gray-500">Unknown/Custom/Ephemeral Port</span>`;
-            }
+            if(ports[p]) { res.innerHTML = `<span class="text-green-600">Standard Service:</span> ${ports[p]}`; } else { res.innerHTML = `<span class="text-gray-500">Unknown/Custom/Ephemeral Port</span>`; }
         }
 
-        // 5. CIDR
         function calculateCidr() {
-            const val = document.getElementById('cidrInput').value;
-            if(!val.includes('/')) return;
+            const val = document.getElementById('cidrInput').value; if(!val.includes('/')) return;
             try {
-                const [ip, mask] = val.split('/');
-                const m = parseInt(mask);
-                if(m > 32 || m < 0) throw new Error();
-                const hosts = Math.pow(2, 32 - m) - 2;
-                const binMask = "1".repeat(m) + "0".repeat(32-m);
-                const prettyBin = binMask.match(/.{1,8}/g).join('.');
+                const [ip, mask] = val.split('/'); const m = parseInt(mask); if(m > 32 || m < 0) throw new Error();
+                const hosts = Math.pow(2, 32 - m) - 2; const binMask = "1".repeat(m) + "0".repeat(32-m); const prettyBin = binMask.match(/.{1,8}/g).join('.');
                 document.getElementById('cidrHosts').innerText = hosts > 0 ? hosts.toLocaleString() : 0;
                 document.getElementById('cidrNetmask').innerText = '/' + m;
                 const parts = ip.split('.').map(Number);
-                const first = `${parts[0]}.${parts[1]}.${parts[2]}.${m>=24?1:0}`;
-                const last = `${parts[0]}.${parts[1]}.${parts[2]}.${m>=24?254:255}`; 
-                document.getElementById('cidrRange').innerText = `${first} - ${last}`;
-                document.getElementById('cidrFirst').innerText = first; 
-                document.getElementById('cidrLast').innerText = last; 
-                document.getElementById('cidrBinary').innerText = prettyBin;
+                const first = `${parts[0]}.${parts[1]}.${parts[2]}.${m>=24?1:0}`; const last = `${parts[0]}.${parts[1]}.${parts[2]}.${m>=24?254:255}`; 
+                document.getElementById('cidrRange').innerText = `${first} - ${last}`; document.getElementById('cidrFirst').innerText = first; document.getElementById('cidrLast').innerText = last; document.getElementById('cidrBinary').innerText = prettyBin;
             } catch(e) { document.getElementById('cidrHosts').innerText = "Invalid CIDR"; }
         }
 
-        // 6. BASE64
         function runBase64(mode) {
             const i = document.getElementById('b64Input').value;
-            try { document.getElementById('b64Output').value = mode === 'enc' ? btoa(i) : atob(i); } catch(e) { document.getElementById('b64Output').value = "Error"; }
+            try { document.getElementById('b64Output').value = mode === 'enc' ? btoa(i) : atob(i); } catch(e) { document.getElementById('b64Output').value = "Error: Invalid Input"; }
         }
 
-        // 7. JWT
         function decodeJwt() {
-            const token = document.getElementById('jwtInput').value;
-            if(!token.includes('.')) return;
+            const token = document.getElementById('jwtInput').value; if(!token.includes('.')) return;
             const parts = token.split('.');
             try {
-                const head = JSON.parse(atob(parts[0]));
-                const pay = JSON.parse(atob(parts[1]));
-                document.getElementById('jwtHeader').innerText = JSON.stringify(head, null, 2);
-                document.getElementById('jwtPayload').innerText = JSON.stringify(pay, null, 2);
-            } catch(e) {}
+                const head = JSON.parse(atob(parts[0])); const pay = JSON.parse(atob(parts[1]));
+                document.getElementById('jwtHeader').innerText = JSON.stringify(head, null, 2); document.getElementById('jwtPayload').innerText = JSON.stringify(pay, null, 2);
+            } catch(e) {
+                document.getElementById('jwtHeader').innerText = "Error decoding";
+            }
         }
 
-        // 8. URL
         let urlMode = 'enc';
         function setUrlMode(m) { urlMode = m; runUrlTool(); }
         function runUrlTool() {
             const v = document.getElementById('urlInput').value;
-            document.getElementById('urlOutput').value = urlMode === 'enc' ? encodeURIComponent(v) : decodeURIComponent(v);
-        }
-
-        // 9. DNS
-        function fetchDns() {
-            const domain = document.getElementById('dnsDomain').value;
-            const type = document.getElementById('dnsType').value;
-            const resDiv = document.getElementById('dnsResult');
-            resDiv.innerText = "Querying Google DNS...";
-            fetch(`https://dns.google/resolve?name=${domain}&type=${type}`)
-                .then(r => r.json())
-                .then(d => {
-                    if(d.Answer) {
-                        resDiv.innerText = d.Answer.map(a => `[${a.type}] ${a.name} \n  -> ${a.data}`).join('\n\n');
-                    }
-                    else resDiv.innerText = "No records found or invalid domain.";
-                })
-                .catch(e => resDiv.innerText = "Error fetching DNS.");
-        }
-
-        // 10. SYSTEM & IP
-        function fetchMyIp() {
-            document.getElementById('myIpDisplay').innerText = "Loading...";
-            document.getElementById('sysPing').innerText = "Pinging...";
-            const start = Date.now();
-            fetch('https://api.ipify.org?format=json')
-                .then(r => r.json())
-                .then(d => {
-                    const ping = Date.now() - start;
-                    document.getElementById('myIpDisplay').innerText = d.ip;
-                    document.getElementById('ipOrg').innerText = "Public Internet Address";
-                    document.getElementById('sysPing').innerText = ping + " ms";
-                })
-                .catch(() => document.getElementById('myIpDisplay').innerText = "Error");
-            document.getElementById('sysUA').innerText = navigator.platform + ", " + navigator.language;
-            document.getElementById('sysRes').innerText = window.screen.width + " x " + window.screen.height;
-            document.getElementById('sysTime').innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        }
-
-        // 11. SSL
-        function decodeCert() {
-            const v = document.getElementById('sslInput').value;
-            const out = document.getElementById('sslOutput');
-            if(v.includes('BEGIN CERTIFICATE')) {
-                const clean = v.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
-                out.innerHTML = `
-                    <div class="font-bold text-green-600 mb-2">Certificate Detected</div>
-                    <div class="bg-white dark:bg-gray-800 p-2 rounded border text-xs break-all">${clean.substring(0, 60)}...</div>
-                    <div class="mt-2 text-xs text-gray-500">Base64 Length: ${v.length} bytes</div>
-                    <div class="mt-4 text-xs font-bold text-gray-400">NOTE: Full client-side parsing requires libraries not present here. This validates format only.</div>
-                `;
+            try {
+                document.getElementById('urlOutput').value = urlMode === 'enc' ? encodeURIComponent(v) : decodeURIComponent(v);
+            } catch(e) {
+                document.getElementById('urlOutput').value = "Error: Malformed URI";
             }
         }
 
-        // 12. REGEX
+        function fetchDns() {
+            const domain = document.getElementById('dnsDomain').value; const type = document.getElementById('dnsType').value; const resDiv = document.getElementById('dnsResult');
+            resDiv.innerText = "Querying Google DNS...";
+            fetch(`https://dns.google/resolve?name=${domain}&type=${type}`).then(r => r.json()).then(d => {
+                if(d.Answer) { resDiv.innerText = d.Answer.map(a => `[${a.type}] ${a.name} \n  -> ${a.data}`).join('\n\n'); } else resDiv.innerText = "No records found or invalid domain.";
+            }).catch(e => resDiv.innerText = "Error fetching DNS.");
+        }
+
+        function fetchMyIp() {
+            document.getElementById('myIpDisplay').innerText = "Loading..."; document.getElementById('sysPing').innerText = "Pinging...";
+            const start = Date.now();
+            fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
+                const ping = Date.now() - start; document.getElementById('myIpDisplay').innerText = d.ip; document.getElementById('ipOrg').innerText = "Public Internet Address"; document.getElementById('sysPing').innerText = ping + " ms";
+            }).catch(() => document.getElementById('myIpDisplay').innerText = "Error");
+            document.getElementById('sysUA').innerText = navigator.platform + ", " + navigator.language; document.getElementById('sysRes').innerText = window.screen.width + " x " + window.screen.height; document.getElementById('sysTime').innerText = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        }
+
+        function decodeCert() {
+            const v = document.getElementById('sslInput').value; const out = document.getElementById('sslOutput');
+            if(v.includes('BEGIN CERTIFICATE')) {
+                const clean = v.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
+                out.innerHTML = `<div class="font-bold text-green-600 mb-2">Certificate Detected</div><div class="bg-white dark:bg-gray-800 p-2 rounded border text-xs break-all">${clean.substring(0, 60)}...</div><div class="mt-2 text-xs text-gray-500">Base64 Length: ${v.length} bytes</div><div class="mt-4 text-xs font-bold text-gray-400">NOTE: Full client-side parsing requires libraries not present here. This validates format only.</div>`;
+            }
+        }
+
         function runRegex() {
-            const pat = document.getElementById('regexPattern').value;
-            const flags = document.getElementById('regexFlags').value;
-            const str = document.getElementById('regexString').value;
-            const out = document.getElementById('regexOutput');
-            try {
-                const re = new RegExp(pat, flags);
-                const matches = str.match(re);
-                out.innerText = matches ? `Found ${matches.length} matches:\n` + JSON.stringify(matches, null, 2) : "No matches found.";
-            } catch(e) { out.innerText = "Invalid Regex"; }
+            const pat = document.getElementById('regexPattern').value; const flags = document.getElementById('regexFlags').value; const str = document.getElementById('regexString').value; const out = document.getElementById('regexOutput');
+            try { const re = new RegExp(pat, flags); const matches = str.match(re); out.innerText = matches ? `Found ${matches.length} matches:\n` + JSON.stringify(matches, null, 2) : "No matches found."; } catch(e) { out.innerText = "Invalid Regex"; }
         }
 
-        // 13. CHMOD
         function calcChmod() {
-            let o=0,g=0,p=0;
-            document.querySelectorAll('.chmod-check:checked').forEach(c => {
-                let v = parseInt(c.dataset.val);
-                if(v>=100) o+=(v/100); else if(v>=10) g+=(v/10); else p+=v;
-            });
-            document.getElementById('chmodResult').innerText = `${o}${g}${p}`;
-            const map = {0:'---',1:'--x',2:'-w-',3:'-wx',4:'r--',5:'r-x',6:'rw-',7:'rwx'};
-            document.getElementById('chmodSymbolic').innerText = `-${map[o]}${map[g]}${map[p]}`;
+            let o=0,g=0,p=0; document.querySelectorAll('.chmod-check:checked').forEach(c => { let v = parseInt(c.dataset.val); if(v>=100) o+=(v/100); else if(v>=10) g+=(v/10); else p+=v; });
+            document.getElementById('chmodResult').innerText = `${o}${g}${p}`; const map = {0:'---',1:'--x',2:'-w-',3:'-wx',4:'r--',5:'r-x',6:'rw-',7:'rwx'}; document.getElementById('chmodSymbolic').innerText = `-${map[o]}${map[g]}${map[p]}`;
         }
 
-        // 14. PASS GEN
         function generatePass() {
-            const len = document.getElementById('passLen').value;
-            const useSym = document.getElementById('passSymbols').checked;
-            const useNum = document.getElementById('passNumbers').checked;
-            let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-            if(useNum) chars += "0123456789";
-            if(useSym) chars += "!@#$%^&*()_+";
-            let pass = "";
-            for(let i=0; i<len; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
-            document.getElementById('passOutput').value = pass;
+            const len = document.getElementById('passLen').value; const useSym = document.getElementById('passSymbols').checked; const useNum = document.getElementById('passNumbers').checked;
+            let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; if(useNum) chars += "0123456789"; if(useSym) chars += "!@#$%^&*()_+";
+            let pass = ""; for(let i=0; i<len; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length)); document.getElementById('passOutput').value = pass;
         }
         function copyPass() { navigator.clipboard.writeText(document.getElementById('passOutput').value); alert("Copied!"); }
 
-        // 15. NEW: DIFF CHECKER
         function runDiff() {
-            const a = document.getElementById('diffA').value.split('\n');
-            const b = document.getElementById('diffB').value.split('\n');
+            const a = document.getElementById('diffA').value;
+            const b = document.getElementById('diffB').value;
             const out = document.getElementById('diffOutput');
             out.innerHTML = '';
-            const max = Math.max(a.length, b.length);
-            for(let i=0; i<max; i++) {
-                const lineA = a[i] || '';
-                const lineB = b[i] || '';
-                if(lineA !== lineB) {
-                    if(lineA) out.innerHTML += `<div class="text-red-500">- ${lineA.replace(/</g, '&lt;')}</div>`;
-                    if(lineB) out.innerHTML += `<div class="text-green-500">+ ${lineB.replace(/</g, '&lt;')}</div>`;
-                } else {
-                    out.innerHTML += `<div class="text-gray-400">  ${lineA.replace(/</g, '&lt;')}</div>`;
-                }
-            }
+            if (typeof Diff === 'undefined') { out.innerHTML = "Error: jsdiff library not loaded. Check internet connection."; return; }
+            const diff = Diff.diffLines(a, b);
+            diff.forEach((part) => {
+                const color = part.added ? 'text-green-500 bg-green-900/20' : part.removed ? 'text-red-500 bg-red-900/20' : 'text-gray-500';
+                const prefix = part.added ? '+ ' : part.removed ? '- ' : '  ';
+                part.value.split('\n').forEach(line => {
+                    if (line === '' && part.value.endsWith('\n')) return;
+                    const div = document.createElement('div');
+                    div.className = `${color} px-1 whitespace-pre-wrap font-mono break-all`;
+                    div.innerText = prefix + line;
+                    out.appendChild(div);
+                });
+            });
         }
 
-        // 16. NEW: HASH GENERATOR
         async function generateHash() {
-            const msg = document.getElementById('hashInput').value;
-            if(!msg) return;
-            const encode = new TextEncoder().encode(msg);
-            const hash256 = await crypto.subtle.digest('SHA-256', encode);
-            const hash512 = await crypto.subtle.digest('SHA-512', encode);
-            document.getElementById('sha256').innerText = Array.from(new Uint8Array(hash256)).map(b => b.toString(16).padStart(2, '0')).join('');
-            document.getElementById('sha512').innerText = Array.from(new Uint8Array(hash512)).map(b => b.toString(16).padStart(2, '0')).join('');
+            const msg = document.getElementById('hashInput').value; if(!msg) return;
+            const encode = new TextEncoder().encode(msg); const hash256 = await crypto.subtle.digest('SHA-256', encode); const hash512 = await crypto.subtle.digest('SHA-512', encode);
+            document.getElementById('sha256').innerText = Array.from(new Uint8Array(hash256)).map(b => b.toString(16).padStart(2, '0')).join(''); document.getElementById('sha512').innerText = Array.from(new Uint8Array(hash512)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // 17. NEW: UNIT CONVERTER
         function convertUnits() {
-            const val = parseFloat(document.getElementById('unitVal').value) || 0;
-            const from = document.getElementById('unitFrom').value;
-            const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-            let bytes = val;
-            if(from === 'KB') bytes = val * 1024;
-            if(from === 'MB') bytes = val * 1024**2;
-            if(from === 'GB') bytes = val * 1024**3;
-            if(from === 'TB') bytes = val * 1024**4;
-            
-            document.getElementById('outB').innerText = bytes.toLocaleString();
-            document.getElementById('outKB').innerText = (bytes / 1024).toLocaleString(undefined, {maximumFractionDigits:2});
-            document.getElementById('outMB').innerText = (bytes / 1024**2).toLocaleString(undefined, {maximumFractionDigits:2});
-            document.getElementById('outGB').innerText = (bytes / 1024**3).toLocaleString(undefined, {maximumFractionDigits:2});
-            document.getElementById('outTB').innerText = (bytes / 1024**4).toLocaleString(undefined, {maximumFractionDigits:4});
-            document.getElementById('outPB').innerText = (bytes / 1024**5).toLocaleString(undefined, {maximumFractionDigits:6});
+            const val = parseFloat(document.getElementById('unitVal').value) || 0; const from = document.getElementById('unitFrom').value;
+            let bytes = val; if(from === 'KB') bytes = val * 1024; if(from === 'MB') bytes = val * 1024**2; if(from === 'GB') bytes = val * 1024**3; if(from === 'TB') bytes = val * 1024**4;
+            document.getElementById('outB').innerText = bytes.toLocaleString(); document.getElementById('outKB').innerText = (bytes / 1024).toLocaleString(undefined, {maximumFractionDigits:2}); document.getElementById('outMB').innerText = (bytes / 1024**2).toLocaleString(undefined, {maximumFractionDigits:2}); document.getElementById('outGB').innerText = (bytes / 1024**3).toLocaleString(undefined, {maximumFractionDigits:2}); document.getElementById('outTB').innerText = (bytes / 1024**4).toLocaleString(undefined, {maximumFractionDigits:4}); document.getElementById('outPB').innerText = (bytes / 1024**5).toLocaleString(undefined, {maximumFractionDigits:6});
         }
 
-        // --- ROBOT V3.0 LOGIC (Preserved) ---
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const myForm = e.target;
+            const formData = new FormData(myForm);
+            const btn = myForm.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Sending...'; btn.disabled = true;
+            const urlEncodedData = new URLSearchParams(formData).toString();
+            fetch('/', {
+                method: 'POST',
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: urlEncodedData
+            })
+            .then(() => {
+                document.getElementById('toast').classList.remove('hidden'); 
+                document.getElementById('toast-title').innerText = "Message Sent!"; 
+                document.getElementById('toast-msg').innerText = "Thank you. I will get back to you shortly."; 
+                btn.innerHTML = "Sent! <i class='fas fa-check'></i>";
+                setTimeout(() => { 
+                    myForm.reset(); btn.innerHTML = originalText; btn.disabled = false; 
+                    document.getElementById('toast').classList.add('hidden'); switchTab('home'); 
+                }, 3000);
+            })
+            .catch((error) => {
+                document.getElementById('toast-title').innerText = "Error"; 
+                document.getElementById('toast-msg').innerText = "Could not send message. Please try again."; 
+                document.getElementById('toast').classList.remove('hidden'); 
+                btn.innerHTML = "Failed";
+                setTimeout(() => { btn.disabled = false; btn.innerHTML = originalText; document.getElementById('toast').classList.add('hidden'); }, 3000);
+            });
+        }
+
+        // --- ENHANCED DROID V4.0 LOGIC (UPDATED) ---
+        let isDraggingDroid = false;
+        let droidOffsets = { x: 0, y: 0 };
+        let idleTimer = null; // Timer for sleep mode
+        const droidEl = document.getElementById('droid');
+
         function initDroid() {
             const eyes = document.querySelectorAll('.d-eye');
+            const droidBody = document.getElementById('droid-body');
+
+            // --- 1. SLEEP MODE (Eco-Sentry) ---
+            const resetIdleTimer = () => {
+                droidBody.classList.remove('sleeping'); // Wake up
+                clearTimeout(idleTimer);
+                // Go to sleep after 10 seconds of inactivity
+                idleTimer = setTimeout(() => {
+                    droidBody.classList.add('sleeping');
+                }, 10000); 
+            };
+            
+            // Listen for global mouse movement to wake/sleep droid
             document.addEventListener('mousemove', (e) => {
-                const rect = document.getElementById('droid').getBoundingClientRect();
+                resetIdleTimer(); // Wake up on mouse move
+                
+                if(isDraggingDroid) {
+                    // Drag logic
+                    droidEl.style.left = (e.clientX - droidOffsets.x) + 'px';
+                    droidEl.style.top = (e.clientY - droidOffsets.y) + 'px';
+                    droidEl.style.bottom = 'auto'; 
+                    droidEl.style.right = 'auto';
+                    return; 
+                }
+                
+                // Eye tracking (Standard behavior)
+                const rect = droidEl.getBoundingClientRect();
                 const anchorX = rect.left + rect.width / 2; const anchorY = rect.top + rect.height / 2;
                 const angle = Math.atan2(e.clientY - anchorY, e.clientX - anchorX);
                 const distance = Math.min(Math.hypot(e.clientX - anchorX, e.clientY - anchorY), 20);
                 const moveX = Math.cos(angle) * distance * 0.2; const moveY = Math.sin(angle) * distance * 0.2;
                 eyes.forEach(eye => { eye.style.transform = `translate(${moveX}px, ${moveY}px)`; });
             });
+
+            // --- 2. DRAG LOGIC (MUTED) ---
+            droidEl.addEventListener('mousedown', (e) => {
+                if(e.target.closest('.droid-hud')) return;
+                isDraggingDroid = true;
+                const rect = droidEl.getBoundingClientRect();
+                droidOffsets.x = e.clientX - rect.left;
+                droidOffsets.y = e.clientY - rect.top;
+                droidEl.style.cursor = 'grabbing';
+                // Removed botSpeak here to keep it mute
+            });
+
+            // --- 3. SINGLE CLICK (PETTING MODE - MUTED) ---
+            // Single click triggers visual "petting" (hearts) but NO voice.
+            droidEl.addEventListener('click', (e) => {
+                // If the click is inside the HUD (the menu), don't trigger petting or close menu via this listener
+                // (Menu closing is handled by the specific button clicks inside the menu)
+                if (e.target.closest('.droid-hud')) return;
+                
+                // If turbo mode is active and user clicks droid (not dragging), reset turbo mode
+                if (!isDraggingDroid && document.body.classList.contains('turbo-mode')) {
+                    toggleTurboMode(); // This will land the rocket
+                    return;
+                }
+
+                if (!isDraggingDroid) {
+                     createHeartParticles(e); // Visual feedback
+                     triggerRandomEmotion();  // Visual emotion change
+                }
+            });
+
+            // --- 4. DOUBLE CLICK (MENU TOGGLE) ---
+            // This replaces the old onclick logic
+            droidEl.addEventListener('dblclick', (e) => {
+                if (!isDraggingDroid && !e.target.closest('.droid-hud')) {
+                     e.stopPropagation();
+                     document.getElementById('bot-menu').classList.toggle('active');
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                setTimeout(() => { isDraggingDroid = false; }, 100); 
+                droidEl.style.cursor = 'grab';
+            });
+            
+            resetIdleTimer(); // Start the sleep timer logic on load
         }
-        function toggleBotMenu(e) { e.stopPropagation(); document.getElementById('bot-menu').classList.toggle('active'); }
-        function handleGlobalClick(e) { document.getElementById('bot-menu').classList.remove('active'); }
+
+        // Function to create floating hearts on click
+        function createHeartParticles(e) {
+            const container = document.getElementById('droid');
+            for(let i=0; i<3; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart-particle');
+                heart.innerHTML = '❤️';
+                heart.style.left = (40 + (Math.random() * 40 - 20)) + 'px'; // Center roughly
+                heart.style.top = '10px';
+                heart.style.animationDelay = (i * 0.1) + 's';
+                container.appendChild(heart);
+                setTimeout(() => heart.remove(), 1000);
+            }
+        }
+
+        function triggerRandomEmotion() {
+            const emotions = ['happy', 'sad', 'angry', 'surprised'];
+            const droidBody = document.getElementById('droid-body'); 
+            
+            // Clear previous emotions
+            emotions.forEach(e => droidBody.classList.remove(e));
+            
+            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            droidBody.classList.add(randomEmotion);
+            
+            // Revert after 2 seconds
+            setTimeout(() => {
+                droidBody.classList.remove(randomEmotion);
+            }, 2000);
+        }
+
+        function toggleBotMenu(e) { 
+            // This function is now only used by internal close buttons if needed,
+            // or handled via the dblclick listener above.
+            if(isDraggingDroid) return;
+            e.stopPropagation(); 
+            document.getElementById('bot-menu').classList.toggle('active'); 
+        }
+        
+        function handleGlobalClick(e) { 
+            // Close menu when clicking outside
+            document.getElementById('bot-menu').classList.remove('active'); 
+        }
+        
+        function droidDance() {
+            const container = document.getElementById('droid'); 
+            document.getElementById('droid-body').classList.add('dancing');
+            botSpeak("Look at me go!");
+            setTimeout(() => { document.getElementById('droid-body').classList.remove('dancing'); }, 5000);
+        }
+
+        // Updated Turbo Mode Feature with Rocket Animation and Landing
+        function toggleTurboMode() {
+            const container = document.getElementById('droid');
+            const isRocket = container.classList.contains('rocket-active');
+            
+            if (!isRocket) {
+                // Activate Rocket Mode
+                botSpeak("Turbo Rockets Engaged! blasting off...");
+                container.classList.add('rocket-active');
+                document.body.classList.add('turbo-mode'); 
+            } else {
+                // Deactivate (Land)
+                botSpeak("Landing gear deployed. Stabilizing.");
+                container.classList.remove('rocket-active');
+                document.body.classList.remove('turbo-mode');
+                
+                // Ensure it resets position style if drag messed it up
+                // setTimeout(() => {
+                //    container.style.transform = ''; // Clear transform after transition if needed
+                // }, 1000);
+            }
+        }
         
         let recognition; let isListening = false;
         function toggleVoice(btn) {
@@ -1834,70 +2139,38 @@
         }
         function stopListening() { if(recognition) recognition.stop(); isListening=false; document.getElementById('mic-btn').classList.remove('listening'); document.getElementById('bot-bubble').classList.remove('show'); }
         function processVoiceCommand(cmd) {
-            if (cmd.includes('home')) switchTab('home');
-            else if (cmd.includes('project')) switchTab('projects');
-            else if (cmd.includes('tool')) switchTab('tools');
-            else if (cmd.includes('about')) switchTab('about');
-            else if (cmd.includes('contact')) switchTab('contact');
-            else if (cmd.includes('scan')) runSystemScan();
+            if (cmd.includes('home')) { switchTab('home'); botSpeak("Navigating Home."); }
+            else if (cmd.includes('project')) { switchTab('projects'); botSpeak("Loading Projects."); }
+            else if (cmd.includes('tool')) { switchTab('tools'); botSpeak("Opening Tool Stack."); }
+            else if (cmd.includes('about')) { switchTab('about'); botSpeak("Showing Profile."); }
+            else if (cmd.includes('contact')) { switchTab('contact'); botSpeak("Opening Contact Form."); }
+            else if (cmd.includes('scan') || cmd.includes('diagnostic')) runSystemScan();
+            else if (cmd.includes('dance')) droidDance();
+            else if (cmd.includes('turbo')) toggleTurboMode();
+            else if (cmd.includes('joke')) tellJoke();
+            else if (cmd.includes('dark')) { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); botSpeak("Dark mode enabled."); }
+            else if (cmd.includes('light')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); botSpeak("Light mode enabled."); }
+            else if (cmd.includes('top')) { document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' }); botSpeak("Scrolling to top."); }
             else botSpeak("Command not recognized.");
         }
         function runSystemScan() {
-            document.getElementById('scanner').style.display='block';
-            botSpeak("Scanning system parameters...");
+            document.getElementById('scanner').style.display='block'; botSpeak("Scanning system parameters...");
             setTimeout(() => { botSpeak("System Optimal."); document.getElementById('scanner').style.display='none'; }, 3000);
         }
         function botSpeak(text) {
+            // Only speak if explicitly called (voice command, specific actions)
+            // dragging and single click do NOT call this function anymore.
             const b=document.getElementById('bot-bubble'); b.innerText=text; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),4000);
             if('speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
         }
-        
-        // --- IMPROVED NETLIFY FORM HANDLING ---
-        function handleContactSubmit(e) {
-            e.preventDefault();
-            const myForm = e.target;
-            const formData = new FormData(myForm);
-            const btn = myForm.querySelector('button');
-            const originalText = btn.innerHTML;
-            
-            btn.innerHTML = 'Sending...'; 
-            btn.disabled = true;
-
-            fetch('/', {
-                method: 'POST',
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(formData).toString()
-            })
-            .then(() => {
-                document.getElementById('toast').classList.remove('hidden');
-                btn.innerHTML = "Sent! <i class='fas fa-check'></i>";
-                setTimeout(() => { 
-                    myForm.reset(); 
-                    btn.innerHTML = originalText; 
-                    btn.disabled = false;
-                    document.getElementById('toast').classList.add('hidden'); 
-                    switchTab('home'); 
-                }, 2000);
-            })
-            .catch((error) => {
-                document.getElementById('toast-title').innerText = "Error";
-                document.getElementById('toast-msg').innerText = "Could not send message. Please try again.";
-                document.getElementById('toast').classList.remove('hidden');
-                btn.innerHTML = "Failed";
-                setTimeout(() => { btn.disabled = false; btn.innerHTML = originalText; }, 2000);
-            });
-        }
 
         document.getElementById('main-content').addEventListener('scroll', () => {
-            const el = document.getElementById('main-content');
-            document.getElementById('scroll-progress').style.width = ((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100) + '%';
+            const el = document.getElementById('main-content'); document.getElementById('scroll-progress').style.width = ((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100) + '%';
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-             if (localStorage.theme === 'dark') document.documentElement.classList.add('dark');
-             else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
-             renderProjects(); renderTools(); renderBlogs();
-             typeWriter(); toolsTypeWriter(); setRandomQuote();
+             if (localStorage.theme === 'dark') document.documentElement.classList.add('dark'); else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
+             renderProjects(); renderTools(); renderBlogs(); typeWriter(); toolsTypeWriter(); setRandomQuote();
              setupObserver(); initDroid(); calcChmod(); populateCronSelects();
              switchTab(new URLSearchParams(window.location.search).get('tab') || 'home');
              setTimeout(() => { const b=document.getElementById('bot-bubble'); b.innerText="Online."; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),5000); }, 1000);

@@ -14,6 +14,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -133,25 +139,19 @@
             width: 0%; z-index: 9999; transition: width 0.1s ease-out; box-shadow: 0 0 10px #2563EB;
         }
 
-        /* --- Ambient Background --- */
-        .ambient-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1; overflow: hidden;
-            background: #f8fafc; transition: background 0.5s ease;
+        /* --- MATRIX BACKGROUND --- */
+        .matrix-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; background: #f8fafc; transition: background 0.5s ease;
+            overflow: hidden;
         }
-        .dark .ambient-bg { background: #020617; }
-
-        .blob-1, .blob-2, .blob-3 {
-            position: absolute; border-radius: 50%; filter: blur(80px);
-            opacity: 0.6; animation: blob 10s infinite alternate; transition: background 0.5s ease;
-        }
-        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #bfdbfe; }
-        .blob-2 { bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: #e9d5ff; }
-        .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: #cffafe; }
+        .dark .matrix-bg { background: #020617; }
         
-        .dark .blob-1 { background: #1e3a8a; opacity: 0.3; }
-        .dark .blob-2 { background: #4c1d95; opacity: 0.3; }
-        .dark .blob-3 { background: #0f766e; opacity: 0.2; }
+        canvas#matrix {
+            display: block; width: 100%; height: 100%; opacity: 0; transition: opacity 0.5s ease;
+        }
+        .dark canvas#matrix.auto-mode { opacity: 0.25; }
+        canvas#matrix.forced-on { opacity: 0.25 !important; }
 
         /* --- Glassmorphism --- */
         .glass-panel {
@@ -182,7 +182,6 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
-        /* Super Glow Button */
         .btn-super-glow {
             background: linear-gradient(135deg, #2563EB, #4F46E5);
             color: white; font-weight: 800; letter-spacing: 0.5px;
@@ -210,7 +209,6 @@
         .dark .btn-glow-secondary { background: rgba(31, 41, 55, 0.8); color: white; border-color: rgba(255, 255, 255, 0.1); }
         .btn-glow-secondary:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); border-color: #3B82F6; transform: translateY(-2px); }
 
-        /* --- ANIMATED TOOL BUTTONS --- */
         .tool-btn-animated {
             position: relative; overflow: hidden;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -254,28 +252,33 @@
         /* --- ROBOT V4.0 (Enhanced) --- */
         .droid-container {
             position: fixed; bottom: 20px; right: 20px; width: 60px; height: 80px;
-            z-index: 999; cursor: grab; transition: transform 0.1s ease;
+            z-index: 999; cursor: grab; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
         @media(min-width: 768px) {
             .droid-container { width: 80px; height: 100px; bottom: 60px; right: 20px; }
         }
         .droid-container:active { cursor: grabbing; }
         
+        .droid-container.docked { transform: scale(0.6) translate(40%, 40%); opacity: 0.7; pointer-events: auto; }
+        .droid-container.docked:hover { opacity: 1; transform: scale(0.7) translate(30%, 30%); }
+        .droid-container.docked .droid-tooltip { display: none; }
+
         .droid-tooltip {
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
             background: rgba(15, 23, 42, 0.9); color: #60a5fa; 
             padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: bold;
-            opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; transition: all 10.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none; whitespace: pre; border: 1px solid rgba(96, 165, 250, 0.3);
             margin-bottom: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         .droid-container:hover .droid-tooltip { opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
-        .droid { position: relative; width: 100%; height: 100%; animation: float 6s ease-in-out infinite; pointer-events: none; }
-        .droid.dancing { animation: dance 0.6s infinite ease-in-out !important; }
+        .droid { position: relative; width: 100%; height: 100%; animation: float 16s ease-in-out infinite; pointer-events: none; transition: transform 10.3s; }
+        .droid.dancing { animation: dance 10.6s infinite ease-in-out !important; }
         
-        /* SLEEP MODE */
         .droid.sleeping .d-eye { height: 2px !important; width: 14px; border-radius: 0; animation: none; background: #94a3b8; box-shadow: none; opacity: 0.7; }
         .droid.sleeping .d-head { animation: sleep-breath 4s ease-in-out infinite; border-color: #475569; box-shadow: 0 0 10px rgba(71, 85, 105, 0.5); }
         .droid.sleeping .d-body { animation: sleep-breath 4s ease-in-out infinite 0.5s; opacity: 0.8; }
@@ -285,11 +288,9 @@
             position: absolute; top: 0; left: 10px; width: 60px; height: 40px;
             background: #F59E0B; background: linear-gradient(135deg, #F59E0B, #D97706);
             border-radius: 30px 30px 10px 10px; border: 2px solid #FFFBEB;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); z-index: 2; overflow: hidden; transition: all 0.3s;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.8); z-index: 2; overflow: hidden; transition: all 10.3s;
         }
-        @media(max-width: 768px) {
-             .d-head { width: 50px; height: 35px; left: 5px; }
-        }
+        @media(max-width: 768px) { .d-head { width: 50px; height: 35px; left: 5px; } }
         .dark .d-head { background: #06b6d4; border-color: #ecfeff; box-shadow: 0 0 20px rgba(6, 182, 212, 0.9); }
 
         .d-face {
@@ -307,7 +308,6 @@
         .droid.talking .d-eye { animation: talk-blink 0.2s infinite alternate; height: 4px; border-radius: 2px; }
         @keyframes talk-blink { 0% { opacity: 0.5; } 100% { opacity: 1; box-shadow: 0 0 15px #38bdf8; } }
 
-        /* HEART PARTICLES */
         .heart-particle { position: absolute; color: #ef4444; font-size: 14px; animation: heart-float 1s ease-out forwards; pointer-events: none; z-index: 1001; }
 
         .d-body {
@@ -331,31 +331,17 @@
 
         /* ROCKET MODE (TURBO) STYLES */
         .droid-container.rocket-active {
-            transform: translateY(-250px) scale(1.1); /* Fly up */
+            transform: translateY(-250px) scale(1.1);
             transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
-        /* Rocket Shake & Flame Effects */
-        .droid-container.rocket-active .droid {
-            animation: rocket-shake 0.1s linear infinite;
-        }
-
+        .droid-container.rocket-active .droid { animation: rocket-shake 0.1s linear infinite; }
         .droid-container.rocket-active::after {
-            content: '';
-            position: absolute; top: 85%; left: 50%; transform: translateX(-50%);
-            width: 30px; height: 60px;
-            background: linear-gradient(to bottom, #F59E0B, #ef4444, transparent);
-            border-radius: 0 0 20px 20px;
-            filter: blur(4px);
-            animation: flame 0.1s alternate infinite;
-            z-index: -1;
-            opacity: 0.8;
+            content: ''; position: absolute; top: 85%; left: 50%; transform: translateX(-50%); width: 30px; height: 60px;
+            background: linear-gradient(to bottom, #F59E0B, #ef4444, transparent); border-radius: 0 0 20px 20px;
+            filter: blur(4px); animation: flame 0.1s alternate infinite; z-index: -1; opacity: 0.8;
         }
         
-        .turbo-mode .d-head, .turbo-mode .d-body, .turbo-mode .d-hand {
-            box-shadow: 0 0 30px #ef4444, inset 0 0 10px #fca5a5;
-            border-color: #fee2e2;
-        }
+        .turbo-mode .d-head, .turbo-mode .d-body, .turbo-mode .d-hand { box-shadow: 0 0 30px #ef4444, inset 0 0 10px #fca5a5; border-color: #fee2e2; }
         .turbo-mode .d-eye { background: #ef4444; box-shadow: 0 0 15px #b91c1c; }
 
         /* --- MODERN GLASSMORPHIC MENU --- */
@@ -364,8 +350,7 @@
             background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(25px) saturate(200%);
             -webkit-backdrop-filter: blur(25px) saturate(200%);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            border-radius: 28px;
+            border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 28px;
             padding: 20px; display: none; transform-origin: bottom right;
             box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.15), 0 0 30px rgba(255, 255, 255, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
             color: #1f2937; font-family: 'Outfit', sans-serif; z-index: 1000; overflow: hidden;
@@ -377,15 +362,13 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05); color: #fff;
         }
 
-        .droid-hud.active { display: block; animation: hud-spring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .droid-hud.active { display: block; animation: hud-spring 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes hud-spring { 0% { transform: scale(0.5) translateY(50px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
         .hud-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .hud-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #d97706; letter-spacing: 0.5px; }
         .dark .hud-status { color: #94a3b8; }
         .hud-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e; animation: pulse 2s infinite; }
-        
-        .hud-grid { display: grid; grid-cols-2; gap: 12px; margin-bottom: 16px; }
         
         .hud-card {
             background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.1);
@@ -397,13 +380,16 @@
         .hud-card:hover i { transform: scale(1.1); color: #b45309; }
         .hud-label { font-size: 11px; font-weight: 600; color: #4b5563; }
 
-        /* COMMAND LIST STYLE FOR HUD */
-        .hud-cmd-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .hud-cmd-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; max-height: 180px; overflow-y: auto; padding-right: 4px;}
+        .hud-cmd-list::-webkit-scrollbar { width: 4px; }
+        .hud-cmd-list::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.5); border-radius: 4px; }
         .cmd-item { 
             background: rgba(0,0,0,0.03); padding: 6px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; 
-            font-size: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.05); color: #6b7280;
+            font-size: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.05); color: #6b7280; cursor: pointer; transition: all 0.2s;
         }
+        .cmd-item:hover { background: rgba(37,99,235,0.1); border-color: rgba(37,99,235,0.3); color: #2563EB; }
         .dark .cmd-item { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.05); color: #94a3b8; }
+        .dark .cmd-item:hover { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.4); color: #60a5fa; }
         .cmd-item::before { content: '>'; color: #d97706; margin-right: 4px; font-weight: bold; }
         .dark .cmd-item::before { color: #60a5fa; }
 
@@ -441,18 +427,30 @@
         .dark .hud-mini-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         
         .scanner-beam { position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: #3b82f6; box-shadow: 0 0 20px #3b82f6; z-index: 9999; animation: scan 2s linear infinite; display: none; }
-        .bot-bubble { position: absolute; bottom: 100%; right: 0; background: #fff; padding: 10px 14px; border-radius: 12px 12px 0 12px; font-size: 12px; font-weight: bold; color: #334155; width: max-content; max-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); opacity: 0; transform: translateY(10px) scale(0.9); transition: all 0.3s; pointer-events: none; border: 1px solid #e2e8f0; z-index: 101; text-align: right; margin-bottom: 10px; }
+        .bot-bubble { position: absolute; bottom: 100%; right: 0; background: #fff; padding: 10px 14px; border-radius: 12px 12px 0 12px; font-size: 12px; font-weight: bold; color: #334155; width: max-content; max-width: 180px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); opacity: 0; transform: translateY(10px) scale(0.9); transition: all 0.3s; pointer-events: none; border: 1px solid #e2e8f0; z-index: 101; text-align: right; margin-bottom: 10px; user-select: none; -webkit-user-select: none; }
         .dark .bot-bubble { background: #1e293b; color: #e2e8f0; border-color: #334155; }
         .bot-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
 
         .reveal { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 
+        .tab-content { display: none; }
+        .tab-content.fade-in { display: block; animation: tabFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes tabFadeIn {
+            0% { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
         .nav-btn { position: relative; transition: all 0.3s ease; }
         .nav-btn.active { color: #2563EB; font-weight: 600; text-shadow: 0 0 10px rgba(37,99,235,0.3); }
         .dark .nav-btn.active { color: #60A5FA; text-shadow: 0 0 10px rgba(96,165,250,0.5); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .typing-cursor::after { content: '|'; animation: blink 1s step-end infinite; color: #2563EB; }
+        
+        .font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+        .typing-cursor::after {
+            content: '█'; animation: blink 1s step-end infinite; color: #2563EB; margin-left: 4px; opacity: 0.8;
+        }
         @keyframes blink { 50% { opacity: 0; } }
         
         .timeline-item { position: relative; padding-left: 2rem; border-left: 2px solid #e2e8f0; padding-bottom: 2rem; }
@@ -460,50 +458,30 @@
         .timeline-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; }
         .timeline-item:last-child { border-left: 2px solid transparent; }
 
-        /* --- UPDATED: MORE ANIMATED & COMPACT TOOL BUTTONS --- */
         .tool-select-btn {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 0.5rem; /* SMALLER PADDING */
-            border-radius: 0.75rem; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 1px solid rgba(255,255,255,0.5);
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            text-align: center; gap: 0.25rem;
-            position: relative; overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 0.5rem; border-radius: 0.75rem; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255,255,255,0.5); background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px); text-align: center; gap: 0.25rem;
+            position: relative; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         @media(min-width: 768px) { .tool-select-btn { padding: 0.75rem; gap: 0.5rem; } }
         
-        .dark .tool-select-btn {
-            background: rgba(30, 41, 59, 0.6);
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
+        .dark .tool-select-btn { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
 
-        /* ANIMATION ON HOVER */
         .tool-select-btn:hover {
-            transform: translateY(-5px) scale(1.05) rotate(1deg); /* MORE ANIMATED */
-            box-shadow: 0 12px 20px -5px rgba(37, 99, 235, 0.25);
-            border-color: rgba(37, 99, 235, 0.5);
-            z-index: 10;
+            transform: translateY(-5px) scale(1.05) rotate(1deg); box-shadow: 0 12px 20px -5px rgba(37, 99, 235, 0.25);
+            border-color: rgba(37, 99, 235, 0.5); z-index: 10;
         }
         .dark .tool-select-btn:hover {
-            background: rgba(30, 41, 59, 0.9);
-            border-color: rgba(96, 165, 250, 0.6);
+            background: rgba(30, 41, 59, 0.9); border-color: rgba(96, 165, 250, 0.6);
             box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(96, 165, 250, 0.2);
         }
         
-        .tool-select-btn.active {
-            background: linear-gradient(135deg, #2563EB, #4F46E5); 
-            color: white; border-color: transparent;
-            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
-            transform: scale(1.02);
-        }
+        .tool-select-btn.active { background: linear-gradient(135deg, #2563EB, #4F46E5); color: white; border-color: transparent; box-shadow: 0 0 20px rgba(37, 99, 235, 0.4); transform: scale(1.02); }
         .tool-select-btn.active i { color: white !important; transform: scale(1.1); }
         
-        .tool-select-btn i { 
-            font-size: 1.1rem; margin-bottom: 2px; transition: transform 0.3s; color: #4b5563;
-        }
+        .tool-select-btn i { font-size: 1.1rem; margin-bottom: 2px; transition: transform 0.3s; color: #4b5563; }
         @media(min-width: 768px) { .tool-select-btn i { font-size: 1.25rem; } }
 
         .dark .tool-select-btn i { color: #94a3b8; }
@@ -520,10 +498,8 @@
     <div id="scanner" class="scanner-beam"></div>
     <div id="scroll-progress"></div>
 
-    <div class="ambient-bg">
-        <div class="blob-1"></div>
-        <div class="blob-2"></div>
-        <div class="blob-3"></div>
+    <div class="matrix-bg">
+        <canvas id="matrix" class="auto-mode"></canvas>
     </div>
 
     <nav class="fixed top-0 left-0 w-full z-50 flex justify-center pt-2 md:pt-4 px-2 md:px-4 transition-all duration-300" id="navbar">
@@ -567,11 +543,12 @@
         <button onclick="mobileNav('projects')" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Projects</button>
         <button onclick="mobileNav('blog')" class="text-2xl font-bold text-gray-800 dark:text-gray-100">Blogs</button>
         <button onclick="mobileNav('yaml')" class="text-2xl font-bold text-gray-800 dark:text-gray-100">PlayGround</button>
+        <button onclick="mobileNav('about')" class="text-2xl font-bold text-gray-800 dark:text-gray-100">About Me</button>
         <button onclick="mobileNav('contact')" class="text-2xl font-bold text-primary">Contact Me</button>
     </div>
 
     <main class="pt-24 pb-10 px-4 md:px-8 max-w-6xl mx-auto w-full flex-grow overflow-y-auto no-scrollbar scroll-smooth" id="main-content">
-        <section id="home" class="tab-content block reveal">
+        <section id="home" class="tab-content block fade-in reveal">
              <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12 lg:gap-20 mt-0">
                 <div class="w-full md:w-1/2 space-y-6 md:space-y-8 reveal relative z-10 text-center md:text-left">
                     <div class="min-h-[50px] mb-4 md:mb-8 flex justify-center md:justify-start" id="quote-container"></div>
@@ -588,13 +565,13 @@
                         <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400 animate-pulse">SAS Platform Admin</span>
                     </h2>
                     
-                    <div class="h-32 md:h-28">
+                    <div class="min-h-[8rem] md:min-h-[7rem]">
                         <p id="typing-text" class="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-lg mx-auto md:mx-0 typing-cursor font-medium"></p>
                     </div>
                     
-                    <div class="flex flex-col sm:flex-row gap-4 pt-4 justify-center md:justify-start">
-                        <button onclick="switchTab('about')" class="px-8 py-3.5 btn-glow-secondary text-base">
-                            About Me
+                    <div class="flex flex-col sm:flex-row gap-4 mt-8 justify-center md:justify-start">
+                        <button onclick="switchTab('about')" class="px-8 py-3.5 btn-glow-secondary text-base flex items-center justify-center gap-2">
+                             About Me <i class="fas fa-user"></i>
                         </button>
                         <button onclick="switchTab('yaml')" class="px-8 py-3.5 btn-glow text-base flex items-center justify-center gap-2">
                             DevOps Playground <i class="fas fa-rocket animate-bounce"></i>
@@ -603,7 +580,7 @@
                 </div>
                 
                 <div class="w-full md:w-1/2 flex justify-center md:justify-end relative reveal delay-200 mt-8 md:mt-0">
-                    <div class="liquid-wrapper -mt-0 md:-mt-32 mr-0 md:mr-10 scale-90 md:scale-100">
+                    <div class="liquid-wrapper -mt-0 md:-mt-12 mr-0 md:mr-10 scale-90 md:scale-100">
                         <div class="liquid-bg"></div>
                         <div class="liquid-img-box group">
                             <img src="Rahul_photo-Copy.jpg" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" alt="Rahul Magar">
@@ -648,12 +625,16 @@
                                         <div class="text-left"><p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">GitHub</p><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">/rahulmagar11</p></div>
                                     </a>
                                 </div>
+                                <button onclick="window.open('resume.pdf')" class="w-full py-2 px-4 mb-2 btn-glow-secondary text-sm flex justify-center items-center gap-2">
+                                     <i class="fas fa-file-download"></i> Download Resume
+                                </button>
                                 <button onclick="switchTab('contact')" class="w-full py-3 px-4 btn-glow text-sm flex justify-center items-center gap-2">
                                     Let's Connect <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
+
                     <div class="lg:col-span-2 space-y-6">
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-4 text-primary flex items-center gap-3">
@@ -663,6 +644,94 @@
                                 Results-driven <strong>DevOps Engineer</strong> and <strong>SAS Platform Engineer</strong> with 9+ years of experience transforming software delivery through <strong>Infrastructure as Code (IaC)</strong>, <strong>Cloud Engineering (AWS, Azure)</strong>, and <strong>CI/CD pipeline automation</strong>. Expertise in <strong>Kubernetes (EKS/AKS)</strong>, Terraform, Ansible, Jenkins, and comprehensive observability stacks. Dedicated to building resilient, scalable, and cost-optimized infrastructure while administering high-availability and managing <strong>SAS Grid and Viya</strong> platforms.
                             </p>
                         </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                            <h3 class="text-xl font-bold mb-4 text-purple-600 dark:text-purple-400 flex items-center gap-3">
+                                <i class="fas fa-brain"></i> DevOps Philosophy
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white/40 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-2"><i class="fas fa-robot text-purple-500 mr-1"></i> Automate Everything</h4>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Manual interventions are technical debt. If a task is performed more than twice, it gets scripted, containerized, or terraformed.</p>
+                                </div>
+                                <div class="bg-white/40 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-2"><i class="fas fa-shield-alt text-purple-500 mr-1"></i> Shift Left Security</h4>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Security isn't a post-build checklist. It's integrated into the IDE, the pull request, and every stage of the pipeline via DevSecOps.</p>
+                                </div>
+                                <div class="bg-white/40 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-2"><i class="fas fa-eye text-purple-500 mr-1"></i> Proactive Observability</h4>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">Metrics, traces, and structured logging aren't just for debugging outages; they are for predicting them before users notice.</p>
+                                </div>
+                                <div class="bg-white/40 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200 mb-2"><i class="fas fa-users text-purple-500 mr-1"></i> Culture over Tools</h4>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400">The best CI/CD stack is useless without a culture of blameless post-mortems, knowledge sharing, and tight dev-ops collaboration.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-emerald-600 dark:text-emerald-400 flex items-center gap-3">
+                                <i class="fas fa-layer-group"></i> Core Expertise
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300">AWS & GCP Cloud Architecture</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300">Kubernetes Deployments</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300">CI/CD Pipelines</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300">Terraform & Ansible</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300">SAS Platform Admin</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-700 dark:text-gray-300">Linux/AIX & Ubuntu OS Admin</span>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400 flex items-center gap-3">
+                                <i class="fas fa-trophy"></i> Key Achievements
+                            </h3>
+                            <ul class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                                <li class="flex items-start gap-2"><i class="fas fa-check-circle text-orange-500 mt-1"></i> Architected and maintained highly available AWS EKS clusters and automated deployments via CI/CD pipelines.</li>
+                                <li class="flex items-start gap-2"><i class="fas fa-check-circle text-orange-500 mt-1"></i> Administered and optimized large-scale SAS Grid and Viya environments over 9+ years of professional experience.</li>
+                                <li class="flex items-start gap-2"><i class="fas fa-check-circle text-orange-500 mt-1"></i> Streamlined advanced Kubernetes deployment strategies utilizing standardized YAML resources and GitOps.</li>
+                                <li class="flex items-start gap-2"><i class="fas fa-check-circle text-orange-500 mt-1"></i> Maintained cross-platform interoperability managing Linux, AIX, and Ubuntu systems effectively.</li>
+                            </ul>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
+                            <h3 class="text-xl font-bold mb-4 text-cyan-600 dark:text-cyan-400 flex items-center gap-3">
+                                <i class="fas fa-project-diagram"></i> Architecture Proficiency
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Microservices Orchestration (K8s, EKS)</span>
+                                        <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400">Advanced</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5"><div class="bg-cyan-500 h-full rounded-full" style="width: 95%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">GitOps & Declarative Delivery (ArgoCD)</span>
+                                        <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400">Advanced</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5"><div class="bg-cyan-500 h-full rounded-full" style="width: 90%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Infrastructure as Code (Terraform)</span>
+                                        <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400">Expert</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5"><div class="bg-cyan-500 h-full rounded-full" style="width: 98%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-300">Event-Driven Architecture (Kafka, SQS)</span>
+                                        <span class="text-xs font-bold text-cyan-600 dark:text-cyan-400">Proficient</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5"><div class="bg-cyan-500 h-full rounded-full" style="width: 80%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-4 text-gold-dark dark:text-yellow-400 flex items-center gap-3">
                                 <i class="fas fa-certificate"></i> Certifications
@@ -698,75 +767,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-4 text-green-600 dark:text-green-400 flex items-center gap-3">
-                                <i class="fas fa-cogs"></i> Core Expertise
-                            </h3>
-                            <ul class="space-y-3 text-gray-700 dark:text-gray-300 text-sm">
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fab fa-aws text-yellow-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Designed and managed robust, cost-optimized infrastructure on AWS (EKS, EC2, S3, Lambda, VPC).</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-dharmachakra text-indigo-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Expertise in Kubernetes (EKS/AKS) deployment, Helm, and GitOps workflows using ArgoCD.</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-code text-purple-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Implemented Infrastructure as Code (IaC) using Terraform and configuration management with Ansible.</span>
-                                </li>
-                                <li class="flex items-start bg-white/50 dark:bg-gray-800/50 p-3 rounded-xl reveal hover:bg-white dark:hover:bg-gray-800 transition">
-                                    <i class="fas fa-sync-alt text-red-600 text-lg mt-1 mr-4"></i>
-                                    <span class="leading-snug">Built and maintained scalable CI/CD pipelines using Jenkins, Azure DevOps, and GitHub Actions.</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
-                            <h3 class="text-xl font-bold mb-6 text-indigo-600 dark:text-indigo-400 flex items-center gap-3">
-                                <i class="fas fa-trophy"></i> Key Achievements
-                            </h3>
-                            <div class="space-y-6">
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Reduced Infrastructure Costs (EKS)</span>
-                                        <span class="text-sm font-bold text-green-600 dark:text-green-400">40%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-green-500 h-full rounded-full animate-pulse" style="width: 40%"></div>
-                                    </div>
-                                </div>
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">CI/CD Deployment Frequency</span>
-                                        <span class="text-sm font-bold text-blue-600 dark:text-blue-400">5x Increase</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-blue-500 h-full rounded-full animate-pulse" style="width: 80%"></div>
-                                    </div>
-                                </div>
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">SAS Grid Uptime</span>
-                                        <span class="text-sm font-bold text-purple-600 dark:text-purple-400">99.99%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-purple-500 h-full rounded-full animate-pulse" style="width: 99%"></div>
-                                    </div>
-                                </div>
-                                <div class="reveal">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">Cloud Migration Success Rate</span>
-                                        <span class="text-sm font-bold text-teal-600 dark:text-teal-400">100%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                        <div class="bg-teal-500 h-full rounded-full animate-pulse" style="width: 100%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
                         <div class="glass-panel p-6 rounded-2xl reveal border border-white/50 dark:border-white/10">
                             <h3 class="text-xl font-bold mb-6 text-blue-600 dark:text-blue-400 flex items-center gap-3">
-                                <i class="fas fa-history"></i> My Journey
+                                <i class="fas fa-history"></i> Career Journey
                             </h3>
                             <div class="ml-2">
                                 <div class="timeline-item">
@@ -792,9 +796,21 @@
         </section>
 
         <section id="tools" class="tab-content hidden pb-20 reveal">
-            <div class="text-center mb-16 reveal">
+            <div class="text-center mb-10 reveal">
                 <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-gray-900 dark:text-white">DevOps Tools Directory</h2>
-                <p id="tools-typing-text" class="text-primary text-lg font-medium max-w-2xl mx-auto h-8"></p>
+                <p id="tools-typing-text" class="text-primary text-lg font-medium max-w-2xl mx-auto h-8 mb-6"></p>
+                
+                <div class="max-w-md mx-auto relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400 group-focus-within:text-primary transition-colors"></i>
+                    </div>
+                    <input type="text" id="stackSearch" onkeyup="filterStack()" 
+                        class="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl leading-5 bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm backdrop-blur-md transition-all shadow-sm hover:shadow-md" 
+                        placeholder="Search stack (e.g. 'Kubernetes', 'AWS')...">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <span class="text-xs text-gray-400 border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5">Ctrl+K</span>
+                    </div>
+                </div>
             </div>
             <div id="tools-grid" class="space-y-16"></div>
         </section>
@@ -836,24 +852,43 @@
                 </div>
 
                 <div id="mode-tools" class="max-w-5xl mx-auto mb-10 reveal transition-all">
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 p-2">
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 p-2">
                         <button onclick="switchToolBtn(this, 'tool-editor')" class="tool-select-btn active"><i class="fas fa-file-code"></i><span>YAML/JSON</span></button>
                         <button onclick="switchToolBtn(this, 'tool-diff')" class="tool-select-btn"><i class="fas fa-exchange-alt"></i><span>Diff Checker</span></button>
                         <button onclick="switchToolBtn(this, 'tool-csv')" class="tool-select-btn"><i class="fas fa-table"></i><span>CSV/JSON</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-systemd')" class="tool-select-btn"><i class="fas fa-server text-purple-500"></i><span>Systemd</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-docker')" class="tool-select-btn"><i class="fab fa-docker text-blue-500"></i><span>Docker Gen</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-jsonpath')" class="tool-select-btn"><i class="fas fa-code-branch text-yellow-500"></i><span>JSONPath</span></button>
+                        
+                        <button onclick="switchToolBtn(this, 'tool-bcrypt')" class="tool-select-btn"><i class="fas fa-user-shield text-red-500"></i><span>Bcrypt Hash</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-json2go')" class="tool-select-btn"><i class="fas fa-file-code text-cyan-500"></i><span>JSON to Go</span></button>
+                        
+                        <button onclick="switchToolBtn(this, 'tool-barcode')" class="tool-select-btn"><i class="fas fa-barcode text-gray-700 dark:text-gray-300"></i><span>Barcode/QR</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-rsa')" class="tool-select-btn"><i class="fas fa-key text-yellow-500"></i><span>RSA Gen</span></button>
+
                         <button onclick="switchToolBtn(this, 'tool-regex')" class="tool-select-btn"><i class="fas fa-code"></i><span>Regex</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-base64')" class="tool-select-btn"><i class="fas fa-lock"></i><span>Base64</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-jwt')" class="tool-select-btn"><i class="fas fa-key"></i><span>JWT Debug</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-url')" class="tool-select-btn"><i class="fas fa-link"></i><span>URL Enc</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-unit')" class="tool-select-btn"><i class="fas fa-weight-hanging"></i><span>Units</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-cron')" class="tool-select-btn"><i class="fas fa-clock"></i><span>Cron Gen</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-cidr')" class="tool-select-btn"><i class="fas fa-network-wired"></i><span>CIDR Calc</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-port')" class="tool-select-btn"><i class="fas fa-ethernet"></i><span>Ports</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-dns')" class="tool-select-btn"><i class="fas fa-globe"></i><span>DNS</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-ip')" class="tool-select-btn"><i class="fas fa-laptop-code"></i><span>My IP</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-ssl')" class="tool-select-btn"><i class="fas fa-certificate"></i><span>SSL Dec</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-hash')" class="tool-select-btn"><i class="fas fa-fingerprint"></i><span>Hash Gen</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-pass')" class="tool-select-btn"><i class="fas fa-shield-alt"></i><span>Secrets</span></button>
-                        <button onclick="switchToolBtn(this, 'tool-chmod')" class="tool-select-btn"><i class="fas fa-calculator"></i><span>Chmod</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-base64')" class="tool-select-btn"><i class="fas fa-lock text-green-500"></i><span>Base64</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-jwt')" class="tool-select-btn"><i class="fas fa-key text-pink-500"></i><span>JWT Debug</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-url')" class="tool-select-btn"><i class="fas fa-link text-orange-500"></i><span>URL Enc</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-unit')" class="tool-select-btn"><i class="fas fa-weight-hanging text-pink-400"></i><span>Units</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-cron')" class="tool-select-btn"><i class="fas fa-clock text-purple-400"></i><span>Cron Gen</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-cidr')" class="tool-select-btn"><i class="fas fa-network-wired text-cyan-400"></i><span>CIDR Calc</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-port')" class="tool-select-btn"><i class="fas fa-ethernet text-orange-400"></i><span>Ports</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-dns')" class="tool-select-btn"><i class="fas fa-globe text-blue-400"></i><span>DNS</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-ip')" class="tool-select-btn"><i class="fas fa-laptop-code text-green-400"></i><span>My IP</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-ssl')" class="tool-select-btn"><i class="fas fa-certificate text-teal-500"></i><span>SSL Dec</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-hash')" class="tool-select-btn"><i class="fas fa-fingerprint text-purple-500"></i><span>Hash Gen</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-pass')" class="tool-select-btn"><i class="fas fa-shield-alt text-red-400"></i><span>Secrets</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-chmod')" class="tool-select-btn"><i class="fas fa-calculator text-gray-500"></i><span>Chmod</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-uuid')" class="tool-select-btn"><i class="fas fa-id-card text-blue-500"></i><span>UUID Gen</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-textcase')" class="tool-select-btn"><i class="fas fa-font text-emerald-500"></i><span>Text Case</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-color')" class="tool-select-btn"><i class="fas fa-palette text-pink-500"></i><span>Color Val</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-epoch')" class="tool-select-btn"><i class="fas fa-hourglass-half text-blue-400"></i><span>Epoch</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-escape')" class="tool-select-btn"><i class="fas fa-quote-right text-amber-500"></i><span>Escape</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-mac')" class="tool-select-btn"><i class="fas fa-microchip text-teal-500"></i><span>MAC Fmt</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-markdown')" class="tool-select-btn"><i class="fab fa-markdown text-blue-500"></i><span>Markdown</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-http')" class="tool-select-btn"><i class="fas fa-server text-green-500"></i><span>HTTP Codes</span></button>
+                        <button onclick="switchToolBtn(this, 'tool-urlparser')" class="tool-select-btn"><i class="fas fa-project-diagram text-purple-500"></i><span>URL Parse</span></button>
                     </div>
                 </div>
 
@@ -878,6 +913,303 @@
                 </div>
                 
                 <div class="glass-panel p-1 rounded-2xl border border-white/50 dark:border-white/10 mx-auto max-w-6xl shadow-2xl overflow-hidden min-h-[500px] relative transition-all duration-300" id="tool-container">
+
+                    <div id="tool-barcode" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-barcode text-5xl text-gray-700 dark:text-gray-300 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Pro Barcode & QR Generator</h3>
+                        <div class="w-full max-w-xl flex flex-col gap-4">
+                            <input type="text" id="barcodeInput" placeholder="Enter text or URL to generate..." class="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 outline-none focus:border-primary font-mono" oninput="generateCodes()">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center overflow-hidden">
+                                    <div class="text-xs text-gray-400 font-bold mb-4">CODE128 BARCODE</div>
+                                    <svg id="barcodeOutput" class="max-w-full h-auto"></svg>
+                                </div>
+                                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col items-center">
+                                    <div class="text-xs text-gray-400 font-bold mb-4">QR CODE</div>
+                                    <div id="qrcodeOutput" class="bg-white p-2 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tool-markdown" class="tool-view hidden h-full flex flex-col">
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
+                            <h3 class="font-bold text-lg text-blue-500"><i class="fab fa-markdown mr-2"></i>Live Markdown Previewer</h3>
+                        </div>
+                        <div class="flex flex-col md:flex-row h-full">
+                            <div class="w-full md:w-1/2 border-r border-gray-200 dark:border-gray-700 h-1/2 md:h-full flex flex-col">
+                                <textarea id="mdInput" class="flex-grow p-4 font-mono text-sm bg-transparent resize-none focus:outline-none dark:text-gray-200" placeholder="# Enter Markdown here...&#10;&#10;* Use this to draft README.md files.&#10;* Changes render automatically." oninput="renderMarkdown()"></textarea>
+                            </div>
+                            <div class="w-full md:w-1/2 bg-white dark:bg-gray-800 h-1/2 md:h-full overflow-auto p-4" id="mdOutput">
+                                <h1 class="text-3xl font-bold mb-4">Enter Markdown here...</h1>
+                                <ul class="list-disc ml-5 mb-4">
+                                    <li>Use this to draft README.md files.</li>
+                                    <li>Changes render automatically.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-http" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-server text-5xl text-green-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">HTTP Status Code Lookup</h3>
+                        <input type="number" id="httpInput" placeholder="e.g. 404, 502, 418" class="w-full max-w-xs p-4 text-center text-xl border-2 border-green-200 dark:border-gray-700 rounded-xl mb-6 bg-white dark:bg-gray-800 outline-none focus:border-green-500" oninput="checkHttpCode()">
+                        <div id="httpResult" class="text-2xl font-bold text-gray-700 dark:text-gray-300">Enter a code...</div>
+                        <div id="httpDesc" class="text-sm text-gray-500 mt-4 max-w-md"></div>
+                    </div>
+
+                    <div id="tool-urlparser" class="tool-view hidden p-6 h-full flex flex-col items-center overflow-y-auto">
+                        <h3 class="font-bold text-2xl mb-4 text-purple-500"><i class="fas fa-project-diagram mr-2"></i>URL Parser & Splitter</h3>
+                        <p class="text-sm text-gray-500 mb-6 text-center max-w-lg">Break down complex API endpoints or Webhooks to inspect ports, paths, and query string parameters.</p>
+                        <input type="text" id="urlParseInput" placeholder="https://user:pass@example.com:8080/api/v1/users?name=rahul&role=admin#top" class="w-full max-w-3xl p-4 border-2 border-purple-200 dark:border-gray-700 rounded-xl mb-6 outline-none focus:border-purple-500 font-mono text-sm dark:bg-gray-800" oninput="parseUrl()">
+                        <div class="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-4 pb-10">
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700"><div class="text-xs font-bold text-gray-500 uppercase mb-1">Protocol</div><div id="up-protocol" class="font-mono text-sm font-bold text-gray-800 dark:text-gray-200 break-all">-</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700"><div class="text-xs font-bold text-gray-500 uppercase mb-1">Host (Domain)</div><div id="up-host" class="font-mono text-sm font-bold text-primary break-all">-</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700"><div class="text-xs font-bold text-gray-500 uppercase mb-1">Port</div><div id="up-port" class="font-mono text-sm font-bold text-orange-500 break-all">-</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700"><div class="text-xs font-bold text-gray-500 uppercase mb-1">Pathname</div><div id="up-path" class="font-mono text-sm font-bold text-green-500 break-all">-</div></div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 md:col-span-2"><div class="text-xs font-bold text-gray-500 uppercase mb-1">Search/Query Params</div><pre id="up-search" class="font-mono text-sm text-purple-600 dark:text-purple-400 whitespace-pre-wrap">-</pre></div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 md:col-span-2"><div class="text-xs font-bold text-gray-500 uppercase mb-1">Hash/Fragment</div><div id="up-hash" class="font-mono text-sm text-gray-800 dark:text-gray-200 break-all">-</div></div>
+                        </div>
+                    </div>
+                    <div id="tool-rsa" class="tool-view hidden p-6 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-key text-5xl text-yellow-500 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">RSA Key Pair Generator</h3>
+                        <div class="flex gap-4 mb-4">
+                            <select id="rsaSize" class="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 font-bold text-sm">
+                                <option value="1024">1024-bit (Fast)</option>
+                                <option value="2048" selected>2048-bit (Standard)</option>
+                                <option value="4096">4096-bit (High Security)</option>
+                            </select>
+                            <button onclick="generateRSA()" id="btnGenRSA" class="btn-glow px-6 py-2">Generate Keys</button>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-4 w-full h-[350px]">
+                            <div class="flex-1 flex flex-col relative h-full">
+                                <label class="text-xs font-bold mb-2 uppercase text-gray-500">Public Key</label>
+                                <textarea id="rsaPub" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-900 border-none font-mono text-[10px] resize-none shadow-inner text-yellow-600 dark:text-yellow-400" readonly></textarea>
+                                <button onclick="copyToClipboard('rsaPub')" class="absolute top-8 right-2 text-gray-400 hover:text-yellow-500"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="flex-1 flex flex-col relative h-full">
+                                <label class="text-xs font-bold mb-2 uppercase text-red-500">Private Key</label>
+                                <textarea id="rsaPriv" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-900 border-none font-mono text-[10px] resize-none shadow-inner text-red-600 dark:text-red-400" readonly></textarea>
+                                <button onclick="copyToClipboard('rsaPriv')" class="absolute top-8 right-2 text-gray-400 hover:text-red-500"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-bcrypt" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-user-shield text-5xl text-red-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Bcrypt Hash Generator</h3>
+                        <p class="text-xs text-gray-500 mb-6 text-center max-w-md">Quickly generate bcrypt hashes for <code>htpasswd</code> basic authentication, Nginx configs, or database seeding.</p>
+                        <div class="w-full max-w-xl">
+                            <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Plaintext Password</label>
+                            <input type="text" id="bcryptInput" placeholder="Enter password to hash..." class="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-4 outline-none focus:border-red-500">
+                            
+                            <div class="flex items-center gap-4 mb-6">
+                                <label class="text-xs font-bold text-gray-500 uppercase">Work Factor (Rounds):</label>
+                                <input type="range" id="bcryptRounds" min="8" max="14" value="10" class="w-32" oninput="document.getElementById('bcryptRoundVal').innerText = this.value">
+                                <span id="bcryptRoundVal" class="font-mono font-bold text-red-500">10</span>
+                            </div>
+
+                            <button onclick="generateBcrypt()" id="btnGenerateBcrypt" class="btn-glow bg-red-600 w-full py-3 mb-6">Generate Hash <i class="fas fa-cog"></i></button>
+
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                <div class="text-xs text-gray-400 font-bold mb-1">Bcrypt Hash Output</div>
+                                <div id="bcryptOutput" class="font-mono text-sm break-all text-gray-800 dark:text-gray-200 min-h-[20px]">Result will appear here...</div>
+                                <button onclick="copyToClipboard('bcryptOutput')" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors bg-gray-100 dark:bg-gray-900 p-2 rounded-lg shadow"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-json2go" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-cyan-500"><i class="fas fa-file-code mr-2"></i>JSON to Golang Struct</h3>
+                        <p class="text-xs text-gray-500 mb-4">Paste a JSON payload below to automatically generate the equivalent Go struct (ideal for Kubernetes Operators or API integrations).</p>
+                        <div class="flex flex-col md:flex-row gap-4 h-full">
+                            <div class="flex-1 flex flex-col">
+                                <label class="text-xs font-bold mb-2 uppercase text-gray-500">JSON Input</label>
+                                <textarea id="j2gInput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none font-mono text-xs shadow-inner focus:ring-2 focus:ring-cyan-500/50 outline-none" placeholder='{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "my-config"
+  },
+  "data": {
+    "key": "value"
+  }
+}' oninput="convertJsonToGo()"></textarea>
+                            </div>
+                            <div class="flex-1 flex flex-col relative h-full">
+                                <label class="text-xs font-bold mb-2 uppercase text-gray-500">Go Struct Output</label>
+                                <textarea id="j2gOutput" class="flex-grow bg-gray-900 rounded-xl p-4 font-mono text-xs overflow-auto text-cyan-400 resize-none shadow-inner" readonly></textarea>
+                                <button onclick="copyToClipboard('j2gOutput')" class="absolute top-8 right-4 text-gray-400 hover:text-cyan-500 transition-colors bg-gray-800 p-2 rounded-lg shadow"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-systemd" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-purple-500"><i class="fas fa-server mr-2"></i>Systemd Service Generator</h3>
+                        <div class="flex flex-col md:flex-row gap-6 h-full">
+                            <div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 pb-4">
+                                <div><label class="text-xs font-bold text-gray-500">Service Name</label><input type="text" id="sysdName" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-purple-500 outline-none" value="my-app" oninput="genSystemd()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">Description</label><input type="text" id="sysdDesc" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-purple-500 outline-none" value="My Awesome App" oninput="genSystemd()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">ExecStart</label><input type="text" id="sysdExec" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-purple-500 outline-none font-mono text-sm" value="/usr/bin/node /app/server.js" oninput="genSystemd()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">User</label><input type="text" id="sysdUser" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-purple-500 outline-none" value="www-data" oninput="genSystemd()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">Restart Policy</label><select id="sysdRestart" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-purple-500 outline-none" onchange="genSystemd()"><option value="always">always</option><option value="on-failure">on-failure</option><option value="no">no</option></select></div>
+                            </div>
+                            <div class="flex-1 flex flex-col relative h-full">
+                                <label class="text-xs font-bold text-gray-500 mb-2">Output (/etc/systemd/system/app.service)</label>
+                                <textarea id="sysdOutput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-900 border-none font-mono text-sm text-purple-600 dark:text-purple-400 resize-none h-full shadow-inner" readonly></textarea>
+                                <button onclick="copyToClipboard('sysdOutput')" class="absolute top-8 right-4 text-gray-400 hover:text-purple-500 transition-colors bg-gray-200 dark:bg-gray-800 p-2 rounded-lg shadow"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-docker" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-blue-500"><i class="fab fa-docker mr-2"></i>Dockerfile Generator</h3>
+                        <div class="flex flex-col md:flex-row gap-6 h-full">
+                            <div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-2 pb-4">
+                                <div><label class="text-xs font-bold text-gray-500">Base Image</label><input type="text" id="docBase" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-blue-500 outline-none" value="node:18-alpine" oninput="genDocker()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">Work Directory</label><input type="text" id="docWork" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-blue-500 outline-none" value="/app" oninput="genDocker()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">Install Command</label><input type="text" id="docInst" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-blue-500 outline-none font-mono text-sm" value="npm install --production" oninput="genDocker()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">Expose Port</label><input type="number" id="docPort" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-blue-500 outline-none" value="3000" oninput="genDocker()"></div>
+                                <div><label class="text-xs font-bold text-gray-500">Start Command</label><input type="text" id="docCmd" class="w-full p-3 rounded-lg bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-blue-500 outline-none font-mono text-sm" value='["npm", "start"]' oninput="genDocker()"></div>
+                            </div>
+                            <div class="flex-1 flex flex-col relative h-full">
+                                <label class="text-xs font-bold text-gray-500 mb-2">Dockerfile</label>
+                                <textarea id="docOutput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-900 border-none font-mono text-sm text-blue-600 dark:text-blue-400 resize-none h-full shadow-inner" readonly></textarea>
+                                <button onclick="copyToClipboard('docOutput')" class="absolute top-8 right-4 text-gray-400 hover:text-blue-500 transition-colors bg-gray-200 dark:bg-gray-800 p-2 rounded-lg shadow"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-jsonpath" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-yellow-500"><i class="fas fa-code-branch mr-2"></i>JSON Pointer / Extractor</h3>
+                        <p class="text-xs text-gray-500 mb-4">A simple object extractor similar to jq or kubectl jsonpath. Use dot-notation or brackets.</p>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="jpPath" placeholder="Enter path e.g. metadata.name or items[0].status" class="flex-grow p-3 rounded-xl border-2 dark:bg-gray-800 dark:border-gray-700 focus:border-yellow-500 outline-none font-mono text-sm shadow-sm" oninput="evalJsonPath()">
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-6 h-full">
+                            <div class="flex-1 flex flex-col">
+                                <label class="text-xs font-bold mb-2">Source JSON Payload</label>
+                                <textarea id="jpInput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border-none font-mono text-xs resize-none shadow-inner" placeholder='{ "metadata": { "name": "nginx-deployment" }, "items": [ { "status": "Running" } ] }' oninput="evalJsonPath()"></textarea>
+                            </div>
+                            <div class="flex-1 flex flex-col relative h-full">
+                                <label class="text-xs font-bold mb-2">Extraction Result</label>
+                                <textarea id="jpOutput" class="flex-grow bg-gray-200 dark:bg-gray-900 rounded-xl p-4 font-mono text-sm overflow-auto text-yellow-600 dark:text-yellow-400 resize-none shadow-inner" readonly></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tool-epoch" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-hourglass-half text-5xl text-blue-400 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Epoch Time Converter</h3>
+                        <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl mb-6 w-full max-w-md">
+                            <div class="text-xs font-bold text-gray-500 uppercase mb-1">Current Epoch (Seconds)</div>
+                            <div id="currentEpoch" class="text-3xl font-mono font-bold text-primary tracking-widest">Loading...</div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl text-left">
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                                <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Timestamp to Date</label>
+                                <input type="number" id="epochInput" class="w-full p-3 rounded border dark:bg-gray-800 dark:border-gray-600 font-mono mb-3" placeholder="e.g. 1700000000" oninput="convertEpoch()">
+                                <div id="epochToDateOut" class="font-mono text-sm text-green-600 dark:text-green-400 font-bold min-h-[20px]"></div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                                <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Date to Timestamp</label>
+                                <input type="datetime-local" id="dateInput" class="w-full p-3 rounded border dark:bg-gray-800 dark:border-gray-600 font-mono mb-3" onchange="convertDateToEpoch()">
+                                <div id="dateToEpochOut" class="font-mono text-sm text-blue-600 dark:text-blue-400 font-bold min-h-[20px]"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-escape" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-amber-500"><i class="fas fa-quote-right mr-2"></i>String Escape / Unescape</h3>
+                        <div class="flex flex-col md:flex-row gap-4 h-full">
+                            <div class="flex-1 flex flex-col">
+                                <label class="text-xs font-bold mb-2">Input String</label>
+                                <textarea id="escapeInput" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none font-mono text-xs" placeholder='Paste text here...'></textarea>
+                            </div>
+                            <div class="flex flex-col justify-center gap-3">
+                                <button onclick="runEscape('json_esc')" class="btn-glow px-4 py-2 text-xs">JSON Escape</button>
+                                <button onclick="runEscape('json_unesc')" class="btn-glow-secondary px-4 py-2 text-xs">JSON Unescape</button>
+                                <button onclick="runEscape('html_esc')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors px-4">HTML Escape</button>
+                            </div>
+                            <div class="flex-1 flex flex-col relative">
+                                <label class="text-xs font-bold mb-2">Output</label>
+                                <textarea id="escapeOutput" class="flex-grow p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none font-mono text-xs" readonly></textarea>
+                                <button onclick="copyToClipboard('escapeOutput')" class="absolute top-8 right-3 text-gray-400 hover:text-primary"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tool-mac" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-microchip text-5xl text-teal-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">MAC Address Formatter</h3>
+                        <input type="text" id="macInput" placeholder="e.g. 001122334455" class="w-full max-w-md p-4 text-center text-xl border-2 border-teal-200 dark:border-gray-700 rounded-xl mb-6 bg-white dark:bg-gray-800 outline-none focus:border-teal-500 font-mono" oninput="formatMac()">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl text-left">
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                <div class="text-xs font-bold text-gray-500 mb-1">Colon Format (Linux)</div>
+                                <div id="macColon" class="font-mono text-sm font-bold text-gray-800 dark:text-gray-200">-</div>
+                                <button onclick="copyToClipboard('macColon')" class="absolute top-4 right-4 text-gray-400 hover:text-teal-500"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                <div class="text-xs font-bold text-gray-500 mb-1">Hyphen Format (Windows)</div>
+                                <div id="macHyphen" class="font-mono text-sm font-bold text-gray-800 dark:text-gray-200">-</div>
+                                <button onclick="copyToClipboard('macHyphen')" class="absolute top-4 right-4 text-gray-400 hover:text-teal-500"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                <div class="text-xs font-bold text-gray-500 mb-1">Dot Format (Cisco)</div>
+                                <div id="macDot" class="font-mono text-sm font-bold text-gray-800 dark:text-gray-200">-</div>
+                                <button onclick="copyToClipboard('macDot')" class="absolute top-4 right-4 text-gray-400 hover:text-teal-500"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 relative">
+                                <div class="text-xs font-bold text-gray-500 mb-1">Plain (No Separators)</div>
+                                <div id="macPlain" class="font-mono text-sm font-bold text-gray-800 dark:text-gray-200">-</div>
+                                <button onclick="copyToClipboard('macPlain')" class="absolute top-4 right-4 text-gray-400 hover:text-teal-500"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="tool-uuid" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
+                        <i class="fas fa-id-card text-5xl text-blue-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">UUID / GUID Generator</h3>
+                        <div class="w-full max-w-lg relative mb-8">
+                            <input type="text" id="uuidOutput" class="w-full p-4 pr-12 bg-gray-100 dark:bg-gray-800 rounded-xl text-center font-mono text-xl text-gray-800 dark:text-white border-2 border-transparent focus:border-blue-500 outline-none" readonly value="Click Generate Below">
+                            <button onclick="copyToClipboard('uuidOutput')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors"><i class="fas fa-copy"></i></button>
+                        </div>
+                        <div class="flex gap-4">
+                            <button onclick="genUUID(1)" class="btn-glow px-6 py-2">Generate 1</button>
+                            <button onclick="genUUID(5)" class="btn-glow-secondary px-6 py-2">Generate 5</button>
+                        </div>
+                        <textarea id="uuidBulk" class="mt-6 w-full max-w-lg h-32 p-3 rounded-xl bg-gray-100 dark:bg-gray-800 border-none font-mono text-sm resize-none hidden text-gray-600 dark:text-gray-300" readonly></textarea>
+                    </div>
+
+                    <div id="tool-textcase" class="tool-view hidden p-6 h-full flex flex-col">
+                        <h3 class="font-bold text-lg mb-4 text-emerald-500"><i class="fas fa-font mr-2"></i>Text Case Converter</h3>
+                        <textarea id="caseInput" class="flex-grow p-4 rounded-xl bg-gray-100 dark:bg-gray-800 border-none resize-none mb-4 font-mono text-sm text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-emerald-500/50" placeholder="Paste your text here..."></textarea>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <button onclick="convertCase('upper')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">UPPERCASE</button>
+                            <button onclick="convertCase('lower')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">lowercase</button>
+                            <button onclick="convertCase('camel')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">camelCase</button>
+                            <button onclick="convertCase('snake')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">snake_case</button>
+                            <button onclick="convertCase('kebab')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">kebab-case</button>
+                            <button onclick="convertCase('title')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">Title Case</button>
+                            <button onclick="convertCase('base64')" class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 font-bold py-2 text-xs rounded-lg transition-colors">Base64 Enc</button>
+                            <button onclick="copyToClipboard('caseInput')" class="bg-emerald-500 text-white font-bold py-2 text-xs rounded-lg hover:bg-emerald-600 transition-colors"><i class="fas fa-copy"></i> Copy Result</button>
+                        </div>
+                    </div>
+
+                    <div id="tool-color" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center text-center">
+                        <i class="fas fa-palette text-5xl text-pink-500 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Color Converter</h3>
+                        <p class="text-sm text-gray-500 mb-8">Convert Hex to RGB easily for CSS or scripts.</p>
+                        <div class="w-full max-w-md bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
+                            <div class="w-full h-24 rounded-xl mb-6 border border-gray-200 dark:border-gray-700 transition-colors duration-300 shadow-inner" id="colorPreview" style="background-color: #2563EB;"></div>
+                            <div class="space-y-4 text-left">
+                                <div><label class="text-xs font-bold text-gray-500 uppercase">HEX (Live Edit)</label><input type="text" id="colorHex" value="#2563EB" class="w-full p-3 mt-1 rounded-lg border-2 dark:bg-gray-900 dark:border-gray-700 font-mono text-center text-lg outline-none focus:border-pink-500" oninput="updateColor('hex')"></div>
+                                <div><label class="text-xs font-bold text-gray-500 uppercase">RGB (Live Edit)</label><input type="text" id="colorRgb" value="rgb(37, 99, 235)" class="w-full p-3 mt-1 rounded-lg border-2 dark:bg-gray-900 dark:border-gray-700 font-mono text-center text-lg outline-none focus:border-pink-500" oninput="updateColor('rgb')"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="game-vim" class="tool-view hidden h-full flex flex-col items-center justify-center relative overflow-hidden bg-gray-900 text-green-400 font-mono p-8">
                         <div class="absolute inset-0 bg-black opacity-50"></div>
                         <div class="relative z-10 text-center">
@@ -1259,16 +1591,28 @@
 
                     <div id="tool-pass" class="tool-view hidden p-8 h-full flex flex-col items-center justify-center">
                         <i class="fas fa-shield-alt text-5xl text-red-500 mb-4"></i>
-                        <h3 class="text-2xl font-bold mb-6">Secret Generator</h3>
+                        <h3 class="text-2xl font-bold mb-6">Pro Secret Generator</h3>
                         <div class="w-full max-w-lg relative mb-8">
                             <input type="text" id="passOutput" class="w-full p-4 pr-12 bg-gray-100 dark:bg-gray-800 rounded-xl text-center font-mono text-xl text-gray-800 dark:text-white" readonly value="Click Generate">
                             <button onclick="copyPass()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary"><i class="fas fa-copy"></i></button>
                         </div>
                         <div class="flex flex-wrap justify-center gap-6 items-center mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
                             <div class="flex items-center gap-2">
+                                <label class="text-sm font-bold">Mode:</label>
+                                <select id="passMode" onchange="togglePassMode()" class="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 p-1 rounded">
+                                    <option value="random">Random Characters</option>
+                                    <option value="passphrase">Passphrase</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2" id="passLenDiv">
                                 <label class="text-sm font-bold">Length:</label>
-                                <input type="range" id="passLen" min="8" max="64" value="16" class="w-32" oninput="document.getElementById('lenVal').innerText = this.value; generatePass()">
+                                <input type="range" id="passLen" min="8" max="64" value="16" class="w-24" oninput="document.getElementById('lenVal').innerText = this.value; generatePass()">
                                 <span id="lenVal" class="font-mono w-6">16</span>
+                            </div>
+                            <div class="flex items-center gap-2 hidden" id="passWordCountDiv">
+                                <label class="text-sm font-bold">Words:</label>
+                                <input type="range" id="passWordCount" min="3" max="8" value="4" class="w-24" oninput="document.getElementById('wordVal').innerText = this.value; generatePass()">
+                                <span id="wordVal" class="font-mono w-6">4</span>
                             </div>
                             <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="passSymbols" checked onchange="generatePass()"> Symbols</label>
                             <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="passNumbers" checked onchange="generatePass()"> Numbers</label>
@@ -1299,11 +1643,6 @@
                                 <span class="text-3xl sm:text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-400">99.99% Uptime</span>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest font-bold">Is not a goal, it's a lifestyle.</p>
                             </div>
-                            <h4 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">Why Contact Me?</h4>
-                            <ul class="space-y-3 text-gray-600 dark:text-gray-400 text-sm mb-8">
-                                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Need a robust AWS/Azure Kubernetes solution.</li>
-                                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Require CI/CD pipeline automation.</li>
-                            </ul>
                         </div>
                     </div>
                     
@@ -1336,15 +1675,12 @@
     </footer>
 
     <div class="droid-container" id="droid">
-        <div class="droid-tooltip">Double-click for Menu</div>
+        <div class="droid-tooltip">Click Me</div>
         
         <div class="droid-hud" id="bot-menu" onclick="event.stopPropagation()">
             <div class="hud-top">
-                <span class="text-xs font-bold tracking-widest text-gold-dark dark:text-blue-400">ASSISTANT_V4.0</span>
-                <div class="hud-status">
-                    <div class="hud-dot"></div>
-                    ONLINE
-                </div>
+                <span class="text-xs font-bold tracking-widest text-gold-dark dark:text-blue-400">ASSISTANT</span>
+                <div class="hud-status"><div class="hud-dot"></div>ONLINE</div>
             </div>
             <div class="hud-voice-row" id="mic-btn" onclick="toggleVoice(this); closeMenu()">
                 <div class="hud-voice-text"><div>Voice Command</div><div id="mic-status">Tap to speak...</div></div>
@@ -1353,28 +1689,40 @@
             
             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Available Commands</div>
             <div class="hud-cmd-list">
-                <div class="cmd-item">"Go Home"</div>
-                <div class="cmd-item">"Open Stack"</div>
-                <div class="cmd-item">"Projects"</div>
-                <div class="cmd-item">"About Me"</div>
-                <div class="cmd-item">"Tell Joke"</div>
-                <div class="cmd-item">"Turbo Mode"</div>
-                <div class="cmd-item">"System Scan"</div>
-                <div class="cmd-item">"Dance"</div>
+                <div class="cmd-item" onclick="switchTab('home')">"Go Home"</div>
+                <div class="cmd-item" onclick="switchTab('tools')">"Open Stack"</div>
+                <div class="cmd-item" onclick="deploySim()">"Deploy App"</div>
+                <div class="cmd-item" onclick="runSystemScan(); closeMenu()">"Security Scan"</div>
+                <div class="cmd-item" onclick="setRandomQuote(); closeMenu()">"New Quote"</div>
+                <div class="cmd-item" onclick="tellJoke(); closeMenu()">"Tell Joke"</div>
+                <div class="cmd-item" onclick="droidDance()">"Dance"</div>
+                <div class="cmd-item" onclick="toggleMatrixMode(); closeMenu()">"Toggle Matrix"</div>
+                <div class="cmd-item" onclick="clearLocalCache(); closeMenu()">"Clear Cache"</div>
+                <div class="cmd-item" onclick="lockScreen(); closeMenu()">"Lock Screen"</div>
+                <div class="cmd-item" onclick="toggleTurboMode()">"Turbo Mode"</div>
+                <div class="cmd-item text-red-500 border-red-500/30" onclick="selfDestruct(); closeMenu()">"Self Destruct"</div>
             </div>
             
             <div class="hud-footer">
                 <div class="hud-mini-btn" onclick="toggleTheme(); closeMenu()" title="Toggle Theme"><i class="fas fa-adjust"></i></div>
                 <div class="hud-mini-btn" onclick="toggleTurboMode(); closeMenu()" title="Turbo Mode"><i class="fas fa-bolt text-yellow-500"></i></div>
-                <div class="hud-mini-btn" onclick="runSystemScan(); closeMenu()" title="Scan System"><i class="fas fa-fingerprint"></i></div>
-                <div class="hud-mini-btn" onclick="tellJoke(); closeMenu()" title="Tell Joke"><i class="fas fa-laugh-beam text-pink-500"></i></div>
+                <div class="hud-mini-btn" onclick="deploySim(); closeMenu()" title="Deploy Simulation"><i class="fas fa-rocket text-green-500"></i></div>
+                <div class="hud-mini-btn" onclick="dockDroid(); closeMenu()" title="Dock/Minimize"><i class="fas fa-compress-arrows-alt text-blue-500"></i></div>
+                <div class="hud-mini-btn" onclick="selfDestruct(); closeMenu()" title="Self Destruct"><i class="fas fa-radiation text-red-500"></i></div>
             </div>
         </div>
-        <div class="bot-bubble" id="bot-bubble">Initializing v4.0...</div>
+        <div class="bot-bubble" id="bot-bubble">Initializing...</div>
         <div class="droid" id="droid-body">
             <div class="d-head" id="d-head"><div class="d-face"><div class="d-eye"></div><div class="d-eye"></div></div></div>
             <div class="d-body"></div><div class="d-hand left"></div><div class="d-hand right"></div>
         </div>
+    </div>
+
+    <div id="lock-overlay" class="fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center hidden backdrop-blur-md">
+        <i class="fas fa-lock text-6xl text-blue-500 mb-6 animate-pulse"></i>
+        <div class="text-3xl font-bold text-white mb-4">SYSTEM LOCKED</div>
+        <p class="text-gray-400 mb-8 font-mono">Authentication required to proceed.</p>
+        <button onclick="unlockScreen()" class="btn-glow px-8 py-3 text-lg">Unlock System</button>
     </div>
 
     <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 hidden z-50">
@@ -1382,8 +1730,13 @@
         <div><h4 class="font-bold text-sm" id="toast-title">Message Sent!</h4><p class="text-xs text-gray-400 dark:text-gray-600" id="toast-msg">Thank you. I will get back to you shortly.</p></div>
     </div>
 
+    <div id="deploy-overlay" class="fixed inset-0 z-[9999] bg-black/80 flex flex-col items-center justify-center hidden backdrop-blur-sm">
+        <div class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 animate-pulse mb-4">DEPLOYING...</div>
+        <div class="w-64 h-2 bg-gray-700 rounded-full overflow-hidden"><div class="h-full bg-green-500 animate-[scan_2s_ease-in-out_infinite]"></div></div>
+        <div class="font-mono text-green-400 mt-4 text-sm" id="deploy-log">Initializing pipeline...</div>
+    </div>
+
     <script>
-        // --- DATA OBJECTS (UNCHANGED) ---
         const projects = [
             { title: "Kubernetes Cluster on AWS EKS", desc: "Production-ready Kubernetes cluster on AWS EKS with auto-scaling, monitoring, and logging.", tags: ["EKS", "Terraform", "Prometheus"], icon: "fas fa-dharmachakra", color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 dark:text-indigo-300" },
             { title: "Multi-Region AWS Infrastructure", desc: "Multi-region AWS infrastructure with disaster recovery and automated failover.", tags: ["AWS", "Terraform", "DR"], icon: "fab fa-aws", color: "text-orange-500 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-300" },
@@ -1412,38 +1765,51 @@
         ];
 
         const tools = [
-            { category: "Cloud & Virtualization", items: [ { name: "AWS", icon: "fab fa-aws text-orange-500", desc: "EC2, EKS, S3, Lambda", url: "https://aws.amazon.com/" }, { name: "Azure", icon: "fab fa-microsoft text-blue-500", desc: "Azure DevOps, VMs", url: "https://azure.microsoft.com/" }, { name: "GCP", icon: "fab fa-google text-red-500", desc: "Compute & K8s Engine", url: "https://cloud.google.com/" } ]},
-            { category: "Containers & Orchestration", items: [ { name: "Kubernetes", icon: "fas fa-dharmachakra text-indigo-600 dark:text-indigo-400", desc: "Orchestration", url: "https://kubernetes.io/" }, { name: "Docker", icon: "fab fa-docker text-blue-600 dark:text-blue-400", desc: "Containerization", url: "https://www.docker.com/" }, { name: "Helm", icon: "fas fa-box-open text-cyan-600 dark:text-cyan-400", desc: "K8s Package Manager", url: "https://helm.sh/" } ]},
-            { category: "IaC & Config Mgt", items: [ { name: "Terraform", icon: "fas fa-code text-purple-600 dark:text-purple-400", desc: "Multi-cloud IaC", url: "https://www.terraform.io/" }, { name: "Ansible", icon: "fas fa-terminal text-green-600 dark:text-green-400", desc: "Automation", url: "https://www.ansible.com/" } ]},
-            { category: "CI/CD & Automation", items: [ { name: "Jenkins", icon: "fas fa-sync-alt text-red-600 dark:text-red-400", desc: "Automation Server", url: "https://www.jenkins.io/" }, { name: "GitHub Actions", icon: "fab fa-github-alt text-gray-700 dark:text-gray-300", desc: "Workflow", url: "https://github.com/features/actions" }, { name: "ArgoCD", icon: "fas fa-rocket text-teal-600 dark:text-teal-400", desc: "GitOps Delivery", url: "https://argo-cd.readthedocs.io/" } ]},
-            { category: "Observability", items: [ { name: "Prometheus", icon: "fas fa-chart-bar text-orange-500", desc: "Monitoring Toolkit", url: "https://prometheus.io/" }, { name: "Grafana", icon: "fas fa-chart-line text-pink-600 dark:text-pink-400", desc: "Visualization", url: "https://grafana.com/" }, { name: "ELK Stack", icon: "fas fa-search text-green-600 dark:text-green-400", desc: "Log Aggregation", url: "https://www.elastic.co/elastic-stack" } ]},
+            { category: "Cloud & Virtualization", items: [ { name: "AWS", icon: "fab fa-aws text-orange-500", desc: "EC2, EKS, S3, Lambda", url: "https://aws.amazon.com/" }, { name: "Azure", icon: "fab fa-microsoft text-blue-500", desc: "Azure DevOps, VMs", url: "https://azure.microsoft.com/" }, { name: "GCP", icon: "fab fa-google text-red-500", desc: "Compute & K8s Engine", url: "https://cloud.google.com/" }, { name: "OpenStack", icon: "fas fa-cloud text-red-600", desc: "Private Cloud", url: "https://www.openstack.org/" } ]},
+            { category: "Containers & Orchestration", items: [ { name: "Kubernetes", icon: "fas fa-dharmachakra text-indigo-600 dark:text-indigo-400", desc: "Orchestration", url: "https://kubernetes.io/" }, { name: "Docker", icon: "fab fa-docker text-blue-600 dark:text-blue-400", desc: "Containerization", url: "https://www.docker.com/" }, { name: "Helm", icon: "fas fa-box-open text-cyan-600 dark:text-cyan-400", desc: "K8s Package Manager", url: "https://helm.sh/" }, { name: "Podman", icon: "fas fa-cube text-purple-600", desc: "Daemonless Containers", url: "https://podman.io/" } ]},
+            { category: "IaC & Config Mgt", items: [ { name: "Terraform", icon: "fas fa-code text-purple-600 dark:text-purple-400", desc: "Multi-cloud IaC", url: "https://www.terraform.io/" }, { name: "Ansible", icon: "fas fa-terminal text-green-600 dark:text-green-400", desc: "Automation", url: "https://www.ansible.com/" }, { name: "Pulumi", icon: "fas fa-cloud-rain text-yellow-500", desc: "Modern IaC", url: "https://www.pulumi.com/" }, { name: "Packer", icon: "fas fa-box text-blue-400", desc: "Image Builder", url: "https://www.packer.io/" } ]},
+            { category: "CI/CD & Automation", items: [ { name: "Jenkins", icon: "fas fa-sync-alt text-red-600 dark:text-red-400", desc: "Automation Server", url: "https://www.jenkins.io/" }, { name: "GitHub Actions", icon: "fab fa-github-alt text-gray-700 dark:text-gray-300", desc: "Workflow", url: "https://github.com/features/actions" }, { name: "ArgoCD", icon: "fas fa-rocket text-teal-600 dark:text-teal-400", desc: "GitOps Delivery", url: "https://argo-cd.readthedocs.io/" }, { name: "GitLab CI", icon: "fab fa-gitlab text-orange-500", desc: "DevOps Platform", url: "https://about.gitlab.com/" } ]},
+            { category: "Observability", items: [ { name: "Prometheus", icon: "fas fa-chart-bar text-orange-500", desc: "Monitoring Toolkit", url: "https://prometheus.io/" }, { name: "Grafana", icon: "fas fa-chart-line text-pink-600 dark:text-pink-400", desc: "Visualization", url: "https://grafana.com/" }, { name: "ELK Stack", icon: "fas fa-search text-green-600 dark:text-green-400", desc: "Log Aggregation", url: "https://www.elastic.co/elastic-stack" }, { name: "Datadog", icon: "fas fa-dog text-purple-500", desc: "Cloud Monitoring", url: "https://www.datadoghq.com/" }, { name: "Splunk", icon: "fas fa-terminal text-black dark:text-white", desc: "Data Platform", url: "https://www.splunk.com/" } ]},
+            { category: "Database & Messaging", items: [ { name: "PostgreSQL", icon: "fas fa-database text-blue-400", desc: "Relational DB", url: "https://www.postgresql.org/" }, { name: "MongoDB", icon: "fas fa-leaf text-green-500", desc: "NoSQL DB", url: "https://www.mongodb.com/" }, { name: "Redis", icon: "fas fa-layer-group text-red-500", desc: "In-memory Store", url: "https://redis.io/" }, { name: "Kafka", icon: "fas fa-comments text-gray-600", desc: "Event Streaming", url: "https://kafka.apache.org/" } ]},
+            { category: "Security & Service Mesh", items: [ { name: "Vault", icon: "fas fa-key text-gray-500", desc: "Secrets Management", url: "https://www.vaultproject.io/" }, { name: "SonarQube", icon: "fas fa-code-branch text-blue-600", desc: "Code Quality", url: "https://www.sonarqube.org/" }, { name: "Istio", icon: "fas fa-ship text-blue-500", desc: "Service Mesh", url: "https://istio.io/" }, { name: "Snyk", icon: "fas fa-shield-alt text-purple-600", desc: "DevSecOps", url: "https://snyk.io/" } ]},
             { category: "SAS Platform", items: [ { name: "SAS 9.4", icon: "fas fa-server text-sas dark:text-sky-400", desc: "Platform Admin", url: "https://www.sas.com/" }, { name: "SAS Viya", icon: "fas fa-cloud text-sas dark:text-sky-400", desc: "Cloud Analytics", url: "https://www.sas.com/en_us/software/viya.html" } ]}
         ];
 
-        // --- GLOBAL FUNCTIONS (UNCHANGED) ---
         function toggleTheme() {
             const html = document.documentElement;
             if (html.classList.contains('dark')) { 
-                html.classList.remove('dark'); 
-                localStorage.setItem('theme', 'light'); 
+                html.classList.remove('dark'); localStorage.setItem('theme', 'light'); 
             } else { 
-                html.classList.add('dark'); 
-                localStorage.setItem('theme', 'dark'); 
+                html.classList.add('dark'); localStorage.setItem('theme', 'dark'); 
+            }
+            if(!isMatrixForced) {
+                const mat = document.getElementById('matrix');
+                if (html.classList.contains('dark')) mat.classList.add('auto-mode');
+                else mat.classList.remove('auto-mode');
+            }
+            
+            // Re-render Barcode for new theme if barcode tool is open
+            if(document.getElementById('tool-barcode') && !document.getElementById('tool-barcode').classList.contains('hidden')) {
+                generateCodes();
             }
         }
 
         function switchTab(tabId) {
             stopAllGames();
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(el => { el.classList.add('hidden'); el.classList.remove('fade-in'); });
             const target = document.getElementById(tabId);
-            if(target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
+            if(target) { target.classList.remove('hidden'); void target.offsetWidth; target.classList.add('fade-in'); }
+            
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             const btn = document.getElementById(`btn-${tabId}`);
             if(btn) btn.classList.add('active');
+            
             if(window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel();
             document.getElementById('bot-menu').classList.remove('active');
+            
             const mobMenu = document.getElementById('mobile-menu');
             if(mobMenu && !mobMenu.classList.contains('hidden')) toggleMobileMenu();
+            
             const mainContent = document.getElementById('main-content');
             if(mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
             setTimeout(setupObserver, 100);
@@ -1452,8 +1818,7 @@
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden', 'pointer-events-none');
-                menu.classList.add('flex');
+                menu.classList.remove('hidden', 'pointer-events-none'); menu.classList.add('flex');
                 setTimeout(() => menu.classList.remove('opacity-0'), 10);
             } else {
                 menu.classList.add('opacity-0', 'pointer-events-none');
@@ -1463,8 +1828,7 @@
         function mobileNav(tab) { switchTab(tab); }
 
         function handleTilt(e, card) {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+            const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top;
             const centerX = rect.width / 2; const centerY = rect.height / 2;
             const rotateX = ((y - centerY) / centerY) * -5; const rotateY = ((x - centerX) / centerX) * 5;
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
@@ -1540,16 +1904,30 @@
             if(toolsCharIndex < toolsTypingText.length) { el.innerHTML += toolsTypingText.charAt(toolsCharIndex); toolsCharIndex++; setTimeout(toolsTypeWriter, 30); }
         }
 
+        function filterStack() {
+            const input = document.getElementById('stackSearch');
+            const filter = input.value.toUpperCase();
+            const grid = document.getElementById('tools-grid');
+            const items = grid.getElementsByTagName('a'); 
+
+            for (let i = 0; i < items.length; i++) {
+                const textValue = items[i].textContent || items[i].innerText;
+                if (textValue.toUpperCase().indexOf(filter) > -1) items[i].parentElement.style.display = ""; 
+                else items[i].parentElement.style.display = "none";
+            }
+        }
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); switchTab('tools'); document.getElementById('stackSearch').focus(); }
+        });
+
         const devopsQuotes = [
             "You build it, you run it.", "Automation is not just a trend; it's the foundation.", "If you did not automate testing, you did not do DevOps.",
-            "Shift left on security, shift right on observability.", "Infrastructure as Code: because clicking buttons is not a strategy.", "In DevOps, failure is not the opposite of success; it's part of success.", "The best way to predict the future is to automate it.",
+            "Shift left on security, shift right on observability.", "Infrastructure as Code: because clicking buttons is not a strategy.", "In DevOps, failure is not the opposite of success; it's part of success.",
             "DevOps is a culture, not a job title.", "Monitoring is the eyes and alerting is the ears of your system.", "Containers are to DevOps what electricity was to the industrial revolution.",
-            "The cloud is not a place, it's a way of thinking.", "Microservices: because monoliths are so 2000s.", "In DevOps, we don't do 'it works on my machine.'", "Continuous Integration is like brushing your teeth; you do it every day to avoid cavities.",
-            "The only constant in DevOps is change, and the only way to manage it is through automation.", "DevOps is not about tools, it's about collaboration and culture.", "The road to DevOps is paved with good intentions and broken builds.",
-            "If you're not automating, you're just orchestrating manual work.", "In DevOps, we don't wait for problems to happen; we create them in staging and fix them before they reach production.", "The best DevOps engineers are part coder, part psychologist, and part firefighter.",
-            "DevOps is like a good joke: if you have to explain it, it's not working.", "The true measure of DevOps success is not how fast you can deploy, but how quickly you can recover from failure.", "In DevOps, we don't just break things on purpose; we break them to learn how to fix them faster.", "The DevOps mindset is not about avoiding failure, but about embracing it as a learning opportunity.",
-            "The best way to predict the future of your system is to create it through automation and continuous improvement.", "DevOps is not a destination, it's a journey of continuous learning and adaptation.", "In DevOps, we don't just deploy code; we deploy confidence.", "The only way to win in DevOps is to continuously improve and never stop learning.", "DevOps is not about being perfect; it's about being better than yesterday.", "The best DevOps teams are those that can balance speed with stability, and innovation with reliability.",
-            
+            "Microservices: because monoliths are so 2000s.", "In DevOps, we don't do 'it works on my machine.'", "Continuous Integration is like brushing your teeth; you do it every day to avoid cavities.",
+            "The best code is the code you never have to write. Automate everything.", "DevOps is not about tools, it's about collaboration and culture.", "If you're not breaking production at least once a day, you're not doing DevOps right.",
+            "The cloud is just someone else's computer, but with better APIs.", "In DevOps, we embrace failure as a learning opportunity, not a setback.", "The goal of DevOps is to make deployments boring and routine.", "DevOps is the intersection of development, operations, and a little bit of magic.",
+            "If you're not automating, you're just manual labor.", "DevOps is not a destination, it's a journey of continuous improvement.", "The best way to predict the future of your software is to create it with DevOps practices."
         ];
         function setRandomQuote() {
             const quoteEl = document.getElementById('quote-container');
@@ -1559,42 +1937,49 @@
             }
         }
         function getDevOpsJoke() {
-            const jokes = ["Why do DevOps engineers prefer dark mode? Because light attracts bugs.", "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?", "How many DevOps engineers does it take to change a lightbulb? None, it's a hardware problem.", "Why did the DevOps engineer go broke? Because he used up all his cache.", "What do you call a DevOps engineer who can sing? A CI/CD pipeline.", "Why did the DevOps engineer get kicked out of school? Because he kept breaking the build.", "How do DevOps engineers stay calm during a crisis? They just Docker it.", "Why did the DevOps engineer cross the road? To automate the other side."];
+            const jokes = ["Why do DevOps engineers prefer dark mode? Because light attracts bugs.", "A SQL query walks into a bar, walks up to two tables and asks: Can I join you?", "How many DevOps engineers does it take to change a lightbulb? None, it's a hardware problem.", "Why did the DevOps engineer go broke? Because he used up all his cache.", "What do you call a DevOps engineer who can sing? A CI/CD pipeline.",
+                "Why did the DevOps engineer get kicked out of school? Because he kept breaking the build.", "How do DevOps engineers stay cool? They use fans and load balancers.", "Why did the DevOps engineer cross the road? To automate the other side.", "What do you call a group of DevOps engineers? A cluster.", "Why did the DevOps engineer bring a ladder to work? Because he heard the servers were down.", 
+                "Why do DevOps engineers love nature? Because they can automate the trees.", "What’s a DevOps engineer’s favorite type of music? Heavy metal (because of the servers).", "Why did the DevOps engineer get lost in the forest? Because he couldn’t find the root directory.", "How do DevOps engineers like their coffee? With a lot of automation.", "Why did the DevOps engineer break up with his girlfriend? Because she had too many dependencies.",
+                "What do you call a DevOps engineer who can juggle? A multi-tasker.", "Why did the DevOps engineer go to therapy? Because he had too many issues with his pipelines.", "How do DevOps engineers prefer to communicate? Through Slack, because it’s more efficient than email.", "Why did the DevOps engineer get a promotion? Because he was outstanding in his field (of servers).", "What do you call a DevOps engineer who can dance? A CI/CD pipeline in motion.",
+                "Why did the DevOps engineer go to the beach? To test the waters of his new deployment.", "How do DevOps engineers like their burgers? With all the automation toppings.", "Why did the DevOps engineer get a pet? Because he wanted to automate the feeding process.", "What do you call a DevOps engineer who can cook? A master of continuous integration (of flavors).", "Why did the DevOps engineer go to space? To deploy his application in the cloud.",
+                "How do DevOps engineers like their pizza? With extra automation and no manual toppings.", "Why did the DevOps engineer get a tattoo? To show his commitment to the culture.", "What do you call a DevOps engineer who can write poetry? A master of continuous integration (of words).", "Why did the DevOps engineer go to the gym? To work on his pipelines.", "How do DevOps engineers like their tea? With a lot of automation and no manual stirring."
+            ];
             return jokes[Math.floor(Math.random() * jokes.length)];
         }
 
-        // New function to tell a joke when button clicked
         function tellJoke() {
-            const joke = getDevOpsJoke();
-            botSpeak(joke);
-            const droid = document.getElementById('droid-body');
-            droid.classList.add('dancing'); 
-            setTimeout(() => droid.classList.remove('dancing'), 2000);
+            const joke = getDevOpsJoke(); botSpeak(joke);
+            const droid = document.getElementById('droid-body'); droid.classList.add('dancing'); setTimeout(() => droid.classList.remove('dancing'), 9000);
         }
         
-        // Helper function to close menu
-        function closeMenu() {
-            document.getElementById('bot-menu').classList.remove('active');
+        function closeMenu() { document.getElementById('bot-menu').classList.remove('active'); }
+
+        function dockDroid() {
+            const droid = document.getElementById('droid');
+            if (droid.classList.contains('docked')) { droid.classList.remove('docked'); botSpeak("Systems restored to full size."); } 
+            else { droid.classList.add('docked'); }
         }
+
+        function clearLocalCache() {
+            botSpeak("Clearing local UI caches..."); localStorage.removeItem('theme');
+            setTimeout(() => { botSpeak("Cache cleared. UI restored to baseline settings."); window.location.reload(); }, 1500);
+        }
+
+        function lockScreen() { document.getElementById('lock-overlay').classList.remove('hidden'); document.getElementById('lock-overlay').classList.add('flex'); botSpeak("System locked."); }
+        function unlockScreen() { document.getElementById('lock-overlay').classList.add('hidden'); document.getElementById('lock-overlay').classList.remove('flex'); botSpeak("Authentication confirmed. Welcome back."); }
 
         function setupObserver() {
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => { 
-                    if (entry.isIntersecting) entry.target.classList.add('active'); 
-                });
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
             }, { root: document.getElementById('main-content'), threshold: 0.1 });
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         }
 
         function togglePlaygroundMode(mode) {
             stopAllGames();
-            const toolDiv = document.getElementById('mode-tools');
-            const gameDiv = document.getElementById('mode-games');
-            const btnT = document.getElementById('btn-mode-tools');
-            const btnG = document.getElementById('btn-mode-games');
-            const bg = document.getElementById('mode-bg');
-            const title = document.getElementById('pg-title');
-            const desc = document.getElementById('pg-desc');
+            const toolDiv = document.getElementById('mode-tools'); const gameDiv = document.getElementById('mode-games');
+            const btnT = document.getElementById('btn-mode-tools'); const btnG = document.getElementById('btn-mode-games');
+            const bg = document.getElementById('mode-bg'); const title = document.getElementById('pg-title'); const desc = document.getElementById('pg-desc');
 
             document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
 
@@ -1612,9 +1997,8 @@
         }
 
         function switchToolBtn(btn, toolId) {
-            document.querySelectorAll('.tool-select-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            switchTool(toolId);
+            document.querySelectorAll('.tool-select-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); switchTool(toolId);
+            setTimeout(() => { document.getElementById('tool-container').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
         }
 
         function stopAllGames() {
@@ -1625,62 +2009,40 @@
 
         function switchGame(gameId) {
             stopAllGames();
-            document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
-            document.getElementById(gameId).classList.remove('hidden');
-            if(gameId === 'game-bug') startBugGame();
-            if(gameId === 'game-dino') startDinoGame();
-            if(gameId === 'game-snake') initSnake();
-            if(gameId === 'game-tictactoe') resetTTT();
+            document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden')); document.getElementById(gameId).classList.remove('hidden');
+            if(gameId === 'game-bug') startBugGame(); if(gameId === 'game-dino') startDinoGame(); if(gameId === 'game-snake') initSnake(); if(gameId === 'game-tictactoe') resetTTT();
         }
 
-        function moveVimBtn() {
-            const btn = document.getElementById('vim-btn');
-            const x = Math.random() * 80 + 10; const y = Math.random() * 80 + 10;
-            btn.style.left = x + '%'; btn.style.top = y + '%';
-        }
+        function moveVimBtn() { const btn = document.getElementById('vim-btn'); const x = Math.random() * 80 + 10; const y = Math.random() * 80 + 10; btn.style.left = x + '%'; btn.style.top = y + '%'; }
 
         let bugScore = 0; let bugTimer = null;
         function startBugGame() {
-            bugScore = 0; document.getElementById('bugScore').innerText = 0;
-            let time = 30; document.getElementById('bugTime').innerText = time;
+            bugScore = 0; document.getElementById('bugScore').innerText = 0; let time = 30; document.getElementById('bugTime').innerText = time;
             if(bugTimer) clearInterval(bugTimer);
-            bugTimer = setInterval(() => {
-                time--; document.getElementById('bugTime').innerText = time;
-                spawnBug();
-                if(time <= 0) { clearInterval(bugTimer); alert("Game Over! Bugs Smashed: " + bugScore); }
-            }, 800);
+            bugTimer = setInterval(() => { time--; document.getElementById('bugTime').innerText = time; spawnBug(); if(time <= 0) { clearInterval(bugTimer); alert("Game Over! Bugs Smashed: " + bugScore); } }, 800);
         }
         function spawnBug() {
-            const slots = document.querySelectorAll('.bug-slot');
-            slots.forEach(s => s.innerHTML = '');
-            const rand = Math.floor(Math.random() * 9);
-            slots[rand].innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl animate-bounce">🐛</div>';
+            const slots = document.querySelectorAll('.bug-slot'); slots.forEach(s => s.innerHTML = '');
+            const rand = Math.floor(Math.random() * 9); slots[rand].innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl animate-bounce">🐛</div>';
         }
         function hitBug(idx) {
             const slot = document.querySelectorAll('.bug-slot')[idx];
-            if(slot.innerHTML !== '') {
-                bugScore++; document.getElementById('bugScore').innerText = bugScore;
-                slot.innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl text-red-600 font-bold">💥</div>';
-            }
+            if(slot.innerHTML !== '') { bugScore++; document.getElementById('bugScore').innerText = bugScore; slot.innerHTML = '<div class="w-full h-full flex items-center justify-center text-4xl text-red-600 font-bold">💥</div>'; }
         }
 
         let dinoCtx, dinoLoop; let dinoY = 150, dinoVel = 0, obstacles = [], frame = 0, score=0; let isGameOver = false;
         function startDinoGame() {
-            const canvas = document.getElementById('dinoCanvas');
-            dinoCtx = canvas.getContext('2d');
+            const canvas = document.getElementById('dinoCanvas'); dinoCtx = canvas.getContext('2d');
             obstacles = []; frame = 0; score=0; dinoY = 150; dinoVel = 0; isGameOver = false;
-            if(dinoLoop) cancelAnimationFrame(dinoLoop);
-            updateDino();
+            if(dinoLoop) cancelAnimationFrame(dinoLoop); updateDino();
             document.onkeydown = (e) => { if(e.code === 'Space') { e.preventDefault(); if(isGameOver) { startDinoGame(); return; } if(dinoY >= 150) dinoVel = -12; } };
             canvas.onclick = () => { if(isGameOver) { startDinoGame(); return; } if(dinoY >= 150) dinoVel = -12; };
         }
         function updateDino() {
             dinoCtx.clearRect(0,0,600,200);
             if(isGameOver) {
-                dinoCtx.fillStyle = '#ef4444'; dinoCtx.font = "bold 30px monospace"; dinoCtx.textAlign = "center";
-                dinoCtx.fillText("DEPLOYMENT FAILED!", 300, 90);
-                dinoCtx.fillStyle = '#6b7280'; dinoCtx.font = "16px sans-serif";
-                dinoCtx.fillText("Firewall blocked connection.", 300, 120); dinoCtx.fillText("Press Space / Click to Retry", 300, 145); return; 
+                dinoCtx.fillStyle = '#ef4444'; dinoCtx.font = "bold 30px monospace"; dinoCtx.textAlign = "center"; dinoCtx.fillText("DEPLOYMENT FAILED!", 300, 90);
+                dinoCtx.fillStyle = '#6b7280'; dinoCtx.font = "16px sans-serif"; dinoCtx.fillText("Firewall blocked connection.", 300, 120); dinoCtx.fillText("Press Space / Click to Retry", 300, 145); return; 
             }
             dinoVel += 0.6; dinoY += dinoVel; if(dinoY > 150) { dinoY = 150; dinoVel = 0; }
             dinoCtx.fillStyle = '#22c55e'; dinoCtx.fillRect(50, dinoY, 30, 30);
@@ -1695,47 +2057,30 @@
         let tttBoard = ['', '', '', '', '', '', '', '', '']; let tttActive = true;
         function resetTTT() {
             tttBoard = ['', '', '', '', '', '', '', '', '']; tttActive = true;
-            document.querySelectorAll('.ttt-cell').forEach(c => { c.innerText = ''; c.classList.remove('text-red-500', 'text-green-500'); });
-            document.getElementById('ttt-status').innerText = "Your Turn (CI)";
+            document.querySelectorAll('.ttt-cell').forEach(c => { c.innerText = ''; c.classList.remove('text-red-500', 'text-green-500'); }); document.getElementById('ttt-status').innerText = "Your Turn (CI)";
         }
         function tttMove(idx) {
-            if(!tttActive || tttBoard[idx] !== '') return;
-            tttBoard[idx] = 'X'; drawTTT(); checkTTT(); if(tttActive) setTimeout(tttBotMove, 400);
+            if(!tttActive || tttBoard[idx] !== '') return; tttBoard[idx] = 'X'; drawTTT(); checkTTT(); if(tttActive) setTimeout(tttBotMove, 400);
         }
         function tttBotMove() {
-            let available = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-            if(available.length === 0) return;
-            let move = available[Math.floor(Math.random() * available.length)];
-            tttBoard[move] = 'O'; drawTTT(); checkTTT();
+            let available = tttBoard.map((v, i) => v === '' ? i : null).filter(v => v !== null); if(available.length === 0) return;
+            let move = available[Math.floor(Math.random() * available.length)]; tttBoard[move] = 'O'; drawTTT(); checkTTT();
         }
         function drawTTT() {
-            document.querySelectorAll('.ttt-cell').forEach((c, i) => {
-                c.innerText = tttBoard[i];
-                if(tttBoard[i] === 'X') c.classList.add('text-green-500'); if(tttBoard[i] === 'O') c.classList.add('text-red-500');
-            });
+            document.querySelectorAll('.ttt-cell').forEach((c, i) => { c.innerText = tttBoard[i]; if(tttBoard[i] === 'X') c.classList.add('text-green-500'); if(tttBoard[i] === 'O') c.classList.add('text-red-500'); });
         }
         function checkTTT() {
-            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-            let won = false;
-            wins.forEach(w => {
-                if(tttBoard[w[0]] && tttBoard[w[0]] === tttBoard[w[1]] && tttBoard[w[0]] === tttBoard[w[2]]) {
-                    tttActive = false; won = true;
-                    document.getElementById('ttt-status').innerText = tttBoard[w[0]] === 'X' ? "Build Succeeded! (You Win)" : "Build Failed! (Bot Wins)";
-                }
-            });
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; let won = false;
+            wins.forEach(w => { if(tttBoard[w[0]] && tttBoard[w[0]] === tttBoard[w[1]] && tttBoard[w[0]] === tttBoard[w[2]]) { tttActive = false; won = true; document.getElementById('ttt-status').innerText = tttBoard[w[0]] === 'X' ? "Build Succeeded! (You Win)" : "Build Failed! (Bot Wins)"; } });
             if(!won && !tttBoard.includes('')) { tttActive = false; document.getElementById('ttt-status').innerText = "Merge Conflict (Draw)"; }
         }
 
         let snakeCtx, snakeLoop; let snake = [{x: 10, y: 10}]; let food = {x: 15, y: 15}; let dx = 0, dy = 0; let snakeScore = 0;
         function initSnake() {
             const cvs = document.getElementById('snakeCanvas'); snakeCtx = cvs.getContext('2d');
-            snake = [{x: 10, y: 10}]; snakeScore = 0; document.getElementById('snakeScore').innerText = 0;
-            dx = 1; dy = 0; if(snakeLoop) clearInterval(snakeLoop); snakeLoop = setInterval(runSnake, 100);
+            snake = [{x: 10, y: 10}]; snakeScore = 0; document.getElementById('snakeScore').innerText = 0; dx = 1; dy = 0; if(snakeLoop) clearInterval(snakeLoop); snakeLoop = setInterval(runSnake, 100);
             document.onkeydown = (e) => {
-                if(e.key === 'ArrowUp' && dy !== 1) { dx=0; dy=-1; }
-                if(e.key === 'ArrowDown' && dy !== -1) { dx=0; dy=1; }
-                if(e.key === 'ArrowLeft' && dx !== 1) { dx=-1; dy=0; }
-                if(e.key === 'ArrowRight' && dx !== -1) { dx=1; dy=0; }
+                if(e.key === 'ArrowUp' && dy !== 1) { dx=0; dy=-1; } if(e.key === 'ArrowDown' && dy !== -1) { dx=0; dy=1; } if(e.key === 'ArrowLeft' && dx !== 1) { dx=-1; dy=0; } if(e.key === 'ArrowRight' && dx !== -1) { dx=1; dy=0; }
             };
         }
         function runSnake() {
@@ -1744,8 +2089,7 @@
             if(snake.some(s => s.x === head.x && s.y === head.y)) { clearInterval(snakeLoop); alert("Memory Leak! Script Crashed."); return; }
             snake.unshift(head);
             if(head.x === food.x && head.y === food.y) { snakeScore += 64; document.getElementById('snakeScore').innerText = snakeScore; food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)}; } 
-            else { snake.pop(); }
-            drawSnake();
+            else { snake.pop(); } drawSnake();
         }
         function drawSnake() {
             snakeCtx.fillStyle = '#1f2937'; snakeCtx.fillRect(0,0,400,400);
@@ -1756,10 +2100,369 @@
         function switchTool(toolId) {
             document.querySelectorAll('.tool-view').forEach(el => el.classList.add('hidden'));
             document.getElementById(toolId).classList.remove('hidden');
-            if(toolId === 'tool-ip') fetchMyIp(); if(toolId === 'tool-pass') generatePass();
+            if(toolId === 'tool-ip') fetchMyIp(); 
+            if(toolId === 'tool-pass') generatePass();
+            if(toolId === 'tool-barcode') generateCodes();
         }
 
-        // --- UTILITY FUNCTIONS (CSV, YAML, HASH, ETC.) ---
+        /* --- NEW PRO TOOL: BARCODE/QR GENERATOR --- */
+        function generateCodes() {
+            const val = document.getElementById('barcodeInput').value;
+            const qrcodeDiv = document.getElementById('qrcodeOutput');
+            const barcodeSvg = document.getElementById('barcodeOutput');
+            
+            if(!val) {
+                qrcodeDiv.innerHTML = "";
+                barcodeSvg.innerHTML = "";
+                return;
+            }
+            
+            // Generate Barcode
+            try {
+                const colorLine = document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000';
+                JsBarcode("#barcodeOutput", val, {
+                    format: "CODE128",
+                    lineColor: colorLine,
+                    background: "transparent",
+                    width: 2,
+                    height: 50,
+                    displayValue: true
+                });
+            } catch(e) {}
+            
+            // Generate QR Code
+            qrcodeDiv.innerHTML = "";
+            try {
+                new QRCode(qrcodeDiv, {
+                    text: val,
+                    width: 128,
+                    height: 128,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } catch(e) {}
+        }
+
+        /* --- NEW PRO TOOL: RSA KEY GENERATOR --- */
+        function generateRSA() {
+            if(typeof JSEncrypt === 'undefined') {
+                alert("RSA library is loading. Check your internet connection or try again in a few seconds.");
+                return;
+            }
+            const size = document.getElementById('rsaSize').value;
+            const btn = document.getElementById('btnGenRSA');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            btn.disabled = true;
+            
+            // Run asynchronously to avoid freezing the UI
+            setTimeout(() => {
+                const crypt = new JSEncrypt({default_key_size: parseInt(size)});
+                crypt.getKey();
+                
+                document.getElementById('rsaPub').value = crypt.getPublicKey();
+                document.getElementById('rsaPriv').value = crypt.getPrivateKey();
+                
+                btn.innerHTML = 'Generate Keys';
+                btn.disabled = false;
+            }, 50);
+        }
+
+
+        /* --- NEW: PRO PASSPHRASE GENERATOR MODES --- */
+        function togglePassMode() {
+            const mode = document.getElementById('passMode').value;
+            if(mode === 'passphrase') {
+                document.getElementById('passLenDiv').classList.add('hidden');
+                document.getElementById('passWordCountDiv').classList.remove('hidden');
+            } else {
+                document.getElementById('passWordCountDiv').classList.add('hidden');
+                document.getElementById('passLenDiv').classList.remove('hidden');
+            }
+            generatePass();
+        }
+
+        function generatePass() {
+            const mode = document.getElementById('passMode').value;
+            if(mode === 'passphrase') {
+                // Generate Passphrase style
+                const words = ["correct", "horse", "battery", "staple", "cloud", "docker", "kube", "pod", "node", "cluster", "deploy", "server", "linux", "system", "admin", "devops", "script", "bash", "agile", "sprint"];
+                const count = parseInt(document.getElementById('passWordCount').value);
+                const useSym = document.getElementById('passSymbols').checked;
+                const useNum = document.getElementById('passNumbers').checked;
+                
+                let passParts = [];
+                for(let i=0; i<count; i++) {
+                    passParts.push(words[Math.floor(Math.random() * words.length)]);
+                }
+                
+                let separator = "-";
+                if(useSym && useNum) separator = `${Math.floor(Math.random()*10)}!`;
+                else if(useSym) separator = ["!", "@", "#", "$"][Math.floor(Math.random()*4)];
+                else if(useNum) separator = `${Math.floor(Math.random()*10)}`;
+                
+                document.getElementById('passOutput').value = passParts.join(separator);
+                
+            } else {
+                // Standard Generator
+                const len = document.getElementById('passLen').value; 
+                const useSym = document.getElementById('passSymbols').checked; 
+                const useNum = document.getElementById('passNumbers').checked;
+                
+                let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; 
+                if(useNum) chars += "0123456789"; 
+                if(useSym) chars += "!@#$%^&*()_+";
+                
+                let pass = ""; 
+                for(let i=0; i<len; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length)); 
+                document.getElementById('passOutput').value = pass;
+            }
+        }
+        function copyPass() { navigator.clipboard.writeText(document.getElementById('passOutput').value); alert("Copied!"); }
+
+        /* --- EXISTING TOOLS LOGIC --- */
+        function generateBcrypt() {
+            if(typeof dcodeIO === 'undefined') { document.getElementById('bcryptOutput').innerText = "Error: bcrypt library failed to load."; return; }
+            const input = document.getElementById('bcryptInput').value; const rounds = parseInt(document.getElementById('bcryptRounds').value) || 10;
+            const btn = document.getElementById('btnGenerateBcrypt');
+            if(!input) { document.getElementById('bcryptOutput').innerText = "Please enter a password."; return; }
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Hashing...'; btn.disabled = true;
+            setTimeout(() => {
+                const salt = dcodeIO.bcrypt.genSaltSync(rounds); const hash = dcodeIO.bcrypt.hashSync(input, salt);
+                document.getElementById('bcryptOutput').innerText = hash; btn.innerHTML = 'Generate Hash <i class="fas fa-cog"></i>'; btn.disabled = false;
+            }, 50);
+        }
+        /* --- NEW PRO TOOLS LOGIC --- */
+        
+        function renderMarkdown() {
+            const val = document.getElementById('mdInput').value;
+            if(typeof marked !== 'undefined') {
+                // marked handles the rendering, we just update the innerHTML
+                document.getElementById('mdOutput').innerHTML = marked.parse(val || '# Enter Markdown here...');
+                
+                // Add basic tailwind classes to rendered output elements so they look decent 
+                const out = document.getElementById('mdOutput');
+                out.querySelectorAll('h1').forEach(h => h.classList.add('text-3xl', 'font-bold', 'mb-4', 'mt-4'));
+                out.querySelectorAll('h2').forEach(h => h.classList.add('text-2xl', 'font-bold', 'mb-3', 'mt-3'));
+                out.querySelectorAll('h3').forEach(h => h.classList.add('text-xl', 'font-bold', 'mb-2', 'mt-2'));
+                out.querySelectorAll('p').forEach(p => p.classList.add('mb-4'));
+                out.querySelectorAll('ul').forEach(u => u.classList.add('list-disc', 'ml-6', 'mb-4'));
+                out.querySelectorAll('ol').forEach(o => o.classList.add('list-decimal', 'ml-6', 'mb-4'));
+                out.querySelectorAll('pre').forEach(p => p.classList.add('bg-gray-100', 'dark:bg-gray-900', 'p-4', 'rounded-lg', 'font-mono', 'text-sm', 'mb-4', 'overflow-x-auto'));
+                out.querySelectorAll('code').forEach(c => c.classList.add('bg-gray-100', 'dark:bg-gray-900', 'px-1', 'rounded', 'font-mono', 'text-sm'));
+            } else {
+                document.getElementById('mdOutput').innerHTML = "<p class='text-red-500'>Marked.js library failed to load. Check internet connection.</p>";
+            }
+        }
+
+        function checkHttpCode() {
+            const code = document.getElementById('httpInput').value;
+            const res = document.getElementById('httpResult');
+            const desc = document.getElementById('httpDesc');
+            
+            // Standard HTTP Code dictionary
+            const codes = {
+                200: { t: "OK", d: "The request succeeded." },
+                201: { t: "Created", d: "The request succeeded, and a new resource was created." },
+                202: { t: "Accepted", d: "The request has been received but not yet acted upon." },
+                204: { t: "No Content", d: "The server successfully processed the request and is not returning any content." },
+                301: { t: "Moved Permanently", d: "The URL of the requested resource has been changed permanently." },
+                302: { t: "Found", d: "The URI of requested resource has been changed temporarily." },
+                304: { t: "Not Modified", d: "Indicates that the resource has not been modified since the version specified by the request headers." },
+                400: { t: "Bad Request", d: "The server could not understand the request due to invalid syntax." },
+                401: { t: "Unauthorized", d: "Although the HTTP standard specifies 'unauthorized', semantically this response means 'unauthenticated'." },
+                403: { t: "Forbidden", d: "The client does not have access rights to the content." },
+                404: { t: "Not Found", d: "The server can not find the requested resource." },
+                405: { t: "Method Not Allowed", d: "The request method is known by the server but is not supported by the target resource." },
+                408: { t: "Request Timeout", d: "The server timed out waiting for the request." },
+                418: { t: "I'm a teapot", d: "The server refuses the attempt to brew coffee with a teapot." },
+                429: { t: "Too Many Requests", d: "The user has sent too many requests in a given amount of time ('rate limiting')." },
+                500: { t: "Internal Server Error", d: "The server has encountered a situation it does not know how to handle." },
+                502: { t: "Bad Gateway", d: "The server, while working as a gateway to get a response needed to handle the request, got an invalid response." },
+                503: { t: "Service Unavailable", d: "The server is not ready to handle the request (e.g. overloaded or down for maintenance)." },
+                504: { t: "Gateway Timeout", d: "The server is acting as a gateway and cannot get a response in time." }
+            };
+
+            if(!code) {
+                res.innerHTML = "Enter a code...";
+                desc.innerText = "";
+                return;
+            }
+
+            if(codes[code]) {
+                let colorClass = code < 300 ? "text-green-500" : (code < 400 ? "text-blue-500" : (code < 500 ? "text-orange-500" : "text-red-500"));
+                res.innerHTML = `<span class="${colorClass}">${code} - ${codes[code].t}</span>`;
+                desc.innerText = codes[code].d;
+            } else {
+                res.innerHTML = `<span class="text-gray-500">Code Not Found</span>`;
+                desc.innerText = "This code is not in the quick-reference database. Check standard IANA HTTP status codes.";
+            }
+        }
+
+        function parseUrl() {
+            const input = document.getElementById('urlParseInput').value;
+            const pro = document.getElementById('up-protocol');
+            const hst = document.getElementById('up-host');
+            const prt = document.getElementById('up-port');
+            const pth = document.getElementById('up-path');
+            const sch = document.getElementById('up-search');
+            const hsh = document.getElementById('up-hash');
+
+            if(!input) {
+                pro.innerText = '-'; hst.innerText = '-'; prt.innerText = '-'; pth.innerText = '-'; sch.innerText = '-'; hsh.innerText = '-';
+                return;
+            }
+
+            try {
+                // Provide a default schema if the user just types "example.com"
+                let urlStr = input;
+                if(!urlStr.startsWith('http://') && !urlStr.startsWith('https://') && !urlStr.startsWith('ftp://')) {
+                    if(urlStr.includes('.')) urlStr = 'https://' + urlStr;
+                }
+
+                const u = new URL(urlStr);
+                pro.innerText = u.protocol || '-';
+                hst.innerText = u.hostname || '-';
+                
+                // If port is blank but protocol exists, infer default ports
+                if(u.port) {
+                    prt.innerText = u.port;
+                } else if(u.protocol === 'https:') {
+                    prt.innerText = '443 (implicit)';
+                } else if(u.protocol === 'http:') {
+                    prt.innerText = '80 (implicit)';
+                } else {
+                    prt.innerText = '-';
+                }
+
+                pth.innerText = u.pathname || '-';
+                hsh.innerText = u.hash || '-';
+                
+                // Format Search Parameters nicely
+                if(u.searchParams.toString()) {
+                    let params = [];
+                    for(const [key, value] of u.searchParams) {
+                        params.push(`${key}: ${value}`);
+                    }
+                    sch.innerText = params.join('\n');
+                } else {
+                    sch.innerText = '-';
+                }
+            } catch(e) {
+                pro.innerText = 'Error'; 
+                hst.innerText = 'Error'; 
+                prt.innerText = '-'; 
+                pth.innerText = '-'; 
+                sch.innerText = 'Invalid URL string'; 
+                hsh.innerText = '-';
+            }
+        }
+
+        function convertJsonToGo() {
+            const inputStr = document.getElementById('j2gInput').value; const outputArea = document.getElementById('j2gOutput');
+            if (!inputStr.trim()) { outputArea.value = ''; return; }
+            try { const jsonObj = JSON.parse(inputStr); outputArea.value = generateGoStruct("AutoGenerated", jsonObj); } catch (e) {outputArea.value = "// Invalid JSON format\n// Error: " + e.message;
+            }
+        }
+
+        // Simple JSON to Go structurally recursive generator
+        function generateGoStruct(structName, obj) {
+            if (obj === null) return `type ${structName} interface{} // null detected`;
+            if (Array.isArray(obj)) {
+                if(obj.length > 0) {
+                    const innerType = getGoType(obj[0], structName + "Item");
+                    return `type ${structName} []${innerType}`;
+                }
+                return `type ${structName} []interface{}`;
+            }
+            if (typeof obj !== 'object') {
+                return `type ${structName} ${getGoType(obj, "")}`;
+            }
+
+            let result = `type ${structName} struct {\n`;
+            let nestedStructs = "";
+
+            for (const key in obj) {
+                const goKey = toPascalCase(key);
+                const value = obj[key];
+                const typeName = getGoType(value, structName + goKey);
+                
+                result += `\t${goKey} ${typeName} \`json:"${key}"\`\n`;
+                
+                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                    nestedStructs += "\n" + generateGoStruct(typeName, value);
+                } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
+                    nestedStructs += "\n" + generateGoStruct(structName + goKey + "Item", value[0]);
+                }
+            }
+            result += `}`;
+            return result + nestedStructs;
+        }
+
+        function getGoType(val, structHint) {
+            if (val === null) return "interface{}";
+            if (typeof val === "string") return "string";
+            if (typeof val === "number") return Number.isInteger(val) ? "int" : "float64";
+            if (typeof val === "boolean") return "bool";
+            if (Array.isArray(val)) {
+                if (val.length === 0) return "[]interface{}";
+                return "[]" + getGoType(val[0], structHint + "Item");
+            }
+            if (typeof val === "object") return structHint;
+            return "interface{}";
+        }
+
+        function toPascalCase(str) {
+            return str.replace(/(?:^\w|[A-Z]|\b\w|_\w)/g, (word, index) => {
+                return word.replace('_', '').toUpperCase();
+            }).replace(/\s+/g, '');
+        }
+
+        /* --- EXISTING TOOLS LOGIC --- */
+        function genSystemd() {
+            const desc = document.getElementById('sysdDesc').value || 'Service';
+            const exec = document.getElementById('sysdExec').value || '/bin/true';
+            const user = document.getElementById('sysdUser').value || 'root';
+            const restart = document.getElementById('sysdRestart').value || 'always';
+            const out = `[Unit]\nDescription=${desc}\nAfter=network.target\n\n[Service]\nType=simple\nUser=${user}\nExecStart=${exec}\nRestart=${restart}\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target`;
+            document.getElementById('sysdOutput').value = out;
+        }
+
+        function genDocker() {
+            const base = document.getElementById('docBase').value || 'alpine:latest';
+            const work = document.getElementById('docWork').value || '/app';
+            const inst = document.getElementById('docInst').value || '';
+            const port = document.getElementById('docPort').value || '';
+            const cmd = document.getElementById('docCmd').value || '["sh"]';
+            let out = `# Auto-generated Dockerfile\nFROM ${base}\n\nWORKDIR ${work}\n\nCOPY . .\n`;
+            if (inst) out += `\nRUN ${inst}\n`;
+            if (port) out += `\nEXPOSE ${port}\n`;
+            out += `\nCMD ${cmd}`;
+            document.getElementById('docOutput').value = out;
+        }
+
+        function evalJsonPath() {
+            const jsonStr = document.getElementById('jpInput').value;
+            const path = document.getElementById('jpPath').value;
+            const out = document.getElementById('jpOutput');
+            if(!jsonStr || !path) { out.value = ''; return; }
+            
+            try {
+                const obj = JSON.parse(jsonStr);
+                const normalizedPath = path.replace(/\["?'?([^"''\\]]+)"?'?\]/g, '.$1').replace(/^\./, '');
+                const keys = normalizedPath.split('.');
+                let result = obj;
+                for(let key of keys) {
+                    if(result === undefined || result === null) break;
+                    result = result[key];
+                }
+                out.value = result !== undefined ? (typeof result === 'object' ? JSON.stringify(result, null, 2) : result) : 'undefined / not found';
+            } catch(e) {
+                out.value = "Error parsing JSON payload or Path format.";
+            }
+        }
+
         function jsonToCsv() {
             const jsonStr = document.getElementById('csvJsonInput').value;
             try {
@@ -1969,265 +2672,518 @@
             document.getElementById('outB').innerText = bytes.toLocaleString(); document.getElementById('outKB').innerText = (bytes / 1024).toLocaleString(undefined, {maximumFractionDigits:2}); document.getElementById('outMB').innerText = (bytes / 1024**2).toLocaleString(undefined, {maximumFractionDigits:2}); document.getElementById('outGB').innerText = (bytes / 1024**3).toLocaleString(undefined, {maximumFractionDigits:2}); document.getElementById('outTB').innerText = (bytes / 1024**4).toLocaleString(undefined, {maximumFractionDigits:4}); document.getElementById('outPB').innerText = (bytes / 1024**5).toLocaleString(undefined, {maximumFractionDigits:6});
         }
 
+        function genUUID(count) {
+            let res = [];
+            for(let i=0; i<count; i++) {
+                res.push(crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c=='x'?r:(r&0x3|0x8)).toString(16); }));
+            }
+            if(count === 1) {
+                document.getElementById('uuidOutput').value = res[0];
+                document.getElementById('uuidBulk').classList.add('hidden');
+            } else {
+                document.getElementById('uuidOutput').value = res[0] + " (and more below)";
+                const bulk = document.getElementById('uuidBulk');
+                bulk.classList.remove('hidden');
+                bulk.value = res.join('\n');
+            }
+        }
+
+        function convertCase(type) {
+            let str = document.getElementById('caseInput').value;
+            if(!str) return;
+            switch(type) {
+                case 'upper': str = str.toUpperCase(); break;
+                case 'lower': str = str.toLowerCase(); break;
+                case 'camel': str = str.replace(/(?:^\w|[A-Z]|\b\w)/g, (w, i) => i===0 ? w.toLowerCase() : w.toUpperCase()).replace(/\s+/g, ''); break;
+                case 'snake': str = str.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x=>x.toLowerCase()).join('_') || str.replace(/\s+/g, '_').toLowerCase(); break;
+                case 'kebab': str = str.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)?.map(x=>x.toLowerCase()).join('-') || str.replace(/\s+/g, '-').toLowerCase(); break;
+                case 'title': str = str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); break;
+                case 'base64': try { str = btoa(str); } catch(e) { alert("Invalid string for Base64"); } break;
+            }
+            document.getElementById('caseInput').value = str;
+        }
+
+        function updateColor(source) {
+            let hex = document.getElementById('colorHex').value;
+            let rgb = document.getElementById('colorRgb').value;
+            const preview = document.getElementById('colorPreview');
+            
+            try {
+                if(source === 'hex') {
+                    if(!hex.startsWith('#')) hex = '#' + hex;
+                    if(/^#[0-9A-F]{6}$/i.test(hex)) {
+                        let r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+                        document.getElementById('colorRgb').value = `rgb(${r}, ${g}, ${b})`;
+                        preview.style.backgroundColor = hex;
+                    }
+                } else if(source === 'rgb') {
+                    const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                    if(match) {
+                        let h = "#" + (1 << 24 | match[1] << 16 | match[2] << 8 | match[3]).toString(16).slice(1).toUpperCase();
+                        document.getElementById('colorHex').value = h;
+                        preview.style.backgroundColor = h;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        /* --- EPOCH AND STRING ESCAPE/MAC FORMATTER LOGIC --- */
+        setInterval(() => {
+            const el = document.getElementById('currentEpoch');
+            if(el && !el.closest('.hidden')) { el.innerText = Math.floor(Date.now() / 1000); }
+        }, 1000);
+        
+        function convertEpoch() {
+            const val = document.getElementById('epochInput').value;
+            if(!val) { document.getElementById('epochToDateOut').innerText = ""; return; }
+            const d = new Date(val.length > 10 ? parseInt(val) : parseInt(val)*1000);
+            document.getElementById('epochToDateOut').innerText = d.toLocaleString();
+        }
+        
+        function convertDateToEpoch() {
+            const val = document.getElementById('dateInput').value;
+            if(!val) return; const d = new Date(val);
+            document.getElementById('dateToEpochOut').innerText = "Secs: " + Math.floor(d.getTime()/1000) + " | ms: " + d.getTime();
+        }
+        
+        function runEscape(mode) {
+            const input = document.getElementById('escapeInput').value; let out = "";
+            try {
+                if(mode === 'json_esc') out = JSON.stringify(input).slice(1, -1);
+                if(mode === 'json_unesc') {
+                    let str = input; if(!str.startsWith('"')) str = '"' + str; if(!str.endsWith('"')) str = str + '"';
+                    out = JSON.parse(str);
+                }
+                if(mode === 'html_esc') {
+                    out = input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                }
+            } catch(e) { out = "Error: Invalid input for this operation."; }
+            document.getElementById('escapeOutput').value = out;
+        }
+
+        function formatMac() {
+            let mac = document.getElementById('macInput').value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+            if(mac.length > 12) mac = mac.substring(0, 12);
+            document.getElementById('macInput').value = mac; // auto-clean input
+            
+            if(mac.length === 12) {
+                document.getElementById('macColon').innerText = mac.match(/.{1,2}/g).join(':');
+                document.getElementById('macHyphen').innerText = mac.match(/.{1,2}/g).join('-');
+                document.getElementById('macDot').innerText = mac.match(/.{1,4}/g).join('.').toLowerCase();
+                document.getElementById('macPlain').innerText = mac.toLowerCase();
+            } else {
+                const pending = "Waiting for 12 hex chars...";
+                document.getElementById('macColon').innerText = pending;
+                document.getElementById('macHyphen').innerText = pending;
+                document.getElementById('macDot').innerText = pending;
+                document.getElementById('macPlain').innerText = pending;
+            }
+        }
+
+        /* --- DROID & SYSTEM FUNCTIONS --- */
+        let droidActive = false;
+        function initDroid() {
+            const droid = document.getElementById('droid');
+            if(!droid) return;
+            // Drag logic
+            let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
+            droid.addEventListener("touchstart", dragStart, {passive: false});
+            droid.addEventListener("touchend", dragEnd, {passive: false});
+            droid.addEventListener("touchmove", drag, {passive: false});
+            droid.addEventListener("mousedown", dragStart);
+            document.addEventListener("mouseup", dragEnd);
+            document.addEventListener("mousemove", drag);
+
+            function dragStart(e) {
+                if (e.type === "touchstart") { initialX = e.touches[0].clientX - xOffset; initialY = e.touches[0].clientY - yOffset; } 
+                else { initialX = e.clientX - xOffset; initialY = e.clientY - yOffset; }
+                if (e.target === droid || droid.contains(e.target)) { isDragging = true; }
+            }
+            function dragEnd(e) { initialX = currentX; initialY = currentY; isDragging = false; }
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    if (e.type === "touchmove") { currentX = e.touches[0].clientX - initialX; currentY = e.touches[0].clientY - initialY; } 
+                    else { currentX = e.clientX - initialX; currentY = e.clientY - initialY; }
+                    xOffset = currentX; yOffset = currentY;
+                    setTranslate(currentX, currentY, droid);
+                }
+            }
+            function setTranslate(xPos, yPos, el) {
+                // Ignore translate if docked or rocket active to prevent visual bugs
+                if(!el.classList.contains('docked') && !el.classList.contains('rocket-active')) {
+                    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+                }
+            }
+        }
+
+        function handleGlobalClick(e) {
+            const menu = document.getElementById('bot-menu');
+            const droid = document.getElementById('droid');
+            if(menu && menu.classList.contains('active') && !droid.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        }
+
+        // Single click toggles menu
+        document.getElementById('droid').addEventListener('click', function(e) {
+            // Prevent triggering if dragging
+            if(e.detail === 0) return; 
+            const menu = document.getElementById('bot-menu');
+            if(this.classList.contains('docked')) {
+                this.classList.remove('docked');
+                botSpeak("Systems restored.");
+                return;
+            }
+            if(!e.target.closest('.droid-hud')) {
+                menu.classList.toggle('active');
+            }
+        });
+
+        // Ensure double-click acts smoothly as a single click behavior without zooming
+        document.getElementById('droid').addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            const menu = document.getElementById('bot-menu');
+            if(!menu.classList.contains('active')) menu.classList.add('active');
+        });
+
+        function botSpeak(text) {
+            const b = document.getElementById('bot-bubble');
+            const d = document.getElementById('droid-body');
+            b.innerText = text; 
+            b.classList.add('show');
+            d.classList.add('talking');
+            
+            setTimeout(() => {
+                b.classList.remove('show');
+                d.classList.remove('talking');
+            }, Math.max(9000, text.length * 80)); // scale reading time dynamically
+            
+            if('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = 1.2;
+                utterance.rate = 1.1;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function droidDance() {
+            const d = document.getElementById('droid-body');
+            d.classList.add('dancing');
+            botSpeak("Executing dance.sh!");
+            setTimeout(() => d.classList.remove('dancing'), 9000);
+            closeMenu();
+        }
+
+        let isTurbo = false;
+        let turboTimeout = null;
+
+        function toggleTurboMode() {
+            const container = document.getElementById('droid');
+            
+            // If clicked while already flying, cancel and land immediately
+            if(isTurbo) {
+                isTurbo = false;
+                clearTimeout(turboTimeout);
+                container.classList.remove('rocket-active');
+                document.body.classList.remove('turbo-mode');
+                botSpeak("Turbo mode aborted. Landing...");
+                return;
+            }
+
+            // Activate Turbo Mode
+            isTurbo = true;
+            container.classList.add('rocket-active');
+            document.body.classList.add('turbo-mode');
+            botSpeak("Turbo mode activated! Commencing rapid deployment sequence.");
+            
+            // Automatically return to default position after 5 seconds
+            turboTimeout = setTimeout(() => {
+                isTurbo = false;
+                container.classList.remove('rocket-active');
+                document.body.classList.remove('turbo-mode');
+                botSpeak("Turbo mode deactivated. healing the system...");
+            }, 6000); // 5000 milliseconds = 5 seconds
+        }
+
+        function selfDestruct() {
+            botSpeak("Self destruct sequence initiated. 3... 2... 1...");
+            let count = 3;
+            const droid = document.getElementById('droid-body');
+            const int = setInterval(() => {
+                count--;
+                if(count > 0) botSpeak(count + "...");
+                droid.style.filter = `hue-rotate(${count * 90}deg) brightness(2)`;
+                if(count === 0) {
+                    clearInterval(int);
+                    droid.style.display = 'none';
+                    setTimeout(() => {
+                        droid.style.display = 'block';
+                        droid.style.filter = 'none';
+                        botSpeak("Just kidding! SREs never really let things die.");
+                    }, 4000);
+                }
+            }, 1000);
+        }
+
+        function deploySim() {
+            const overlay = document.getElementById('deploy-overlay');
+            const log = document.getElementById('deploy-log');
+            overlay.classList.remove('hidden');
+            
+            const logs = [
+                "Cloning repository...",
+                "Running static analysis (SonarQube)... [PASS]",
+                "Building Docker image...",
+                "Pushing to ECR...",
+                "Applying Terraform state...",
+                "Updating Kubernetes manifests...",
+                "Rolling out deployment...",
+                "Waiting for pods to be ready...",
+                "Running e2e integration tests...",
+                "SUCCESS: Deployment completed with 0 errors."
+            ];
+            
+            let i = 0;
+            log.innerHTML = "";
+            const interval = setInterval(() => {
+                if(i < logs.length) {
+                    log.innerHTML += logs[i] + "<br>";
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        botSpeak("Deployment successful. P99 latency is stable.");
+                    }, 1500);
+                }
+            }, 600);
+        }
+
+        function runSystemScan() {
+            const scanner = document.getElementById('scanner');
+            scanner.style.display = 'block';
+            botSpeak("Scanning system and network parameters...");
+            
+            setTimeout(() => {
+                scanner.style.display = 'none';
+                
+                // Fetch real system details using modern APIs
+                let connectionType = 'Unknown';
+                if(navigator.connection) {
+                    connectionType = navigator.connection.effectiveType + " (" + navigator.connection.downlink + " Mbps)";
+                }
+                
+                let memory = navigator.deviceMemory ? navigator.deviceMemory + "+ GB" : "Hidden";
+                let cores = navigator.hardwareConcurrency || "Hidden";
+                let platform = navigator.platform;
+                
+                let batteryStr = "N/A";
+                if(navigator.getBattery) {
+                    navigator.getBattery().then(bat => {
+                        batteryStr = Math.round(bat.level * 100) + "% " + (bat.charging ? "⚡" : "🔋");
+                        finalizeScan(platform, cores, memory, connectionType, batteryStr);
+                    });
+                } else {
+                    finalizeScan(platform, cores, memory, connectionType, batteryStr);
+                }
+                
+            }, 2000);
+        }
+        
+        function finalizeScan(platform, cores, memory, connection, battery) {
+            const report = `OS: ${platform}\nCores: ${cores}\nRAM: ${memory}\nNet: ${connection}\nPower: ${battery}\nStatus: ALL SYSTEMS NOMINAL`;
+            botSpeak(report);
+            console.log("System Scan Report:\n" + report);
+        }
+
+        let isListening = false;
+        function toggleVoice(btn) {
+            if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                botSpeak("Speech recognition not supported in this browser.");
+                return;
+            }
+            
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const status = document.getElementById('mic-status');
+            const recognition = new SpeechRec();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            
+            if(!isListening) {
+                isListening = true;
+                btn.classList.add('listening');
+                status.innerText = "Listening...";
+                recognition.start();
+                
+                recognition.onresult = function(event) {
+                    const command = event.results[0][0].transcript.toLowerCase();
+                    status.innerText = "Heard: " + command;
+                    processCommand(command);
+                    resetMic();
+                };
+                
+                recognition.onerror = function(event) {
+                    status.innerText = "Error: " + event.error;
+                    resetMic();
+                };
+                
+                recognition.onend = function() {
+                    resetMic();
+                };
+            } else {
+                recognition.stop();
+                resetMic();
+            }
+            
+            function resetMic() {
+                isListening = false;
+                btn.classList.remove('listening');
+                setTimeout(() => { if(!isListening) status.innerText = "Tap to speak..."; }, 2000);
+            }
+        }
+        
+        function processCommand(cmd) {
+            if(cmd.includes('home')) switchTab('home');
+            else if(cmd.includes('stack') || cmd.includes('tool')) switchTab('tools');
+            else if(cmd.includes('project')) switchTab('projects');
+            else if(cmd.includes('blog') || cmd.includes('article')) switchTab('blog');
+            else if(cmd.includes('play') || cmd.includes('yard') || cmd.includes('game')) switchTab('yaml');
+            else if(cmd.includes('contact') || cmd.includes('connect')) switchTab('contact');
+            else if(cmd.includes('deploy')) deploySim();
+            else if(cmd.includes('joke')) tellJoke();
+            else if(cmd.includes('scan') || cmd.includes('report')) runSystemScan();
+            else if(cmd.includes('dance')) droidDance();
+            else if(cmd.includes('dark') || cmd.includes('light') || cmd.includes('theme')) toggleTheme();
+            else if(cmd.includes('matrix')) toggleMatrixMode();
+            else if(cmd.includes('lock')) lockScreen();
+            else botSpeak("Command not recognized: " + cmd);
+        }
+
         function handleContactSubmit(e) {
             e.preventDefault();
-            const myForm = e.target;
-            const formData = new FormData(myForm);
-            const btn = myForm.querySelector('button');
+            const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
-            btn.innerHTML = 'Sending...'; btn.disabled = true;
-            // Netlify AJAX submission requires application/x-www-form-urlencoded
-            const urlEncodedData = new URLSearchParams(formData).toString();
-            fetch('/', {
-                method: 'POST',
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            fetch("/", {
+                method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: urlEncodedData
+                body: new URLSearchParams(formData).toString(),
             })
             .then(() => {
-                document.getElementById('toast').classList.remove('hidden'); 
-                document.getElementById('toast-title').innerText = "Message Sent!"; 
-                document.getElementById('toast-msg').innerText = "Thank you. I will get back to you shortly."; 
-                btn.innerHTML = "Sent! <i class='fas fa-check'></i>";
-                setTimeout(() => { 
-                    myForm.reset(); btn.innerHTML = originalText; btn.disabled = false; 
-                    document.getElementById('toast').classList.add('hidden'); switchTab('home'); 
-                }, 3000);
+                const toast = document.getElementById('toast');
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 5000);
+                e.target.reset();
+                botSpeak("Message transmitted successfully!");
             })
-            .catch((error) => {
-                document.getElementById('toast-title').innerText = "Error"; 
-                document.getElementById('toast-msg').innerText = "Could not send message. Please try again."; 
-                document.getElementById('toast').classList.remove('hidden'); 
-                btn.innerHTML = "Failed";
-                setTimeout(() => { btn.disabled = false; btn.innerHTML = originalText; document.getElementById('toast').classList.add('hidden'); }, 3000);
+            .catch((error) => alert(error))
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             });
         }
 
-        // --- ENHANCED DROID V4.0 LOGIC (UPDATED) ---
-        let isDraggingDroid = false;
-        let droidOffsets = { x: 0, y: 0 };
-        let idleTimer = null; // Timer for sleep mode
-        const droidEl = document.getElementById('droid');
+        // --- NEW: MATRIX MODE LOGIC ---
+        let isMatrixForced = false;
+        function toggleMatrixMode() {
+            const canvas = document.getElementById('matrix');
+            isMatrixForced = !isMatrixForced;
+            if(isMatrixForced) {
+                canvas.classList.add('forced-on');
+                botSpeak("Matrix override engaged. Follow the white rabbit.");
+            } else {
+                canvas.classList.remove('forced-on');
+                botSpeak("Matrix override disengaged.");
+                // Ensure it falls back to auto-mode properly based on theme
+                const html = document.documentElement;
+                if (html.classList.contains('dark')) canvas.classList.add('auto-mode');
+                else canvas.classList.remove('auto-mode');
+            }
+        }
 
-        function initDroid() {
-            const eyes = document.querySelectorAll('.d-eye');
-            const droidBody = document.getElementById('droid-body');
+        // Initialize Matrix Background Drawing
+        const canvasMatrix = document.getElementById('matrix');
+        const ctxMatrix = canvasMatrix.getContext('2d');
+        canvasMatrix.width = window.innerWidth;
+        canvasMatrix.height = window.innerHeight;
+        const matrixCharsList = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=~[]{}|;:,.<>?/'.split('');
+        const fontSizeMatrix = 14;
+        const columnsMatrix = canvasMatrix.width / fontSizeMatrix;
+        const dropsMatrix = [];
+        for(let x = 0; x < columnsMatrix; x++) dropsMatrix[x] = 1;
 
-            // --- 1. SLEEP MODE (Eco-Sentry) ---
-            const resetIdleTimer = () => {
-                droidBody.classList.remove('sleeping'); // Wake up
-                clearTimeout(idleTimer);
-                // Go to sleep after 10 seconds of inactivity
-                idleTimer = setTimeout(() => {
-                    droidBody.classList.add('sleeping');
-                }, 10000); 
-            };
-            
-            // Listen for global mouse movement to wake/sleep droid
+        function drawMatrix() {
+            ctxMatrix.fillStyle = document.documentElement.classList.contains('dark') ? 'rgba(2, 6, 23, 0.05)' : 'rgba(248, 250, 252, 0.05)';
+            ctxMatrix.fillRect(0, 0, canvasMatrix.width, canvasMatrix.height);
+            ctxMatrix.fillStyle = '#2563EB'; // Matrix blue color
+            ctxMatrix.font = fontSizeMatrix + 'px monospace';
+            for(let i = 0; i < dropsMatrix.length; i++) {
+                const text = matrixCharsList[Math.floor(Math.random() * matrixCharsList.length)];
+                ctxMatrix.fillText(text, i * fontSizeMatrix, dropsMatrix[i] * fontSizeMatrix);
+                if(dropsMatrix[i] * fontSizeMatrix > canvasMatrix.height && Math.random() > 0.975) dropsMatrix[i] = 0;
+                dropsMatrix[i]++;
+            }
+        }
+        setInterval(drawMatrix, 50);
+
+        window.addEventListener('resize', () => {
+            canvasMatrix.width = window.innerWidth;
+            canvasMatrix.height = window.innerHeight;
+        });
+
+        document.getElementById('main-content').addEventListener('scroll', () => {
+            const el = document.getElementById('main-content');
+            document.getElementById('scroll-progress').style.width = ((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100) + '%';
+        });
+        /* --- DROID EYE TRACKING --- */
+        function initEyeTracking() {
             document.addEventListener('mousemove', (e) => {
-                resetIdleTimer(); // Wake up on mouse move
+                const eyes = document.querySelectorAll('.d-eye');
+                const droidBody = document.getElementById('droid-body');
                 
-                if(isDraggingDroid) {
-                    // Drag logic
-                    droidEl.style.left = (e.clientX - droidOffsets.x) + 'px';
-                    droidEl.style.top = (e.clientY - droidOffsets.y) + 'px';
-                    droidEl.style.bottom = 'auto'; 
-                    droidEl.style.right = 'auto';
-                    return; 
-                }
-                
-                // Eye tracking (Standard behavior)
-                const rect = droidEl.getBoundingClientRect();
-                const anchorX = rect.left + rect.width / 2; const anchorY = rect.top + rect.height / 2;
-                const angle = Math.atan2(e.clientY - anchorY, e.clientX - anchorX);
-                const distance = Math.min(Math.hypot(e.clientX - anchorX, e.clientY - anchorY), 20);
-                const moveX = Math.cos(angle) * distance * 0.2; const moveY = Math.sin(angle) * distance * 0.2;
-                eyes.forEach(eye => { eye.style.transform = `translate(${moveX}px, ${moveY}px)`; });
-            });
-
-            // --- 2. DRAG LOGIC (MUTED) ---
-            droidEl.addEventListener('mousedown', (e) => {
-                if(e.target.closest('.droid-hud')) return;
-                isDraggingDroid = true;
-                const rect = droidEl.getBoundingClientRect();
-                droidOffsets.x = e.clientX - rect.left;
-                droidOffsets.y = e.clientY - rect.top;
-                droidEl.style.cursor = 'grabbing';
-                // Removed botSpeak here to keep it mute
-            });
-            
-            // Add touch support for mobile drag
-            droidEl.addEventListener('touchstart', (e) => {
-                if(e.target.closest('.droid-hud')) return;
-                isDraggingDroid = true;
-                const touch = e.touches[0];
-                const rect = droidEl.getBoundingClientRect();
-                droidOffsets.x = touch.clientX - rect.left;
-                droidOffsets.y = touch.clientY - rect.top;
-                // e.preventDefault(); // allow scrolling unless specifically dragging
-            }, {passive: false});
-            
-            document.addEventListener('touchmove', (e) => {
-                 if(isDraggingDroid) {
-                    const touch = e.touches[0];
-                    droidEl.style.left = (touch.clientX - droidOffsets.x) + 'px';
-                    droidEl.style.top = (touch.clientY - droidOffsets.y) + 'px';
-                    droidEl.style.bottom = 'auto'; 
-                    droidEl.style.right = 'auto';
-                    e.preventDefault(); // Stop scrolling while dragging robot
-                 }
-            }, {passive: false});
-            
-            document.addEventListener('touchend', () => { isDraggingDroid = false; });
-
-            // --- 3. SINGLE CLICK (PETTING MODE - MUTED) ---
-            // Single click triggers visual "petting" (hearts) but NO voice.
-            droidEl.addEventListener('click', (e) => {
-                // If the click is inside the HUD (the menu), don't trigger petting or close menu via this listener
-                // (Menu closing is handled by the specific button clicks inside the menu)
-                if (e.target.closest('.droid-hud')) return;
-                
-                // If turbo mode is active and user clicks droid (not dragging), reset turbo mode
-                if (!isDraggingDroid && document.body.classList.contains('turbo-mode')) {
-                    toggleTurboMode(); // This will land the rocket
+                // Do not track if the droid is sleeping or in the middle of a talking animation
+                if (droidBody && (droidBody.classList.contains('sleeping') || droidBody.classList.contains('talking'))) {
+                    eyes.forEach(eye => eye.style.transform = 'translate(0px, 0px)');
                     return;
                 }
 
-                if (!isDraggingDroid) {
-                     createHeartParticles(e); // Visual feedback
-                     triggerRandomEmotion();  // Visual emotion change
-                }
+                eyes.forEach(eye => {
+                    // Get the exact center position of the eye
+                    const rect = eye.getBoundingClientRect();
+                    const eyeX = rect.left + rect.width / 2;
+                    const eyeY = rect.top + rect.height / 2;
+                    
+                    // Calculate how far to move (Max 4 pixels so it stays inside the face)
+                    const maxMove = 4; 
+                    
+                    // Calculate raw movement based on mouse position relative to window size
+                    let moveX = ((e.clientX - eyeX) / window.innerWidth) * maxMove * 3;
+                    let moveY = ((e.clientY - eyeY) / window.innerHeight) * maxMove * 3;
+                    
+                    // Constrain the movement to a circular radius
+                    const distance = Math.sqrt(moveX * moveX + moveY * moveY);
+                    if (distance > maxMove) {
+                        moveX = (moveX / distance) * maxMove;
+                        moveY = (moveY / distance) * maxMove;
+                    }
+
+                    // Apply the movement
+                    eye.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                });
             });
-
-            // --- 4. DOUBLE CLICK (MENU TOGGLE) ---
-            // This replaces the old onclick logic
-            droidEl.addEventListener('dblclick', (e) => {
-                if (!isDraggingDroid && !e.target.closest('.droid-hud')) {
-                     e.stopPropagation();
-                     document.getElementById('bot-menu').classList.toggle('active');
-                }
+            
+            // Reset eyes when mouse leaves the window
+            document.addEventListener('mouseleave', () => {
+                document.querySelectorAll('.d-eye').forEach(eye => {
+                    eye.style.transform = 'translate(0px, 0px)';
+                });
             });
-
-            document.addEventListener('mouseup', () => {
-                setTimeout(() => { isDraggingDroid = false; }, 100); 
-                droidEl.style.cursor = 'grab';
-            });
-            
-            resetIdleTimer(); // Start the sleep timer logic on load
         }
-
-        // Function to create floating hearts on click
-        function createHeartParticles(e) {
-            const container = document.getElementById('droid');
-            for(let i=0; i<3; i++) {
-                const heart = document.createElement('div');
-                heart.classList.add('heart-particle');
-                heart.innerHTML = '❤️';
-                heart.style.left = (40 + (Math.random() * 40 - 20)) + 'px'; // Center roughly
-                heart.style.top = '10px';
-                heart.style.animationDelay = (i * 0.1) + 's';
-                container.appendChild(heart);
-                setTimeout(() => heart.remove(), 1000);
-            }
-        }
-
-        function triggerRandomEmotion() {
-            const emotions = ['happy', 'sad', 'angry', 'surprised'];
-            const droidBody = document.getElementById('droid-body'); 
-            
-            // Clear previous emotions
-            emotions.forEach(e => droidBody.classList.remove(e));
-            
-            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-            droidBody.classList.add(randomEmotion);
-            
-            // Revert after 2 seconds
-            setTimeout(() => {
-                droidBody.classList.remove(randomEmotion);
-            }, 2000);
-        }
-
-        function toggleBotMenu(e) { 
-            // This function is now only used by internal close buttons if needed,
-            // or handled via the dblclick listener above.
-            if(isDraggingDroid) return;
-            e.stopPropagation(); 
-            document.getElementById('bot-menu').classList.toggle('active'); 
-        }
-        
-        function handleGlobalClick(e) { 
-            // Close menu when clicking outside
-            document.getElementById('bot-menu').classList.remove('active'); 
-        }
-        
-        function droidDance() {
-            const container = document.getElementById('droid'); 
-            document.getElementById('droid-body').classList.add('dancing');
-            botSpeak("Look at me go!");
-            setTimeout(() => { document.getElementById('droid-body').classList.remove('dancing'); }, 5000);
-        }
-
-        // Updated Turbo Mode Feature with Rocket Animation and Landing
-        function toggleTurboMode() {
-            const container = document.getElementById('droid');
-            const isRocket = container.classList.contains('rocket-active');
-            
-            if (!isRocket) {
-                // Activate Rocket Mode
-                botSpeak("Turbo Rockets Engaged! blasting off...");
-                container.classList.add('rocket-active');
-                document.body.classList.add('turbo-mode'); 
-            } else {
-                // Deactivate (Land)
-                botSpeak("Landing gear deployed. Stabilizing.");
-                container.classList.remove('rocket-active');
-                document.body.classList.remove('turbo-mode');
-            }
-        }
-        
-        let recognition; let isListening = false;
-        function toggleVoice(btn) {
-            if (!('webkitSpeechRecognition' in window)) { botSpeak("Voice not supported."); return; }
-            if (isListening) { stopListening(); return; }
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition(); recognition.lang = 'en-US';
-            recognition.onstart = function() { isListening = true; btn.classList.add('listening'); document.getElementById('bot-bubble').innerText="Listening... 🎤"; document.getElementById('bot-bubble').classList.add('show'); };
-            recognition.onend = function() { stopListening(); };
-            recognition.onresult = function(event) { processVoiceCommand(event.results[0][0].transcript.toLowerCase()); };
-            recognition.start();
-        }
-        function stopListening() { if(recognition) recognition.stop(); isListening=false; document.getElementById('mic-btn').classList.remove('listening'); document.getElementById('bot-bubble').classList.remove('show'); }
-        function processVoiceCommand(cmd) {
-            if (cmd.includes('home')) { switchTab('home'); botSpeak("Navigating Home."); }
-            else if (cmd.includes('project')) { switchTab('projects'); botSpeak("Loading Projects."); }
-            else if (cmd.includes('tool')) { switchTab('tools'); botSpeak("Opening Tool Stack."); }
-            else if (cmd.includes('about')) { switchTab('about'); botSpeak("Showing Profile."); }
-            else if (cmd.includes('contact')) { switchTab('contact'); botSpeak("Opening Contact Form."); }
-            else if (cmd.includes('scan') || cmd.includes('diagnostic')) runSystemScan();
-            else if (cmd.includes('dance')) droidDance();
-            else if (cmd.includes('turbo')) toggleTurboMode();
-            else if (cmd.includes('joke')) tellJoke();
-            else if (cmd.includes('dark')) { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); botSpeak("Dark mode enabled."); }
-            else if (cmd.includes('light')) { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); botSpeak("Light mode enabled."); }
-            else if (cmd.includes('top')) { document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' }); botSpeak("Scrolling to top."); }
-            else botSpeak("Command not recognized.");
-        }
-        function runSystemScan() {
-            document.getElementById('scanner').style.display='block'; botSpeak("Scanning system parameters...");
-            setTimeout(() => { botSpeak("System Optimal."); document.getElementById('scanner').style.display='none'; }, 3000);
-        }
-        function botSpeak(text) {
-            // Only speak if explicitly called (voice command, specific actions)
-            // dragging and single click do NOT call this function anymore.
-            const b=document.getElementById('bot-bubble'); b.innerText=text; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),4000);
-            if('speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-        }
-
-        document.getElementById('main-content').addEventListener('scroll', () => {
-            const el = document.getElementById('main-content'); document.getElementById('scroll-progress').style.width = ((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100) + '%';
-        });
-
         document.addEventListener("DOMContentLoaded", () => {
-             // MODIFIED: Ensure Light mode is default if no preference is set
              if (!localStorage.getItem('theme')) {
                  localStorage.setItem('theme', 'light');
                  document.documentElement.classList.remove('dark');
@@ -2236,11 +3192,22 @@
                  else document.documentElement.classList.remove('dark');
              }
              
+             // Initial Matrix Auto-Mode setup
+             if(!isMatrixForced) {
+                 if (document.documentElement.classList.contains('dark')) canvasMatrix.classList.add('auto-mode');
+                 else canvasMatrix.classList.remove('auto-mode');
+             }
+             
              renderProjects(); renderTools(); renderBlogs(); typeWriter(); toolsTypeWriter(); setRandomQuote();
-             setupObserver(); initDroid(); calcChmod(); populateCronSelects();
+             setupObserver(); initDroid(); initEyeTracking();calcChmod(); populateCronSelects();
              switchTab(new URLSearchParams(window.location.search).get('tab') || 'home');
-             setTimeout(() => { const b=document.getElementById('bot-bubble'); b.innerText="Online."; b.classList.add('show'); setTimeout(()=>b.classList.remove('show'),5000); }, 1000);
+             
+             // Initial Bot Greeting
+             setTimeout(() => { 
+                botSpeak("Welcome to Rahul's DevOps Workspace. Systems online."); 
+             }, 1000);
         });
+
     </script>
 </body>
 </html>

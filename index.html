@@ -1649,7 +1649,7 @@
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
-                        <form name="contact" method="POST" netlify netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
+                        <form name="contact" method="POST" netlify netlify-honeypot="bot-field" action="/" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
                             <p class="hidden">
                                 <label>Don't fill this out if you're human: <input name="bot-field" /></label>
@@ -3221,4 +3221,5 @@
 
     </script>
 </body>
+
 </html>

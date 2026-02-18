@@ -1649,12 +1649,23 @@
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
-                        <form name="contact" action="/" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
+                        <form name="contact" method="POST" netlify netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
-                            <div class="hidden"><label>Don't fill this out if you're human: <input name="bot-field" /></label></div>
-                            <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label><input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="John Doe"></div>
-                            <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label><input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="you@example.com"></div>
-                            <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label><textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Tell me about your project..."></textarea></div>
+                            <p class="hidden">
+                                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                            </p>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
+                                <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Rahul Magar">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                                <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="you@example.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
+                                <textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Tell me about your project..."></textarea>
+                            </div>
                             <button type="submit" class="w-full py-4 btn-super-glow text-lg shadow-neon group flex justify-center items-center gap-2">
                                 <span>Send Message</span> <i class="fas fa-paper-plane group-hover:translate-x-1 transition-transform"></i>
                             </button>

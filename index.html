@@ -1649,23 +1649,27 @@
                     <div class="glass-panel p-10 md:p-12 rounded-[2.5rem]">
                         <h2 class="text-3xl font-bold mb-3 text-primary">Get In Touch</h2>
                         <p class="text-gray-600 dark:text-gray-400 mb-8">I'll get back to you shortly.</p>
-                        <form name="contact" method="POST" netlify netlify-honeypot="bot-field" action="/" class="space-y-6">
+                        <form name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)" class="space-y-6">
                             <input type="hidden" name="form-name" value="contact" />
-                            <p class="hidden">
-                                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
-                            </p>
+                            <div class="hidden">
+                                <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your Name</label>
-                                <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Rahul Magar">
+                                <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="John Doe">
                             </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
                                 <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="you@example.com">
                             </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
                                 <textarea name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-primary focus:border-primary bg-white/50 dark:bg-gray-800/50 text-gray-900 dark:text-white transition-colors" placeholder="Tell me about your project..."></textarea>
                             </div>
+
                             <button type="submit" class="w-full py-4 btn-super-glow text-lg shadow-neon group flex justify-center items-center gap-2">
                                 <span>Send Message</span> <i class="fas fa-paper-plane group-hover:translate-x-1 transition-transform"></i>
                             </button>
@@ -1703,7 +1707,7 @@
                 <div class="cmd-item" onclick="switchTab('home')">"Go Home"</div>
                 <div class="cmd-item" onclick="switchTab('tools')">"Open Stack"</div>
                 <div class="cmd-item" onclick="deploySim()">"Deploy App"</div>
-                <div class="cmd-item" onclick="runSystemScan(); closeMenu()">"Security Scan"</div>
+                <div class="cmd-item" onclick="runSystemScan(); closeMenu()">"Your System Scan"</div>
                 <div class="cmd-item" onclick="setRandomQuote(); closeMenu()">"New Quote"</div>
                 <div class="cmd-item" onclick="tellJoke(); closeMenu()">"Tell Joke"</div>
                 <div class="cmd-item" onclick="droidDance()">"Dance"</div>
@@ -2858,19 +2862,30 @@
             if(!menu.classList.contains('active')) menu.classList.add('active');
         });
 
-        function botSpeak(text) {
+        let botBubbleTimeout; // Variable to track the timer
+
+        function botSpeak(text, customDuration) {
             const b = document.getElementById('bot-bubble');
             const d = document.getElementById('droid-body');
             b.innerText = text; 
             b.classList.add('show');
             d.classList.add('talking');
             
-            setTimeout(() => {
+            // Clear any existing timer so the new message doesn't disappear prematurely
+            if (botBubbleTimeout) {
+                clearTimeout(botBubbleTimeout);
+            }
+            
+            // Use custom duration if provided, otherwise calculate based on text length
+            const displayTime = customDuration || Math.max(3000, text.length * 80);
+            
+            botBubbleTimeout = setTimeout(() => {
                 b.classList.remove('show');
                 d.classList.remove('talking');
-            }, Math.max(9000, text.length * 80)); // scale reading time dynamically
+            }, displayTime); 
             
             if('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop any currently playing speech
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.pitch = 1.2;
                 utterance.rate = 1.1;
@@ -2918,23 +2933,145 @@
         }
 
         function selfDestruct() {
-            botSpeak("Self destruct sequence initiated. 3... 2... 1...");
-            let count = 3;
+            // Prevent multiple clicks from breaking the animation
+            if (document.body.classList.contains('destructing')) return;
+            document.body.classList.add('destructing');
+
             const droid = document.getElementById('droid-body');
-            const int = setInterval(() => {
-                count--;
-                if(count > 0) botSpeak(count + "...");
-                droid.style.filter = `hue-rotate(${count * 90}deg) brightness(2)`;
-                if(count === 0) {
-                    clearInterval(int);
+            const mainContent = document.getElementById('main-content');
+            const navbar = document.getElementById('navbar');
+
+            // --- INJECT CUSTOM CHAOS CSS ---
+            if (!document.getElementById('devops-chaos')) {
+                const style = document.createElement('style');
+                style.id = 'devops-chaos';
+                style.innerHTML = `
+                    @keyframes panic-run {
+                        0% { transform: translateX(0) scale(1) rotate(0deg); }
+                        25% { transform: translateX(-60px) scale(1.1) rotate(-20deg); }
+                        50% { transform: translateX(60px) scale(1.2) rotate(20deg); }
+                        75% { transform: translateX(-40px) scale(0.9) rotate(-30deg); }
+                        100% { transform: translateX(0) scale(1) rotate(0deg); }
+                    }
+                    @keyframes spin-crazy {
+                        0% { transform: rotate(0deg) scale(1); }
+                        100% { transform: rotate(3600deg) scale(0.1); opacity: 0; }
+                    }
+                    .terminal-text {
+                        text-shadow: 0 0 5px #22c55e;
+                        line-height: 1.5;
+                    }
+                    .cursor-blink::after {
+                        content: '█';
+                        animation: blink 1s step-end infinite;
+                        margin-left: 5px;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // PHASE 1: The Trigger
+            botSpeak("ALERT! Someone pushed directly to the main branch on a Friday at 5 PM!", 3500);
+            droid.style.animation = 'panic-run 0.3s infinite'; // Droid runs back and forth in panic
+
+            // Create red emergency lighting
+            const overlay = document.createElement('div');
+            overlay.id = 'destruct-overlay';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(239, 68, 68, 0);z-index:9998;pointer-events:none;transition:background 0.5s ease; mix-blend-mode: multiply;';
+            document.body.appendChild(overlay);
+
+            // PHASE 2: Escalation
+            setTimeout(() => {
+                botSpeak("Executing 'rm -rf /' on production servers... Panic mode engaged!", 3000);
+                document.body.style.animation = 'rocket-shake 0.1s linear infinite'; // Screen shakes
+                overlay.style.background = 'rgba(239, 68, 68, 0.5)';
+            }, 3500);
+
+            // PHASE 3: The Meltdown
+            setTimeout(() => {
+                botSpeak("AWS Budget exceeded by 50,000%! Ejecting core modules!", 2500);
+                overlay.style.background = 'rgba(239, 68, 68, 0.8)';
+                droid.style.animation = 'spin-crazy 2s cubic-bezier(0.5, 0, 0.5, 1) forwards'; // Droid spins away into nothingness
+            }, 6500);
+
+            // PHASE 4: The Explosion
+            setTimeout(() => {
+                overlay.style.transition = 'none';
+                overlay.style.background = '#ffffff'; // Blinding white flash
+                document.body.style.animation = 'none'; // Stop screen shake
+                
+                // PHASE 5: The Aftermath (Blackout & Terminal)
+                setTimeout(() => {
+                    overlay.style.background = '#000000'; // Pitch black
+                    mainContent.style.opacity = '0';
+                    navbar.style.opacity = '0';
                     droid.style.display = 'none';
-                    setTimeout(() => {
-                        droid.style.display = 'block';
-                        droid.style.filter = 'none';
-                        botSpeak("Just kidding! SREs never really let things die.");
-                    }, 4000);
-                }
-            }, 1000);
+                    
+                    // Create the recovery terminal
+                    const terminal = document.createElement('div');
+                    terminal.id = 'recovery-terminal';
+                    terminal.className = 'terminal-text font-mono text-green-500 text-lg md:text-2xl';
+                    terminal.style.cssText = 'position:fixed;top:40%;left:50%;transform:translate(-50%, -50%);z-index:9999;width:90%;max-width:800px;';
+                    document.body.appendChild(terminal);
+
+                    // The funny reboot sequence
+                    const bootLogs = [
+                        "FATAL ERROR: Production environment destroyed.",
+                        "Initiating incident response...",
+                        "Attempting to blame the intern... [FAILED - NO INTERN FOUND]",
+                        "Searching StackOverflow for 'how to un-delete database'... [FAILED]",
+                        "Wait... looking for Terraform state file...",
+                        "Terraform state found! Executing `terraform apply -auto-approve`...",
+                        "Spinning up Kubernetes pods...",
+                        "Bribing AWS billing department...",
+                        "Routing DNS traffic back to normal...",
+                        "System restored successfully."
+                    ];
+
+                    let logIndex = 0;
+                    terminal.innerHTML = '<span id="term-content"></span><span class="cursor-blink"></span>';
+                    const termContent = document.getElementById('term-content');
+
+                    // Print logs one by one like a real terminal
+                    const bootInterval = setInterval(() => {
+                        if (logIndex < bootLogs.length) {
+                            termContent.innerHTML += `> ${bootLogs[logIndex]}<br>`;
+                            logIndex++;
+                        } else {
+                            clearInterval(bootInterval);
+                            
+                            // PHASE 6: The Restoration
+                            setTimeout(() => {
+                                terminal.remove();
+                                
+                                // Fade everything back in
+                                overlay.style.transition = 'opacity 2s ease-in-out';
+                                overlay.style.opacity = '0';
+                                
+                                mainContent.style.transition = 'opacity 2s ease-in-out';
+                                mainContent.style.opacity = '1';
+                                navbar.style.transition = 'opacity 2s ease-in-out';
+                                navbar.style.opacity = '1';
+                                
+                                // Reset Droid
+                                droid.style.display = 'block';
+                                droid.style.animation = 'none';
+                                droid.style.transform = 'none';
+                                droid.style.filter = 'none';
+                                droid.style.opacity = '1';
+                                
+                                setTimeout(() => {
+                                    overlay.remove();
+                                    document.body.classList.remove('destructing');
+                                    botSpeak("Phew. Good thing we practice Infrastructure as Code. We're back!", 6000);
+                                }, 2000);
+
+                            }, 1500); // Wait a moment after the last log prints
+                        }
+                    }, 900); // Speed of the terminal typing
+
+                }, 150); // White flash duration
+            }, 9000); // Wait for the spinning animation to finish before exploding
         }
 
         function deploySim() {
@@ -3004,7 +3141,10 @@
         
         function finalizeScan(platform, cores, memory, connection, battery) {
             const report = `OS: ${platform}\nCores: ${cores}\nRAM: ${memory}\nNet: ${connection}\nPower: ${battery}\nStatus: ALL SYSTEMS NOMINAL`;
-            botSpeak(report);
+            
+            // Display the report and force it to stay on screen for 15 seconds (15000ms)
+            botSpeak(report, 15000); 
+            
             console.log("System Scan Report:\n" + report);
         }
 
@@ -3072,26 +3212,39 @@
         }
 
         function handleContactSubmit(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
+            e.preventDefault(); // This is the magic line that stops the 404 redirect
+
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             btn.disabled = true;
 
-            const formData = new FormData(e.target);
+            const formData = new FormData(form);
+
+            // Send the data to Netlify silently in the background
             fetch("/", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(formData).toString(),
+                body: new URLSearchParams(formData).toString()
             })
-            .then(() => {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 5000);
-                e.target.reset();
-                botSpeak("Message transmitted successfully!");
+            .then((response) => {
+                if (response.ok) {
+                    // Show success toast notification
+                    const toast = document.getElementById('toast');
+                    toast.classList.remove('hidden');
+                    setTimeout(() => toast.classList.add('hidden'), 5000);
+                    
+                    form.reset(); // Clear the form
+                    botSpeak("Message transmitted successfully!");
+                } else {
+                    throw new Error("Network response was not ok.");
+                }
             })
-            .catch((error) => alert(error))
+            .catch((error) => {
+                alert("Failed to send message. Please check your connection.");
+                console.error(error);
+            })
             .finally(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -3213,10 +3366,6 @@
              setupObserver(); initDroid(); initEyeTracking();calcChmod(); populateCronSelects();
              switchTab(new URLSearchParams(window.location.search).get('tab') || 'home');
              
-             // Initial Bot Greeting
-             setTimeout(() => { 
-                botSpeak("Welcome to Rahul's DevOps Workspace. Systems online."); 
-             }, 1000);
         });
 
     </script>
